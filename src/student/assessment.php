@@ -1,4 +1,48 @@
-<?php include('E:/GuidanceHub/src/entry-page/server.php');
+<?php include('E:/GuidanceHub/src/entry-page/server.php'); ?>
+<?php
+// Connect to the database
+$con = mysqli_connect('localhost', 'root', '', 'guidancehub');
+
+// Check connection
+if (!$con) {
+    die("Connection failed: " . mysqli_connect_error());
+}
+
+// Initialize variables and error array
+$errors = array(); 
+
+// Check if the form was submitted
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Get the assessment type (assuming you have a hidden input or identifier for this)
+    $assessment_type = $_POST['assessment_type'];
+
+    // Loop through all the questions
+    foreach ($_POST as $key => $value) {
+        // Assuming your question names are like 'question_0', 'question_1', etc.
+        if (strpos($key, 'question_') !== false) {
+            // Get the question number from the key
+            $question_id = str_replace('question_', '', $key);
+            $answer = $value; // User's response
+
+            // Prepare and bind the query to insert the response into the database
+            $stmt = $con->prepare("INSERT INTO survey_responses (question_id, answer, assessment_type) VALUES (?, ?, ?)");
+            if ($stmt === false) {
+                die('MySQL prepare error: ' . $con->error);
+            }
+            $stmt->bind_param("iss", $question_id, $answer, $assessment_type);
+
+            // Execute the query
+            $stmt->execute();
+        }
+    }
+
+    // Close the statement and connection
+    $stmt->close();
+    $con->close();
+
+    // Redirect or show success message
+    echo "Thank you for submitting your responses!";
+}
 
 // Check if logout is requested
 if (isset($_GET['logout'])) {
@@ -7,25 +51,14 @@ if (isset($_GET['logout'])) {
     header("Location: /src/entry-page/index.php"); // Redirect to the login page after logout
     exit;
 }
-
-// Process responses
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    foreach ($_POST as $question_id => $response) {
-        $stmt = $conn->prepare("INSERT INTO responses (email, question_id, response) VALUES (?, ?, ?)");
-        $stmt->bind_param("iis", $email, $question_id, $response);
-        $stmt->execute();
-    }
-    echo "Survey submitted successfully!";
-} else {
-    echo "Invalid submission.";
-}
-
 ?>
+
+
 
 <!doctype html>
 <html>
 <head>
-<title> CounselPro</title>
+<title> GuidanceHub</title>
     <link rel="icon" type="images/x-icon" href="/src/images/UMAK-CGCS-logo.png" />
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -79,7 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </button>
                 <a href="" class="flex ms-2 md:me-24">
                 <img src="/src/images/UMAK-CGCS-logo.png" class="h-8 me-3" alt="GuidanceHub Logo" />
-                <span class="self-center text-xl font-semibold text-black sm:text-2xl whitespace-nowrap">CounselPro</span>
+                <span class="self-center text-xl font-semibold text-black sm:text-2xl whitespace-nowrap">GuidanceHub</span>
                 </a>
             </div>
             <div class="flex items-center justify-end">
@@ -205,7 +238,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <p class="mb-4 text-lg">Take the Career Interest Assessment to explore your career preferences.</p>
 
                 <!-- Survey Questions -->
-                <form action="E:/GuidanceHub/src/entry-page/server.php" method="POST" class="space-y-6">
+                <form action="#" method="POST" class="space-y-6">
+                    <input type="hidden" name="assessment_type" value="Career Interest">
                     <?php
                     $questions = [
                         "Inspect a roof for leaks",
@@ -216,32 +250,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         "Paint a portrait",
                     ];
 
-                    // Dynamically render questions
                     foreach ($questions as $index => $question) {
                         echo '
-                        <div class="p-4 rounded-lg shadow-sm bg-gray-50">
-                            <p class="mb-2 text-xl font-semibold text-center text-gray-800">' . ($index + 1) . '. ' . $question . '</p>
-                            <div class="flex justify-center space-x-6">
-                                <label class="flex items-center">
-                                    <span class="mr-2">DISLIKE</span>
-                                    <input type="radio" name="question_1' . $index . '" value="dislike" class="text-blue-500 form-radio">
-                                </label>
-                                <label class="flex items-center">
-                                    <input type="radio" name="question_2' . $index . '" value="neutral" class="text-blue-500 form-radio">
-                                </label>
-                                <label class="flex items-center">
-                                    <input type="radio" name="question_3' . $index . '" value="like" class="text-blue-500 form-radio">
-                                </label>
-                                <label class="flex items-center">
-                                    <input type="radio" name="question_4' . $index . '" value="like" class="text-blue-500 form-radio">
-                                </label>
-                                <label class="flex items-center">
-                                    <input type="radio" name="question_5' . $index . '" value="dislike" class="text-blue-500 form-radio">
-                                    <span class="ml-2">LIKE</span>
-                                </label>
-                            </div>
-                        </div>
-                        ';
+                            <div class="p-4 rounded-lg shadow-sm bg-gray-50">
+                                <p class="mb-2 text-xl font-semibold text-center text-gray-800">' . ($index + 1) . '. ' . $question . '</p>
+                                <div class="flex justify-center space-x-6">
+                                    <label class="flex items-center">
+                                        <input type="radio" name="question_' . $index . '" value="dislike" class="text-blue-500 form-radio" required>
+                                        <span class="ml-2">DISLIKE</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="radio" name="question_' . $index . '" value="neutral" class="text-blue-500 form-radio" required>
+                                        <span class="ml-2">NEUTRAL</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="radio" name="question_' . $index . '" value="like" class="text-blue-500 form-radio" required>
+                                        <span class="ml-2">LIKE</span>
+                                    </label>
+                                </div>
+                            </div>';
                     }
                     ?>
                     <!-- Submit Button -->
@@ -270,7 +297,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <p class="mb-4 text-lg">Take the Psychological Assessment to evaluate your mental health.</p>
 
                 <!-- Survey Questions -->
-                <form action="E:/GuidanceHub/src/entry-page/server.php" method="POST" class="space-y-6">
+                <form action="#" method="POST" class="space-y-6">
+                    <input type="hidden" name="assessment_type" value="Psychological">
                     <?php
                     $questions = [
                         "I fell overwhelmed by my emotions",
@@ -338,7 +366,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <h2 class="mb-4 text-2xl font-bold">Academic Stress Test</h2>
                 <p class="mb-4 text-lg">Take the Academic Stress Test to evaluate your academic workload.</p>
                 <!-- Survey Questions -->
-                <form action="E:/GuidanceHub/src/entry-page/server.php" method="POST" class="space-y-6">
+                <form action="#" method="POST" class="space-y-6">
+                    <input type="hidden" name="assessment_type" value="Academic Stress">
                     <?php
                     $questions = [
                         "I fell overwhelmed by my emotions",
@@ -406,7 +435,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <h2 class="mb-4 text-2xl font-bold">Personal Growth Inventory</h2>
                 <p class="mb-4 text-lg">Take the Personal Growth Inventory to explore your self-development journey.</p>
                 <!-- Survey Questions -->
-                <form action="E:/GuidanceHub/src/entry-page/server.php" method="POST" class="space-y-6">
+                <form action="#" method="POST" class="space-y-6">
+                    <input type="hidden" name="assessment_type" value="Personal Growth Inventory">
                     <?php
                     $questions = [
                         "I fell overwhelmed by my emotions",
@@ -468,7 +498,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <div class="mb-6 md:mb-0">
                 <a href="https://flowbite.com/" class="flex items-center">
                     <img src="/src/images/UMAK-CGCS-logo.png" class="h-8 me-3" alt="GuidanceHub Logo" />
-                    <span class="self-center text-2xl font-semibold whitespace-nowrap">CounselPro<span>
+                    <span class="self-center text-2xl font-semibold whitespace-nowrap">GuidanceHub<span>
                 </a>
             </div>
             <div class="grid grid-cols-2 gap-8 sm:gap-6 sm:grid-cols-3">
@@ -476,7 +506,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <h2 class="mb-6 text-sm font-semibold text-gray-900 uppercase">Resources</h2>
                     <ul class="font-medium text-gray-500 dark:text-gray-400">
                         <li class="mb-4">
-                            <a href="https://flowbite.com/" class="hover:underline">CounselPro</a>
+                            <a href="https://flowbite.com/" class="hover:underline">GuidanceHub</a>
                         </li>
                         <li>
                             <a href="https://tailwindcss.com/" class="hover:underline">Tailwind CSS</a>

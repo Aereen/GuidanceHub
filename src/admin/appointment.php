@@ -1,6 +1,15 @@
-<?php include('E:/GuidanceHub/src/student/student_server.php'); ?>
+<?php include('E:/GuidanceHub/src/entry-page/server.php'); ?>
 <?php
-session_start(); // Start the session
+// Connect to the database
+$con = mysqli_connect('localhost', 'root', '', 'guidancehub');
+
+// Check connection
+if (!$con) {
+    die("Connection failed: " . mysqli_connect_error());
+}
+
+// Initialize variables and error array
+$errors = array();// Start the session
 
 // Check if logout is requested
 if (isset($_GET['logout'])) {
@@ -14,7 +23,7 @@ if (isset($_GET['logout'])) {
 <!doctype html>
 <html>
 <head>
-<title> Admin | CounselPro </title>
+<title> Admin | GuidanceHub </title>
     <link rel="icon" type="images/x-icon" href="/src/images/UMAK-CGCS-logo.png" />
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -37,7 +46,7 @@ if (isset($_GET['logout'])) {
                 </button>
                 <a href="" class="flex ms-2 md:me-24">
                 <img src="/src/images/UMAK-CGCS-logo.png" class="h-8 me-3" alt="GuidanceHub Logo" />
-                <span class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">CounselPro</span>
+                <span class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">GuidanceHub</span>
                 </a>
             </div>
             <div class="flex items-center justify-end">
@@ -67,6 +76,12 @@ if (isset($_GET['logout'])) {
                 <a href="assessment.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100"">
                 <i class="w-5 h-5 text-gray-500 fa-solid fa-book-open"></i>
                 <span class="ms-3">Assessments</span>
+                </a>
+            </li>
+            <li>
+                <a href="resources.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100"">
+                <i class="w-5 h-5 text-gray-500 fa-solid fa-calendar-check"></i>
+                <span class="ms-3">Resources</span>
                 </a>
             </li>
             <li>
@@ -173,7 +188,7 @@ if (isset($_GET['logout'])) {
             <div class="mb-6 md:mb-0">
                 <a href="https://flowbite.com/" class="flex items-center">
                     <img src="/src/images/UMAK-CGCS-logo.png" class="h-8 me-3" alt="GuidanceHub Logo" />
-                    <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">CounselPro<span>
+                    <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">GuidanceHub<span>
                 </a>
             </div>
             <div class="grid grid-cols-2 gap-8 sm:gap-6 sm:grid-cols-3">
@@ -181,7 +196,7 @@ if (isset($_GET['logout'])) {
                     <h2 class="mb-6 text-sm font-semibold text-gray-900 uppercase dark:text-white">Resources</h2>
                     <ul class="font-medium text-gray-500 dark:text-gray-400">
                         <li class="mb-4">
-                            <a href="https://flowbite.com/" class="hover:underline">CounselPro</a>
+                            <a href="https://flowbite.com/" class="hover:underline">GuidanceHub</a>
                         </li>
                         <li>
                             <a href="https://tailwindcss.com/" class="hover:underline">Tailwind CSS</a>

@@ -1,4 +1,68 @@
-<?php include('E:/GuidanceHub/src/student/student_server.php'); 
+<?php include('E:/GuidanceHub/src/entry-page/server.php'); ?>
+<?php
+// Connect to the database
+$con = mysqli_connect('localhost', 'root', '', 'guidancehub');
+
+// Check connection
+if (!$con) {
+    die("Connection failed: " . mysqli_connect_error());
+}
+
+// Initialize variables and error array
+$errors = array(); 
+
+// Handle form submission for appointment scheduling
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Sanitize and assign POST values to variables
+    $fullName = mysqli_real_escape_string($con, $_POST['full-name']);
+    $studentNumber = mysqli_real_escape_string($con, $_POST['student_number']);
+    $contactNumber = mysqli_real_escape_string($con, $_POST['contact']);
+    $email = mysqli_real_escape_string($con, $_POST['email']);
+    $college = mysqli_real_escape_string($con, $_POST['college']);
+    $course = mysqli_real_escape_string($con, $_POST['course']);
+    $yearLevel = mysqli_real_escape_string($con, $_POST['year-level']);
+    $section = mysqli_real_escape_string($con, $_POST['section']);
+    $appointmentType = mysqli_real_escape_string($con, $_POST['appointment-type']);
+    $appointmentDate = mysqli_real_escape_string($con, $_POST['appointment-date']);
+    $appointmentTime = mysqli_real_escape_string($con, $_POST['appointment-time']);
+
+    // Validate form fields to ensure no empty values
+    if (empty($fullName)) { array_push($errors, "Full Name is required"); }
+    if (empty($studentNumber)) { array_push($errors, "Student Number is required"); }
+    if (empty($contactNumber)) { array_push($errors, "Contact Number is required"); }
+    if (empty($email)) { array_push($errors, "Email is required"); }
+    if (empty($college)) { array_push($errors, "College is required"); }
+    if (empty($course)) { array_push($errors, "Course is required"); }
+    if (empty($yearLevel)) { array_push($errors, "Year Level is required"); }
+    if (empty($section)) { array_push($errors, "Section is required"); }
+    if (empty($appointmentType)) { array_push($errors, "Appointment Type is required"); }
+    if (empty($appointmentDate)) { array_push($errors, "Appointment Date is required"); }
+    if (empty($appointmentTime)) { array_push($errors, "Appointment Time is required"); }
+
+    // If no errors, proceed to insert the data into the database
+    if (count($errors) == 0) {
+        $sql = "INSERT INTO appointments (full_name, student_number, contact_number, email, college, course, year_level, section, appointment_type, appointment_date, appointment_time)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        
+        $stmt = $con->prepare($sql);
+        $stmt->bind_param("sssssssssss", $fullName, $studentNumber, $contactNumber, $email, $college, $course, $yearLevel, $section, $appointmentType, $appointmentDate, $appointmentTime);
+
+        // If the appointment is successfully scheduled
+        if ($stmt->execute()) {
+            echo "<script>alert('Appointment successfully scheduled!'); window.location.href = '/src/student/appointment.php';</script>";
+        } else {
+            // If there's an error with the query
+            echo "<script>alert('Error scheduling appointment: {$stmt->error}'); window.location.href = '/src/student/appointment.php';</script>";
+        }
+
+        $stmt->close();
+    } else {
+        // Handle form validation errors
+        foreach ($errors as $error) {
+            echo "<script>alert('$error');</script>";
+        }
+    }
+}
 
 // Check if logout is requested
 if (isset($_GET['logout'])) {
@@ -12,7 +76,7 @@ if (isset($_GET['logout'])) {
 <!doctype html>
 <html>
 <head>
-<title> CounselPro </title>
+<title> GuidanceHub </title>
     <link rel="icon" type="images/x-icon" href="/src/images/UMAK-CGCS-logo.png" />
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -36,7 +100,7 @@ if (isset($_GET['logout'])) {
                 </button>
                 <a href="" class="flex ms-2 md:me-24">
                 <img src="/src/images/UMAK-CGCS-logo.png" class="h-8 me-3" alt="GuidanceHub Logo" />
-                <span class="self-center text-xl font-semibold text-black sm:text-2xl whitespace-nowrap">CounselPro</span>
+                <span class="self-center text-xl font-semibold text-black sm:text-2xl whitespace-nowrap">GuidanceHub</span>
                 </a>
             </div>
             <div class="flex items-center justify-end">
@@ -117,7 +181,7 @@ if (isset($_GET['logout'])) {
                             <div>
                                 <label for="full-name" class="block mb-2 text-sm font-medium text-black">Full Name</label>
                                 <input type="text" id="full-name" name="full-name" required
-                                    class="w-full px-4 py-2 text-gray-900 border rounded-lg dark:text-gray-200 dark:border-gray-600 focus:ring-teal-500 focus:border-teal-500"
+                                    class="w-full px-4 py-2 text-gray-900 border rounded-lg dark:border-gray-600 focus:ring-teal-500 focus:border-teal-500"
                                     placeholder="First Name-MI-Last Name">
                             </div>
                             
@@ -125,7 +189,7 @@ if (isset($_GET['logout'])) {
                             <div>
                                 <label for="student_name" class="block mb-2 text-sm font-medium text-black">Student Number</label>
                                 <input type="text" id="student_number" name="student_number" required
-                                    class="w-full px-4 py-2 text-gray-900 border rounded-lg dark:text-gray-200 dark:border-gray-600 focus:ring-teal-500 focus:border-teal-500"
+                                    class="w-full px-4 py-2 text-gray-900 border rounded-lg dark:border-gray-600 focus:ring-teal-500 focus:border-teal-500"
                                     placeholder="k12345678">
                             </div>
 
@@ -133,7 +197,7 @@ if (isset($_GET['logout'])) {
                             <div>
                                 <label for="contact" class="block mb-2 text-sm font-medium text-black">Contact Number</label>
                                 <input type="text" id="contact" name="contact" required
-                                    class="w-full px-4 py-2 text-gray-900 border rounded-lg dark:text-gray-200 dark:border-gray-600 focus:ring-teal-500 focus:border-teal-500"
+                                    class="w-full px-4 py-2 text-gray-900 border rounded-lg dark:border-gray-600 focus:ring-teal-500 focus:border-teal-500"
                                     placeholder="09XX XXX XXXX">
                             </div>
 
@@ -141,7 +205,7 @@ if (isset($_GET['logout'])) {
                             <div>
                                 <label for="email" class="block mb-2 text-sm font-medium text-black">Email</label>
                                 <input type="email" id="email" name="email" required
-                                    class="w-full px-4 py-2 text-gray-900 border rounded-lg dark:text-gray-200 dark:border-gray-600 focus:ring-teal-500 focus:border-teal-500"
+                                    class="w-full px-4 py-2 text-gray-900 border rounded-lg dark:border-gray-600 focus:ring-teal-500 focus:border-teal-500"
                                     placeholder="@umak.edu.ph">
                             </div>
                         </div>
@@ -150,14 +214,14 @@ if (isset($_GET['logout'])) {
                             <div>
                                 <label for="college" class="block mb-2 text-sm font-medium text-black">College/Institute</label>
                                 <input type="text" id="college" name="college" required
-                                    class="w-full px-4 py-2 text-gray-900 border rounded-lg dark:text-gray-200 dark:border-gray-600 focus:ring-teal-500 focus:border-teal-500"
+                                    class="w-full px-4 py-2 text-gray-900 border rounded-lg dark:border-gray-600 focus:ring-teal-500 focus:border-teal-500"
                                     placeholder="College of Computing and Information Security">
                             </div>
 
                             <div>
                                 <label for="course" class="block mb-2 text-sm font-medium text-black">Course/Program</label>
                                 <input type="text" id="course" name="course" required
-                                    class="w-full px-4 py-2 text-gray-900 border rounded-lg dark:text-gray-200 dark:border-gray-600 focus:ring-teal-500 focus:border-teal-500"
+                                    class="w-full px-4 py-2 text-gray-900 border rounded-lg dark:border-gray-600 focus:ring-teal-500 focus:border-teal-500"
                                     placeholder="Bachelor of Science in Information Technology">
                             </div>
 
@@ -167,7 +231,7 @@ if (isset($_GET['logout'])) {
                             <div>
                                 <label for="year-level" class="block mb-2 text-sm font-medium text-black">Year Level</label>
                                 <input type="text" id="year-level" name="year-level" required
-                                    class="w-full px-4 py-2 text-gray-900 border rounded-lg dark:text-gray-200 dark:border-gray-600 focus:ring-teal-500 focus:border-teal-500"
+                                    class="w-full px-4 py-2 text-gray-900 border rounded-lg dark:border-gray-600 focus:ring-teal-500 focus:border-teal-500"
                                     placeholder="4th Year">
                             </div>
 
@@ -175,7 +239,7 @@ if (isset($_GET['logout'])) {
                             <div>
                                 <label for="section" class="block mb-2 text-sm font-medium text-black">Section</label>
                                 <input type="text" id="section" name="section" required
-                                    class="w-full px-4 py-2 text-gray-900 border rounded-lg dark:text-gray-200 dark:border-gray-600 focus:ring-teal-500 focus:border-teal-500"
+                                    class="w-full px-4 py-2 text-gray-900 border rounded-lg dark:border-gray-600 focus:ring-teal-500 focus:border-teal-500"
                                     placeholder="AINS">
                             </div>
                         </div>
@@ -184,7 +248,7 @@ if (isset($_GET['logout'])) {
                         <div>
                             <label for="appointment-type" class="block mb-2 text-sm font-medium text-black">Appointment Type</label>
                             <select id="appointment-type" name="appointment-type" required
-                                class="w-full px-4 py-2 text-gray-900 border rounded-lg dark:border-gray-600 focus:ring-teal-500 focus:border-teal-500">
+                                class="w-full px-4 py-2 text-gray-900 border rounded-lg focus:ring-teal-500 focus:border-teal-500">
                                 <option value="" disabled selected>Select Type</option>
                                 <option value="career">Career Counseling</option>
                                 <option value="mental-health">Mental Health Support</option>
@@ -205,7 +269,7 @@ if (isset($_GET['logout'])) {
                             <div>
                                 <label for="appointment-time" class="block mb-2 text-sm font-medium text-black">Appointment Time</label>
                                 <input type="time" id="appointment-time" name="appointment-time" required
-                                    class="w-full px-4 py-2 rounded-lg text-gray-900border dark:border-gray-600 focus:ring-teal-500 focus:border-teal-500">
+                                    class="w-full px-4 py-2 text-gray-900 border rounded-lg dark:border-gray-600 focus:ring-teal-500 focus:border-teal-500">
                             </div>
                         </div>
 
@@ -229,7 +293,7 @@ if (isset($_GET['logout'])) {
             <div class="mb-6 md:mb-0">
                 <a href="https://flowbite.com/" class="flex items-center">
                     <img src="/src/images/UMAK-CGCS-logo.png" class="h-8 me-3" alt="GuidanceHub Logo" />
-                    <span class="self-center text-2xl font-semibold whitespace-nowrap">CounselPro<span>
+                    <span class="self-center text-2xl font-semibold whitespace-nowrap">GuidanceHub<span>
                 </a>
             </div>
             <div class="grid grid-cols-2 gap-8 sm:gap-6 sm:grid-cols-3">
@@ -237,7 +301,7 @@ if (isset($_GET['logout'])) {
                     <h2 class="mb-6 text-sm font-semibold text-gray-900 uppercase">Resources</h2>
                     <ul class="font-medium text-gray-500 dark:text-gray-400">
                         <li class="mb-4">
-                            <a href="https://flowbite.com/" class="hover:underline">CounselPro</a>
+                            <a href="https://flowbite.com/" class="hover:underline">GuidanceHub</a>
                         </li>
                         <li>
                             <a href="https://tailwindcss.com/" class="hover:underline">Tailwind CSS</a>

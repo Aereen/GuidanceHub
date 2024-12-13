@@ -14,7 +14,7 @@ if (isset($_GET['logout'])) {
 <!doctype html>
 <html>
 <head>
-<title> CounselPro </title>
+<title> GuidanceHub </title>
     <link rel="icon" type="images/x-icon" href="/src/images/UMAK-CGCS-logo.png" />
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -39,8 +39,8 @@ if (isset($_GET['logout'])) {
                     </svg>
                 </button>
                 <a href="" class="flex items-center ms-2 md:me-24">
-                    <img src="/src/images/UMAK-CGCS-logo.png" class="h-12 me-3" alt="CounselPro Logo" />
-                    <span class="self-center text-xl font-semibold text-gray-900 sm:text-2xl whitespace-nowrap">CounselPro</span>
+                    <img src="/src/images/UMAK-CGCS-logo.png" class="h-12 me-3" alt="GuidanceHub Logo" />
+                    <span class="self-center text-xl font-semibold text-gray-900 sm:text-2xl whitespace-nowrap">GuidanceHub</span>
                 </a>
             </div>
         </div>
@@ -204,7 +204,7 @@ if (isset($_GET['logout'])) {
             <div class="mb-6 md:mb-0">
                 <a href="https://flowbite.com/" class="flex items-center">
                     <img src="/src/images/UMAK-CGCS-logo.png" class="h-8 me-3" alt="GuidanceHub Logo" />
-                    <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">CounselPro<span>
+                    <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">GuidanceHub<span>
                 </a>
             </div>
             <div class="grid grid-cols-2 gap-8 sm:gap-6 sm:grid-cols-3">
@@ -212,7 +212,7 @@ if (isset($_GET['logout'])) {
                     <h2 class="mb-6 text-sm font-semibold text-gray-900 uppercase dark:text-white">Resources</h2>
                     <ul class="font-medium text-gray-500 dark:text-gray-400">
                         <li class="mb-4">
-                            <a href="https://flowbite.com/" class="hover:underline">CounselPro</a>
+                            <a href="https://flowbite.com/" class="hover:underline">GuidanceHub</a>
                         </li>
                         <li>
                             <a href="https://tailwindcss.com/" class="hover:underline">Tailwind CSS</a>

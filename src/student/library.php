@@ -1,6 +1,15 @@
 <?php include('E:/GuidanceHub/src/entry-page/server.php'); ?>
 <?php
-session_start(); // Start the session
+// Connect to the database
+$con = mysqli_connect('localhost', 'root', '', 'guidancehub');
+
+// Check connection
+if (!$con) {
+    die("Connection failed: " . mysqli_connect_error());
+}
+
+// Initialize variables and error array
+$errors = array(); 
 
 // Check if logout is requested
 if (isset($_GET['logout'])) {
@@ -13,7 +22,7 @@ if (isset($_GET['logout'])) {
 <!doctype html>
 <html>
 <head>
-<title> CounselPro </title>
+<title> GuidanceHub </title>
     <link rel="icon" type="images/x-icon" href="/src/images/UMAK-CGCS-logo.png" />
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -37,7 +46,7 @@ if (isset($_GET['logout'])) {
                 </button>
                 <a href="" class="flex ms-2 md:me-24">
                 <img src="/src/images/UMAK-CGCS-logo.png" class="h-8 me-3" alt="GuidanceHub Logo" />
-                <span class="self-center text-xl font-semibold text-black sm:text-2xl whitespace-nowrap">CounselPro</span>
+                <span class="self-center text-xl font-semibold text-black sm:text-2xl whitespace-nowrap">GuidanceHub</span>
                 </a>
             </div>
             <div class="flex items-center justify-end">
@@ -109,54 +118,24 @@ if (isset($_GET['logout'])) {
     <h4 class="p-2 text-xl font-semibold text-white bg-teal-500 rounded-lg"> Learn about yourself with... </h4>
     <main class="py-10 my-5">
         <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
-            <!-- Category Section -->
-            <section>
-                <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    <!-- Resource Card 1 -->
-                    <div class="p-6 bg-white rounded-lg shadow-lg resource-card hover:bg-teal-50">
-                        <h3 class="text-xl font-semibold text-gray-800">Career Counseling</h3>
-                        <p class="mt-2 text-gray-600">Find guidance on career paths, job searching, and professional development.</p>
-                        <a href="#" class="inline-block mt-4 font-semibold text-teal-500">Learn More &rarr;</a>
-                    </div>
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <?php
+        $sql = "SELECT * FROM resources";
+        $result = $con->query($sql);
 
-                    <!-- Resource Card 2 -->
-                    <div class="p-6 bg-white rounded-lg shadow-lg resource-card hover:bg-teal-50">
-                        <h3 class="text-xl font-semibold text-gray-800">Mental Health Support</h3>
-                        <p class="mt-2 text-gray-600">Access resources for managing stress, anxiety, and overall well-being.</p>
-                        <a href="#" class="inline-block mt-4 font-semibold text-teal-500">Learn More &rarr;</a>
-                    </div>
-
-                    <!-- Resource Card 3 -->
-                    <div class="p-6 bg-white rounded-lg shadow-lg resource-card hover:bg-teal-50">
-                        <h3 class="text-xl font-semibold text-gray-800">Academic Assistance</h3>
-                        <p class="mt-2 text-gray-600">Discover tools and tips to improve your academic performance and study habits.</p>
-                        <a href="#" class="inline-block mt-4 font-semibold text-teal-500">Learn More &rarr;</a>
-                    </div>
-
-                    <!-- Resource Card 4 -->
-                    <div class="p-6 bg-white rounded-lg shadow-lg resource-card hover:bg-teal-50">
-                        <h3 class="text-xl font-semibold text-gray-800">Personal Growth</h3>
-                        <p class="mt-2 text-gray-600">Explore personal development resources to enhance your self-awareness and growth.</p>
-                        <a href="#" class="inline-block mt-4 font-semibold text-teal-500">Learn More &rarr;</a>
-                    </div>
-
-                    <!-- Resource Card 5 -->
-                    <div class="p-6 bg-white rounded-lg shadow-lg resource-card hover:bg-teal-50">
-                        <h3 class="text-xl font-semibold text-gray-800">Workshops & Events</h3>
-                        <p class="mt-2 text-gray-600">Stay informed about upcoming workshops and counseling events to enhance your skills.</p>
-                        <a href="#" class="inline-block mt-4 font-semibold text-teal-500">View Events &rarr;</a>
-                    </div>
-
-                    <!-- Resource Card 6 -->
-                    <div class="p-6 bg-white rounded-lg shadow-lg resource-card hover:bg-teal-50">
-                        <h3 class="text-xl font-semibold text-gray-800">Guidance Articles</h3>
-                        <p class="mt-2 text-gray-600">Read insightful articles on various topics that support mental health and personal growth.</p>
-                        <a href="#" class="inline-block mt-4 font-semibold text-teal-500">Read Articles &rarr;</a>
-                    </div>
-                </div>
-            </section>
-
-            
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                echo '<div class="p-6 bg-white rounded-lg shadow-lg resource-card hover:bg-teal-50">';
+                echo '<h3 class="text-xl font-semibold text-gray-800">' . htmlspecialchars($row['title']) . '</h3>';
+                echo '<p class="mt-2 text-gray-600">' . htmlspecialchars($row['description']) . '</p>';
+                echo '<a href="' . htmlspecialchars($row['link']) . '" class="inline-block mt-4 font-semibold text-teal-500">Learn More &rarr;</a>';
+                echo '</div>';
+            }
+        } else {
+            echo '<p>No resources available.</p>';
+        }
+        ?>
+    </div>
     </div>
 </div>
 
@@ -167,7 +146,7 @@ if (isset($_GET['logout'])) {
             <div class="mb-6 md:mb-0">
                 <a href="https://flowbite.com/" class="flex items-center">
                     <img src="/src/images/UMAK-CGCS-logo.png" class="h-8 me-3" alt="GuidanceHub Logo" />
-                    <span class="self-center text-2xl font-semibold whitespace-nowrap">CounselPro<span>
+                    <span class="self-center text-2xl font-semibold whitespace-nowrap">GuidanceHub<span>
                 </a>
             </div>
             <div class="grid grid-cols-2 gap-8 sm:gap-6 sm:grid-cols-3">
@@ -175,7 +154,7 @@ if (isset($_GET['logout'])) {
                     <h2 class="mb-6 text-sm font-semibold text-gray-900 uppercase">Resources</h2>
                     <ul class="font-medium text-gray-500 dark:text-gray-400">
                         <li class="mb-4">
-                            <a href="https://flowbite.com/" class="hover:underline">CounselPro</a>
+                            <a href="https://flowbite.com/" class="hover:underline">GuidanceHub</a>
                         </li>
                         <li>
                             <a href="https://tailwindcss.com/" class="hover:underline">Tailwind CSS</a>

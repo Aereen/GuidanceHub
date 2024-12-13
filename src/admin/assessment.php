@@ -1,35 +1,44 @@
 <?php include('E:/GuidanceHub/src/entry-page/server.php'); ?>
 <?php
-// Start the session
-session_start();
+// Connect to the database
+$con = mysqli_connect('localhost', 'root', '', 'guidancehub');
 
-// Updated data for the assessment report
-$students = [
-    ['name' => 'Jessica Adams', 'date' => '2024-12-01', 'score' => 88, 'remarks' => 'Shows consistent improvement in analytical skills.'],
-    ['name' => 'Mark Johnson', 'date' => '2024-12-02', 'score' => 92, 'remarks' => 'Exceptional in teamwork and leadership.'],
-    ['name' => 'Sophia Lee', 'date' => '2024-12-03', 'score' => 79, 'remarks' => 'Needs guidance in stress management.'],
-    ['name' => 'Ethan Clark', 'date' => '2024-12-04', 'score' => 85, 'remarks' => 'Solid academic performance, improve in public speaking.'],
-    ['name' => 'Olivia Perez', 'date' => '2024-12-05', 'score' => 90, 'remarks' => 'Outstanding, with a keen sense of responsibility.'],
-    ['name' => 'Noah Davis', 'date' => '2024-12-06', 'score' => 78, 'remarks' => 'Needs support in developing self-confidence.'],
-    ['name' => 'Emily Wilson', 'date' => '2024-12-07', 'score' => 94, 'remarks' => 'Excellent performance, maintains high focus on goals.'],
-    ['name' => 'Liam Brown', 'date' => '2024-12-08', 'score' => 81, 'remarks' => 'Great effort, can enhance productivity with time management.']
-];
-
-// Calculate total and average score
-$total_score = 0; 
-$total_assessments = count($students);
-
-foreach ($students as $student) {
-    $total_score += $student['score'];
+// Check connection
+if (!$con) {
+    die("Connection failed: " . mysqli_connect_error());
 }
 
-$average_score = $total_assessments > 0 ? $total_score / $total_assessments : 0;
+// Initialize variables and error array
+$errors = array(); 
+
+// Query to retrieve responses for a particular assessment type
+$sql = "SELECT question_id, answer FROM survey_responses WHERE assessment_type = ?";
+$stmt = $con->prepare($sql);
+$stmt->bind_param("s", $assessment_type);
+$stmt->execute();
+$result = $stmt->get_result();
+
+// Initialize an array to store the count of responses for each answer (Dislike, Neutral, Like)
+$response_data = ['dislike' => 0, 'neutral' => 0, 'like' => 0];
+
+// Loop through the results and count the responses for each answer
+while ($row = $result->fetch_assoc()) {
+    $answer = $row['answer'];
+    if (isset($response_data[$answer])) {
+        $response_data[$answer]++;
+    }
+}
+
+// Close the database connection
+$stmt->close();
+$con->close();
+
 ?>
 
 <!doctype html>
 <html>
 <head>
-<title> Admin | CounselPro </title>
+<title> Admin | GuidanceHub </title>
     <link rel="icon" type="images/x-icon" href="/src/images/UMAK-CGCS-logo.png" />
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -85,6 +94,12 @@ $average_score = $total_assessments > 0 ? $total_score / $total_assessments : 0;
                 </a>
             </li>
             <li>
+                <a href="resources.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100"">
+                <i class="w-5 h-5 text-gray-500 fa-solid fa-calendar-check"></i>
+                <span class="ms-3">Resources</span>
+                </a>
+            </li>
+            <li>
                 <a href="report.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100"">
                 <i class="w-5 h-5 text-gray-500 fa-solid fa-chart-pie"></i>
                 <span class="ms-3">Reports</span>
@@ -109,42 +124,58 @@ $average_score = $total_assessments > 0 ? $total_score / $total_assessments : 0;
 
 <!--CONTENT-->
 <div class="p-4 mt-10 sm:ml-64">
-<h2 class="p-3 my-2 text-4xl font-bold">Assessment Tool</h2>
-<!-- Main Container -->
+    <h2 class="p-3 my-2 text-4xl font-bold">Assessment Summary</h2>
+    <!-- Main Container -->
     <div class="container px-6 mx-auto my-8">
         <!-- Assessment Summary -->
         <div class="p-6 mb-6 bg-white rounded-lg shadow-md">
-            <h3 class="mb-4 text-2xl font-semibold text-gray-800">Assessment Summary</h3>
-            <p class="text-gray-600">Total Assessments: <span class="font-bold"><?php echo $total_assessments; ?></span></p>
-            <p class="text-gray-600">Average Score: <span class="font-bold"><?php echo number_format($average_score, 2); ?></span></p>
-        </div>
 
-        <!-- Assessment Table -->
-        <div class="p-6 bg-white rounded-lg shadow-md">
-            <h3 class="mb-4 text-2xl font-semibold text-gray-800">Assessment Details</h3>
-            <table class="min-w-full table-auto">
+            <?php
+            // Calculate percentages
+            $total_responses = array_sum($response_data);
+            if ($total_responses > 0) {
+                $dislike_percentage = ($response_data['dislike'] / $total_responses) * 100;
+                $neutral_percentage = ($response_data['neutral'] / $total_responses) * 100;
+                $like_percentage = ($response_data['like'] / $total_responses) * 100;
+            } else {
+                $dislike_percentage = $neutral_percentage = $like_percentage = 0;
+            }
+
+            // Display the report
+            echo "<h3>Survey Report for '$assessment_type' Assessment</h3>";
+            echo "<p>Total Responses: $total_responses</p>";
+            ?>
+
+            <table border="1" class="w-full mt-4 text-center">
                 <thead>
                     <tr>
-                        <th class="px-4 py-2 text-left text-gray-800">Student Name</th>
-                        <th class="px-4 py-2 text-left text-gray-800">Date Assessed</th>
-                        <th class="px-4 py-2 text-left text-gray-800">Score</th>
-                        <th class="px-4 py-2 text-left text-gray-800">Remarks</th>
+                        <th class="px-4 py-2 bg-gray-200">Answer Type</th>
+                        <th class="px-4 py-2 bg-gray-200">Count</th>
+                        <th class="px-4 py-2 bg-gray-200">Percentage</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($students as $student): ?>
-                        <tr class="border-b">
-                            <td class="px-4 py-2"><?php echo htmlspecialchars($student['name']); ?></td>
-                            <td class="px-4 py-2"><?php echo htmlspecialchars($student['date']); ?></td>
-                            <td class="px-4 py-2"><?php echo htmlspecialchars($student['score']); ?></td>
-                            <td class="px-4 py-2"><?php echo htmlspecialchars($student['remarks']); ?></td>
-                        </tr>
-                    <?php endforeach; ?>
+                    <tr>
+                        <td>Dislike</td>
+                        <td><?php echo $response_data['dislike']; ?></td>
+                        <td><?php echo number_format($dislike_percentage, 2); ?>%</td>
+                    </tr>
+                    <tr>
+                        <td>Neutral</td>
+                        <td><?php echo $response_data['neutral']; ?></td>
+                        <td><?php echo number_format($neutral_percentage, 2); ?>%</td>
+                    </tr>
+                    <tr>
+                        <td>Like</td>
+                        <td><?php echo $response_data['like']; ?></td>
+                        <td><?php echo number_format($like_percentage, 2); ?>%</td>
+                    </tr>
                 </tbody>
             </table>
         </div>
     </div>
 </div>
+
 
 <!--FOOTER-->
 <footer class="overflow-auto bg-white sm:ml-64 w-75 dark:bg-gray-900">
@@ -153,7 +184,7 @@ $average_score = $total_assessments > 0 ? $total_score / $total_assessments : 0;
             <div class="mb-6 md:mb-0">
                 <a href="https://flowbite.com/" class="flex items-center">
                     <img src="/src/images/UMAK-CGCS-logo.png" class="h-8 me-3" alt="GuidanceHub Logo" />
-                    <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">CounselPro<span>
+                    <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">GuidanceHub<span>
                 </a>
             </div>
             <div class="grid grid-cols-2 gap-8 sm:gap-6 sm:grid-cols-3">
@@ -161,7 +192,7 @@ $average_score = $total_assessments > 0 ? $total_score / $total_assessments : 0;
                     <h2 class="mb-6 text-sm font-semibold text-gray-900 uppercase dark:text-white">Resources</h2>
                     <ul class="font-medium text-gray-500 dark:text-gray-400">
                         <li class="mb-4">
-                            <a href="https://flowbite.com/" class="hover:underline">CounselPro</a>
+                            <a href="https://flowbite.com/" class="hover:underline">GuidanceHub</a>
                         </li>
                         <li>
                             <a href="https://tailwindcss.com/" class="hover:underline">Tailwind CSS</a>
