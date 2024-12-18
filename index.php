@@ -147,18 +147,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </section>
 
 <!--FOOTER-->
-<footer class="w-full bg-white dark:bg-gray-900">
-    <div class="w-full max-w-screen-xl p-4 py-6 mx-auto lg:py-8">
+<footer class="w-full bg-white">
+    <div class="w-full max-w-screen-xl p-4 py-6 mx-auto lg:py-8 dark:text-gray-800">
         <div class="md:flex md:justify-between">
             <div class="mb-6 md:mb-0">
                 <a href="https://flowbite.com/" class="flex items-center">
                     <img src="/src/images/UMAK-CGCS-logo.png" class="h-8 me-3" alt="GuidanceHub Logo" />
-                    <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">GuidanceHub<span>
+                    <span class="self-center text-2xl font-semibold whitespace-nowrap">GuidanceHub<span>
                 </a>
             </div>
             <div class="grid grid-cols-2 gap-8 sm:gap-6 sm:grid-cols-3">
                 <div>
-                    <h2 class="mb-6 text-sm font-semibold text-gray-900 uppercase dark:text-white">Resources</h2>
+                    <h2 class="mb-6 text-sm font-semibold text-gray-900 uppercase">Resources</h2>
                     <ul class="font-medium text-gray-500 dark:text-gray-400">
                         <li class="mb-4">
                             <a href="https://flowbite.com/" class="hover:underline">GuidanceHub</a>
@@ -169,10 +169,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     </ul>
                 </div>
                 <div>
-                    <h2 class="mb-6 text-sm font-semibold text-gray-900 uppercase dark:text-white">Follow us</h2>
+                    <h2 class="mb-6 text-sm font-semibold text-gray-900 uppercase">Follow us</h2>
                     <ul class="font-medium text-gray-500 dark:text-gray-400">
                         <li class="mb-4">
-                            <a href="https://github.com/themesberg/flowbite" class="hover:underline ">Github</a>
+                            <a href="https://github.com/themesberg/flowbite" class="hover:underline">Github</a>
                         </li>
                         <li>
                             <a href="https://discord.gg/4eeurUVvTy" class="hover:underline">Discord</a>
@@ -180,7 +180,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     </ul>
                 </div>
                 <div>
-                    <h2 class="mb-6 text-sm font-semibold text-gray-900 uppercase dark:text-white">Legal</h2>
+                    <h2 class="mb-6 text-sm font-semibold text-gray-900 uppercase">Legal</h2>
                     <ul class="font-medium text-gray-500 dark:text-gray-400">
                         <li class="mb-4">
                             <a href="#" class="hover:underline">Privacy Policy</a>
