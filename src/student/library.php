@@ -15,14 +15,15 @@ $errors = array();
 if (isset($_GET['logout'])) {
     session_unset(); // Unset all session variables
     session_destroy(); // Destroy the session
-    header("Location: /src/entry-page/index.php"); // Redirect to the login page after logout
+    header("Location: /index.php"); // Redirect to the login page after logout
     exit;
 }
 ?>
+
 <!doctype html>
 <html>
 <head>
-<title> GuidanceHub </title>
+<title>GuidanceHub | Library</title>
     <link rel="icon" type="images/x-icon" href="/src/images/UMAK-CGCS-logo.png" />
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">

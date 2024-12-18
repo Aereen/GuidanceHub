@@ -6,7 +6,7 @@ session_start(); // Start the session
 if (isset($_GET['logout'])) {
     session_unset(); // Unset all session variables
     session_destroy(); // Destroy the session
-    header("Location: /src/entry-page/index.php"); // Redirect to the login page after logout
+    header("Location: /index.php"); // Redirect to the login page after logout
     exit;
 }
 ?>

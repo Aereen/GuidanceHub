@@ -81,7 +81,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
 </header>
 
-
 <!-- Hero Section -->
 <section id="home" class="relative flex items-center justify-center text-center text-white bg-center bg-cover hero" 
     style="background-image: url('/src/images/UMak-Facade-Admin.jpg'); height: 75vh;">
@@ -91,7 +90,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <h1 class="text-5xl font-bold sm:text-7xl">Home of the Brave Herons</h1>
     </div>
 </section>
-
 
 <!-- Services Section -->
 <section id="services" class="py-16 bg-gray-50" style="background-color: #1EB0A9">

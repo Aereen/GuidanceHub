@@ -48,17 +48,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 if (isset($_GET['logout'])) {
     session_unset(); // Unset all session variables
     session_destroy(); // Destroy the session
-    header("Location: /src/entry-page/index.php"); // Redirect to the login page after logout
+    header("Location: /index.php"); // Redirect to the login page after logout
     exit;
 }
 ?>
 
-
-
 <!doctype html>
 <html>
 <head>
-<title> GuidanceHub</title>
+<title>GuidanceHub | Assessment</title>
     <link rel="icon" type="images/x-icon" href="/src/images/UMAK-CGCS-logo.png" />
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -98,7 +96,6 @@ if (isset($_GET['logout'])) {
 
 </head>
 <body>
-    
 <!--TOP NAVIGATION BAR-->
 <nav class="fixed top-0 z-50 w-full bg-white border-b border-gray-200 dark:border-gray-300">
     <div class="px-3 py-3 lg:px-5 lg:pl-3">
@@ -180,8 +177,8 @@ if (isset($_GET['logout'])) {
 <!--CONTENT-->
 <div class="p-4 mt-10 sm:ml-64">
     <h2 class="p-3 my-2 text-4xl font-bold tracking-tight">Available Assessment</h2>
-        <div class="p-6 bg-white border border-gray-200 rounded-lg shadow dark:border-gray-200">
-            <ul class="mt-1 divide-y divide-gray-200 dark:divide-gray-400">
+        <div class="p-5 bg-white">
+            <ul class="divide-y divide-gray-200 dark:divide-gray-400">
                 <!-- Career Interest Assessment -->
                 <li class="flex items-center justify-between py-4">
                     <span class="text-gray-800">Career Interest Assessment</span>
