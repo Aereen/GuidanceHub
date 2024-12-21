@@ -49,11 +49,11 @@ $result = $con->query($sql);
 </head>
 <body class="font-sans antialiased bg-gray-100">
 <!--HEADER-->
-<header class="py-4 sticky top-0 z-50 shadow-md" style="background-color: #1EB0A9">
+<header class="sticky top-0 z-50 py-4 shadow-md" style="background-color: #1EB0A9">
     <div class="container flex items-center justify-between px-4 mx-auto md:px-8">
         <!-- Logo -->
         <div class="flex items-center space-x-3">
-            <img src="/src/images/UMAK-CGCS-logo.png" alt="UMAK Logo" class="w-10 h-auto md:w-14"> <!--CHANGE INTO UMAK LOGO-->
+            <img src="/src/images/UMAK-logo.png" alt="UMAK Logo" class="w-10 h-auto md:w-14"> <!--CHANGE INTO UMAK LOGO-->
             <img src="/src/images/UMAK-CGCS-logo.png" alt="CGCS Logo" class="w-10 h-auto md:w-14">
             <span class="font-bold tracking-wide text-white md:text-2xl">GuidanceHub</span>
         </div>
@@ -74,7 +74,7 @@ $result = $con->query($sql);
                 <li><a href="#contact" class="hover:text-cyan-950">Contact</a></li>
                 <li>
                     <a href="/src/entry-page/login.php" 
-                        class="px-4 py-2 text-white bg-cyan-800 rounded-md hover:bg-cyan-950">Login</a>
+                        class="px-4 py-2 text-white rounded-md bg-cyan-800 hover:bg-cyan-950">Login</a>
                 </li>
             </ul>
         </nav>
@@ -88,14 +88,14 @@ $result = $con->query($sql);
     <div class="relative z-10 max-w-4xl px-4 py-8 md:px-8">
         <p class="mb-4 text-3xl font-medium max-sm:text-2xl" style="color: #1EB0A9">University of Makati</p>
         <p class="mb-4 text-4xl font-medium max-sm:text-3xl">Center of Guidance and Counseling Services</p>
-        <h1 class="text-8xl font-bold max-sm:text-6xl">Home of the Brave Herons</h1>
+        <h1 class="font-bold text-8xl max-sm:text-6xl">Home of the Brave Herons</h1>
     </div>
 </section>
 
 <!-- Services Section -->
 <section id="services" class="py-10 bg-yellow-400">
     <div class="container mx-auto text-center">
-        <h2 class="mb-8 max-sm:text-4xl font-semibold text-3xl text-cyan-600">Our Services</h2>
+        <h2 class="mb-8 text-3xl font-semibold max-sm:text-4xl text-cyan-600">Our Services</h2>
             <div class="grid gap-8 md:grid-cols-3">
                 <div class="p-6 bg-white rounded-lg shadow-md">
                     <h3 class="mb-4 text-2xl font-semibold">Personal Counseling</h3>
@@ -114,29 +114,29 @@ $result = $con->query($sql);
 </section>
 
 <!--ARTICLES---> <!--CREATE A CONTENT MANAGER OF ARTICLES IN ADMIN-->
-<article class="container mx-auto my-10 px-4">   
-    <h1 class="text-center text-cyan-600 font-semibold text-3xl">Publications, Updates and More!</h1>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+<article class="container px-4 mx-auto my-10">   
+    <h1 class="text-3xl font-semibold text-center text-cyan-600">Publications, Updates and More!</h1>
+    <div class="grid grid-cols-1 gap-6 mt-8 md:grid-cols-2 lg:grid-cols-3">
         <?php if ($result && $result->num_rows > 0): ?>
             <?php while ($row = $result->fetch_assoc()): ?>
-                <div class="bg-white shadow-md rounded-lg p-4 border border-gray-200">
-                    <h2 class="text-xl font-bold text-gray-800 mb-2"> <?= htmlspecialchars($row['title']); ?> </h2>
-                    <p class="text-gray-600 text-sm mb-4">
+                <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-md">
+                    <h2 class="mb-2 text-xl font-bold text-gray-800"> <?= htmlspecialchars($row['title']); ?> </h2>
+                    <p class="mb-4 text-sm text-gray-600">
                         <?= htmlspecialchars(substr($row['content'], 0, 150)); ?>...
                     </p>
-                    <p class="text-gray-400 text-xs">Published on: <?= date('F j, Y', strtotime($row['published_at'])); ?></p>
-                    <a href="article.php?id=<?= $row['id']; ?>" class="text-cyan-500 font-semibold mt-4 inline-block">Read More</a>
+                    <p class="text-xs text-gray-400">Published on: <?= date('F j, Y', strtotime($row['published_at'])); ?></p>
+                    <a href="article.php?id=<?= $row['id']; ?>" class="inline-block mt-4 font-semibold text-cyan-500">Read More</a>
                 </div>
             <?php endwhile; ?>
         <?php else: ?>
-            <p class="text-gray-500 text-center col-span-full">No articles found.</p>
+            <p class="text-center text-gray-500 col-span-full">No articles found.</p>
         <?php endif; ?>
     </div>
 </article>
 
 <!--ABOUT SECTION-->
-<section id="about" class="container mx-auto my-10 px-4">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+<section id="about" class="container px-4 mx-auto my-10">
+    <div class="grid items-center grid-cols-1 gap-8 md:grid-cols-2">
         <div class="relative">
             <img 
                 src="/src/images/CGCS-About.jpg" 
@@ -145,16 +145,16 @@ $result = $con->query($sql);
             >
         </div>
         <div>
-            <h3 class="text-cyan-600 font-semibold text-3xl">About Us</h3>
-                <h1 class="text-4xl font-bold text-gray-800 mb-4">GuidanceHub</h1>
-                <p class="text-gray-600 p-2 text-xl mb-8">
+            <h3 class="text-3xl font-semibold text-cyan-600">About Us</h3>
+                <h1 class="mb-4 text-4xl font-bold text-gray-800">GuidanceHub</h1>
+                <p class="p-2 mb-8 text-xl text-gray-600">
                     GuidanceHub is committed to providing students with the necessary tools to succeed academically and emotionally. 
                     Our team of professional counselors is here to support your journey through personal growth, mental health, 
                     academic success, and career development.
                 </p>
                 <a 
                     href="https://www.facebook.com/UMakCGCS" 
-                    class="text-white bg-cyan-800 hover:bg-cyan-950 rounded-full px-6 py-3">
+                    class="px-6 py-3 text-white rounded-full bg-cyan-800 hover:bg-cyan-950">
                     More Details
                 </a>
         </div>

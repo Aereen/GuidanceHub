@@ -1,64 +1,62 @@
+<?php
+// Set timezone
+date_default_timezone_set('Asia/Manila');
+
+// Get current month and year
+$month = date('m');
+$year = date('Y');
+
+// Get first day of the month and total days in the month
+$firstDayOfMonth = date('w', strtotime("$year-$month-01"));
+$totalDays = date('t', strtotime("$year-$month-01"));
+
+// Days of the week
+$daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+// Generate calendar
+$calendar = [];
+$row = array_fill(0, 7, null);
+$dayCounter = 1;
+
+for ($i = 0; $i < 42; $i++) {
+    if ($i >= $firstDayOfMonth && $dayCounter <= $totalDays) {
+        $row[$i % 7] = $dayCounter++;
+    }
+
+    if ($i % 7 === 6) {
+        $calendar[] = $row;
+        $row = array_fill(0, 7, null);
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Survey</title>
+    <title>Calendar</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100">
+<body class="p-6 bg-gray-100">
     <div class="max-w-4xl p-6 mx-auto bg-white rounded-lg shadow-lg">
-        <!-- Header -->
-        <div class="mb-4 text-center">
-            <h1 class="text-lg font-bold text-gray-700">Career Interest Assessment</h1>
-            <div class="flex justify-center mt-2 space-x-6 text-sm text-gray-500">
-                <span>Dislike</span>
-                <span>Neutral</span>
-                <span>Like</span>
-            </div>
+        <h1 class="mb-6 text-2xl font-bold text-center text-gray-800">
+            <?php echo date('F Y'); ?> Calendar
+        </h1>
+        <div class="grid grid-cols-7 gap-2 font-semibold text-center text-gray-600">
+            <?php foreach ($daysOfWeek as $day): ?>
+                <div class="p-2 text-white bg-teal-500 rounded-lg"><?php echo $day; ?></div>
+            <?php endforeach; ?>
         </div>
-
-        <!-- Survey Questions -->
-        <form action="submit-survey.php" method="POST" class="space-y-6">
-            <?php
-            // Example questions
-            $questions = [
-                "Inspect a roof for leaks",
-                "Use precision machines to build custom metal parts",
-                "Analyze the structure of molecules"
-            ];
-
-            // Dynamically render questions
-            foreach ($questions as $index => $question) {
-                echo '
-                <div class="p-4 rounded-lg shadow-sm bg-gray-50">
-                    <p class="mb-2 font-semibold text-gray-800">' . ($index + 1) . '. ' . $question . '</p>
-                    <div class="flex space-x-6">
-                        <label class="flex items-center">
-                            <input type="radio" name="question_' . $index . '" value="dislike" class="text-blue-500 form-radio">
-                            <span class="ml-2">Dislike</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="radio" name="question_' . $index . '" value="neutral" class="text-blue-500 form-radio">
-                            <span class="ml-2">Neutral</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="radio" name="question_' . $index . '" value="like" class="text-blue-500 form-radio">
-                            <span class="ml-2">Like</span>
-                        </label>
+        <div class="grid grid-cols-7 gap-2 mt-2">
+            <?php foreach ($calendar as $week): ?>
+                <?php foreach ($week as $day): ?>
+                    <div class="p-2 <?php echo $day === (int)date('j') ? 'bg-teal-500 text-white' : 'bg-gray-100'; ?> rounded-lg">
+                        <?php echo $day ? $day : ''; ?>
                     </div>
-                </div>
-                ';
-            }
-            ?>
-
-            <!-- Submit Button -->
-            <div class="text-center">
-                <button type="submit" class="px-6 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600">
-                    Submit
-                </button>
-            </div>
-        </form>
+                <?php endforeach; ?>
+            <?php endforeach; ?>
+        </div>
     </div>
 </body>
 </html>

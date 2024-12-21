@@ -1,6 +1,47 @@
 <?php include('E:/GuidanceHub/src/entry-page/server.php'); ?>
 <?php
-session_start(); // Start the session
+// Connect to the database
+$con = mysqli_connect('localhost', 'root', '', 'guidancehub');
+
+$host = 'localhost';
+$dbname = 'guidancehub';
+$username = 'root';
+$password = '';
+$con = new PDO("mysql: host= $host; dbname=$dbname", $username, $password);
+
+// Fetch announcements
+$query = $con->query("SELECT * FROM announcements ORDER BY created_at DESC");
+$announcements = $query->fetchAll(PDO::FETCH_ASSOC);
+
+// Set timezone
+date_default_timezone_set('Asia/Manila');
+
+// Get current month and year
+$month = date('m');
+$year = date('Y');
+
+// Get first day of the month and total days in the month
+$firstDayOfMonth = date('w', strtotime("$year-$month-01"));
+$totalDays = date('t', strtotime("$year-$month-01"));
+
+// Days of the week
+$daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+// Generate calendar
+$calendar = [];
+$row = array_fill(0, 7, null);
+$dayCounter = 1;
+
+for ($i = 0; $i < 42; $i++) {
+    if ($i >= $firstDayOfMonth && $dayCounter <= $totalDays) {
+        $row[$i % 7] = $dayCounter++;
+    }
+
+    if ($i % 7 === 6) {
+        $calendar[] = $row;
+        $row = array_fill(0, 7, null);
+    }
+}
 
 // Check if logout is requested
 if (isset($_GET['logout'])) {
@@ -118,14 +159,59 @@ if (isset($_GET['logout'])) {
 <main class="p-4 mt-10 sm:ml-64">
 <h2 class="p-3 my-2 text-4xl font-bold">Guidance and Counseling Services</h2>
 
-<!--ANNOUNCEMENTS-->
-<h4 class="p-2 text-xl font-semibold text-white bg-teal-500 rounded-lg">ANNOUNCEMENTS</h4>
-    <section class="grid grid-cols-1 gap-5 p-5 my-5 border-2 rounded-lg sm:grid-cols-2 lg:grid-cols-3 dark:border-gray-300"></section>
+<div class="grid grid-cols-1 gap-6 p-6 lg:grid-cols-2">
+
+<!--ANNOUNCEMENT--> <!--CREATE AN CONTENT MANAGER OF THIS ON ADMIN & COUNSELOR-->
+    <section class="p-5 border-2 rounded-lg bg-gray-50 dark:border-gray-300">
+        <h4 class="p-2 text-xl font-semibold text-white bg-teal-500 rounded-lg">ANNOUNCEMENTS</h4>
+        <div class="grid grid-cols-1 gap-3 my-3 sm:grid-cols-2 lg:grid-cols-2">
+            <?php if (empty($announcements)): ?>
+                <p class="text-gray-500 col-span-full">No announcements available.</p>
+            <?php else: ?>
+                <?php foreach ($announcements as $announcement): ?>
+                    <div class="p-4 bg-white rounded-lg shadow-lg">
+                        <h3 class="text-lg font-semibold text-blue-800">
+                            <?php echo htmlspecialchars($announcement['title']); ?>
+                        </h3>
+                        <p class="text-gray-700">
+                            <?php echo nl2br(htmlspecialchars($announcement['message'])); ?>
+                        </p>
+                        <p class="mt-2 text-sm text-gray-500">
+                            Posted on: <?php echo date('F j, Y, g:i a', strtotime($announcement['created_at'])); ?>
+                        </p>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </div>
     </section>
+
+<!--CALENDAR-->
+    <div class="p-5 border-2 rounded-lg bg-gray-50 dark:border-gray-300">
+        <h2 class="mb-6 text-2xl font-bold text-center text-gray-800">
+            <?php echo date('F Y'); ?>
+        </h2>
+        <div class="grid grid-cols-7 gap-2 font-semibold text-center text-gray-600">
+            <?php foreach ($daysOfWeek as $day): ?>
+                <div class="p-2 text-white bg-teal-500 rounded-lg"><?php echo $day; ?></div>
+            <?php endforeach; ?>
+        </div>
+        <div class="grid grid-cols-7 gap-2 mt-2">
+            <?php foreach ($calendar as $week): ?>
+                <?php foreach ($week as $day): ?>
+                    <div class="p-2 <?php echo $day === (int)date('j') ? 'bg-teal-500 text-white' : 'bg-gray-100'; ?> rounded-lg">
+                        <?php echo $day ? $day : ''; ?>
+                    </div>
+                <?php endforeach; ?>
+            <?php endforeach; ?>
+        </div>
+    </div>
+
+</div>
+
 
 <!--COUNSELING PROCESS-->
     <h4 class="p-2 text-xl font-semibold text-white bg-teal-500 rounded-lg">PROCESS</h4>
-        <section class="grid grid-cols-1 gap-5 p-5 my-5 border-2 rounded-lg sm:grid-cols-2 lg:grid-cols-3 dark:border-gray-300">
+        <section class="grid grid-cols-1 gap-4 p-5 my-5 border-2 rounded-lg sm:grid-cols-2 lg:grid-cols-3 dark:border-gray-300">
             <!-- Card 1 -->
             <div class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:border-gray-300">
                 <h5 class="mb-2 text-2xl font-bold tracking-tight text-black">Needs Assessment</h5>
