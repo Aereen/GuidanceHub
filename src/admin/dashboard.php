@@ -1,50 +1,6 @@
 <?php include('E:/GuidanceHub/src/entry-page/server.php'); ?>
 <?php
-// Connect to the database
-$con = mysqli_connect('localhost', 'root', '', 'guidancehub');
-
-// Check connection
-if (!$con) {
-    die("Connection failed: " . mysqli_connect_error());
-}
-
-// Initialize variables and error array
-$errors = array(); 
-
-// Handle adding a resource
-if (isset($_POST['add'])) {
-    $title = $_POST['title'];
-    $description = $_POST['description'];
-    $link = $_POST['link'];
-    $category = $_POST['category'];
-
-    $sql = "INSERT INTO resources (title, description, link, category) VALUES (?, ?, ?, ?)";
-    $stmt = $con->prepare($sql);
-    $stmt->bind_param("ssss", $title, $description, $link, $category);
-
-    if ($stmt->execute()) {
-        echo "Resource added successfully!";
-    } else {
-        echo "Error: " . $stmt->error;
-    }
-}
-
-// Handle deleting a resource
-if (isset($_POST['delete'])) {
-    $resource_id = $_POST['resource_id'];
-
-    $delete_sql = "DELETE FROM resources WHERE id = ?";
-    $stmt = $con->prepare($delete_sql);
-    $stmt->bind_param("i", $resource_id);
-
-    if ($stmt->execute()) {
-        echo "Resource deleted successfully!";
-        header("Location: {$_SERVER['PHP_SELF']}"); // Refresh the page
-        exit();
-    } else {
-        echo "Error deleting resource: " . $stmt->error;
-    }
-}
+session_start(); // Start the session
 
 // Check if logout is requested
 if (isset($_GET['logout'])) {
@@ -58,7 +14,7 @@ if (isset($_GET['logout'])) {
 <!doctype html>
 <html>
 <head>
-<title> Admin | GuidanceHub </title>
+<title> GuidanceHub </title>
     <link rel="icon" type="images/x-icon" href="/src/images/UMAK-CGCS-logo.png" />
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -69,7 +25,7 @@ if (isset($_GET['logout'])) {
 </head>
 <body>
 <!--TOP NAVIGATION BAR-->
-<nav class="fixed top-0 z-50 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+<nav class="fixed top-0 z-50 w-full border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700" >
     <div class="px-3 py-3 lg:px-5 lg:pl-3">
         <div class="flex items-center justify-between">
             <div class="flex items-center justify-start rtl:justify-end">
@@ -96,7 +52,7 @@ if (isset($_GET['logout'])) {
     <div class="h-full px-3 pb-4 overflow-y-auto bg-white">
         <ul class="space-y-2 font-medium">
             <li>
-                <a href="dashboard.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100"">
+                <a href="dahboard.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100"">
                 <i class="w-5 h-5 text-gray-500 fa-solid fa-house"></i>
                 <span class="ms-3">Dashboard</span>
                 </a>
@@ -143,69 +99,83 @@ if (isset($_GET['logout'])) {
 </aside>
 
 <!--CONTENT-->
-<div class="p-6 mt-10 sm:ml-64">
-        <h2 class="mb-6 text-4xl font-bold">Add Resource</h2>
-        
-        <!-- Form for Adding Resources -->
-        <form action="#" method="post" class="space-y-4">
-            <div class="flex flex-col space-y-2">
-                <label for="title" class="text-gray-700">Title</label>
-                <input type="text" id="title" name="title" placeholder="Title" required class="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+<div class="p-4 mt-10 sm:ml-64">
+    <!--ANALYTICS-->
+            <div class="grid grid-cols-1 gap-6 mb-6 md:grid-cols-3">
+                <!-- Total Students -->
+                <div class="p-6 text-center bg-white rounded-lg shadow-md">
+                    <div class="text-3xl font-semibold text-gray-800">350</div>
+                    <div class="text-gray-500">Total Students</div>
+                </div>
+                <!-- Scheduled Sessions -->
+                <div class="p-6 text-center bg-white rounded-lg shadow-md">
+                    <div class="text-3xl font-semibold text-gray-800">25</div>
+                    <div class="text-gray-500">Scheduled Sessions</div>
+                </div>
+                <!-- Completed Sessions -->
+                <div class="p-6 text-center bg-white rounded-lg shadow-md">
+                    <div class="text-3xl font-semibold text-gray-800">150</div>
+                    <div class="text-gray-500">Completed Sessions</div>
+                </div>
             </div>
-            <div class="flex flex-col space-y-2">
-                <label for="description" class="text-gray-700">Description</label>
-                <textarea id="description" name="description" placeholder="Description" required class="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-            </div>
-            <div class="flex flex-col space-y-2">
-                <label for="link" class="text-gray-700">Link</label>
-                <input type="text" id="link" name="link" placeholder="Link" required class="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-            <div class="flex flex-col space-y-2">
-                <label for="category" class="text-gray-700">Category</label>
-                <input type="text" id="category" name="category" placeholder="Category" class="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-            <button type="submit" name="add" class="w-full py-3 text-white transition bg-blue-500 rounded-md hover:bg-blue-600">Add Resource</button>
-        </form>
 
-        <!-- Display Resources and Delete Option -->
-        <h2 class="mt-10 text-2xl font-semibold">Existing Resources</h2>
-        <table class="min-w-full bg-white border border-gray-300">
-            <thead>
-                <tr>
-                    <th class="px-4 py-2 border">Title</th>
-                    <th class="px-4 py-2 border">Description</th>
-                    <th class="px-4 py-2 border">Link</th>
-                    <th class="px-4 py-2 border">Category</th>
-                    <th class="px-4 py-2 border">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php 
-                $sql = "SELECT * FROM resources";
-                $result = mysqli_query($con, $sql);
+    <!--RECENT ACTIVITIES-->
+            <div class="p-6 mb-8 bg-white rounded-lg shadow-md">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold">Recent Activities</h2>
+                </div>
+                <table class="w-full border-collapse">
+                    <thead>
+                        <tr class="bg-gray-200">
+                            <th class="px-4 py-2 text-left">Student</th>
+                            <th class="px-4 py-2 text-left">Session Date</th>
+                            <th class="px-4 py-2 text-left">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b">
+                            <td class="px-4 py-2">John Doe</td>
+                            <td class="px-4 py-2">2024-11-25</td>
+                            <td class="px-4 py-2 text-green-500">Completed</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="px-4 py-2">Jane Smith</td>
+                            <td class="px-4 py-2">2024-11-27</td>
+                            <td class="px-4 py-2 text-yellow-500">Pending</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
-                // Check if the query was successful
-                if (!$result) {
-                    die("Query failed: " . mysqli_error($con));
-                }
-                while ($row = mysqli_fetch_assoc($result)) { ?>
-                    <tr>
-                        <td class="px-4 py-2 border"><?php echo htmlspecialchars($row['title']); ?></td>
-                        <td class="px-4 py-2 border"><?php echo htmlspecialchars($row['description']); ?></td>
-                        <td class="px-4 py-2 border"><a href="<?php echo htmlspecialchars($row['link']); ?>" target="_blank" class="text-blue-500"><?php echo htmlspecialchars($row['link']); ?></a></td>
-                        <td class="px-4 py-2 border"><?php echo htmlspecialchars($row['category']); ?></td>
-                        <td class="px-4 py-2 border">
-                            <form action="#" method="post" onsubmit="return confirm('Are you sure you want to delete this resource?');">
-                                <input type="hidden" name="resource_id" value="<?php echo $row['id']; ?>">
-                                <button type="submit" name="delete" class="text-red-500 hover:text-red-700">Delete</button>
-                            </form>
-                        </td>
-                    </tr>
-                <?php } ?>
-            </tbody>
-        </table>
-    </div>
-
+    <!--UPCOMING APPOINTMENTS-->
+            <div class="p-6 bg-white rounded-lg shadow-md">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold">Upcoming Appointments</h2>
+                </div>
+                <table class="w-full">
+                    <tbody>
+                        <tr class="flex items-center py-4 space-x-4 border-b">
+                            <td class="w-16">
+                                <img src="assets/imgs/customer02.jpg" alt="User Avatar" class="w-12 h-12 rounded-full">
+                            </td>
+                            <td>
+                                <h4 class="font-semibold">David <span class="text-gray-500">Italy</span></h4>
+                                <p class="text-sm text-gray-500">2024-11-30, 2:00 PM</p>
+                            </td>
+                        </tr>
+                        <tr class="flex items-center py-4 space-x-4 border-b">
+                            <td class="w-16">
+                                <img src="assets/imgs/customer01.jpg" alt="User Avatar" class="w-12 h-12 rounded-full">
+                            </td>
+                            <td>
+                                <h4 class="font-semibold">Amit <span class="text-gray-500">India</span></h4>
+                                <p class="text-sm text-gray-500">2024-12-02, 11:00 AM</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+</div>
 
 <!--FOOTER-->
 <footer class="overflow-auto bg-white sm:ml-64 w-75 dark:bg-gray-900">

@@ -157,7 +157,7 @@ if (isset($_GET['logout'])) {
 
 <!--CONTENT-->
 <main class="p-4 mt-10 sm:ml-64">
-<h2 class="p-3 my-2 text-4xl font-bold">Guidance and Counseling Services</h2>
+<h2 class="p-3 my-1 text-4xl font-bold">Dashboard</h2>
 
 <div class="grid grid-cols-1 gap-6 p-6 lg:grid-cols-2">
 
@@ -185,6 +185,42 @@ if (isset($_GET['logout'])) {
         </div>
     </section>
 
+<aside>
+<!--PROFILE-->
+<h4 class="p-2 text-xl font-semibold text-gray-700">PROFILE</h4>
+    <div class="flex flex-col items-center justify-center p-5">
+        <div class="flex flex-col items-center space-y-4">
+            <img src="/src/images/UMak-Facade-Admin.jpg" alt="Profile Picture" class="object-cover w-48 h-48 p-2 rounded-full">
+            <div class="w-full overflow-x-auto">
+                <table class="w-full text-sm text-center">
+                    <tbody>
+                        <tr>
+                            <th scope="row" class="px-6 py-3 text-right">NAME:</th>
+                            <td class="px-6 py-3">Eirene Grace Q. Armilla</td>
+                        </tr>
+                        <tr>
+                            <th scope="row" class="px-6 py-3 text-right">STUDENT NO.:</th>
+                            <td class="px-6 py-3">A12035445</td>
+                        </tr>
+                        <tr>
+                            <th scope="row" class="px-6 py-3 text-right">COLLEGE/INSTITUTE:</th>
+                            <td class="px-6 py-3">College of Computing and Information Sciences</td>
+                        </tr>
+                        <tr>
+                            <th scope="row" class="px-6 py-3 text-right">YEAR LEVEL:</th>
+                            <td class="px-6 py-3">4th Year</td>
+                        </tr>
+                        <tr>
+                            <th scope="row" class="px-6 py-3 text-right">SECTION:</th>
+                            <td class="px-6 py-3">AINS</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
 <!--CALENDAR-->
     <div class="p-5 border-2 rounded-lg bg-gray-50 dark:border-gray-300">
         <h2 class="mb-6 text-2xl font-bold text-center text-gray-800">
@@ -195,7 +231,7 @@ if (isset($_GET['logout'])) {
                 <div class="p-2 text-white bg-teal-500 rounded-lg"><?php echo $day; ?></div>
             <?php endforeach; ?>
         </div>
-        <div class="grid grid-cols-7 gap-2 mt-2">
+        <div class="grid grid-cols-7 gap-2 mt-2 text-center">
             <?php foreach ($calendar as $week): ?>
                 <?php foreach ($week as $day): ?>
                     <div class="p-2 <?php echo $day === (int)date('j') ? 'bg-teal-500 text-white' : 'bg-gray-100'; ?> rounded-lg">
@@ -207,6 +243,9 @@ if (isset($_GET['logout'])) {
     </div>
 
 </div>
+</aside>
+
+
 
 
 <!--COUNSELING PROCESS-->

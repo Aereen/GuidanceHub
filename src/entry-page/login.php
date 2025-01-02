@@ -11,6 +11,7 @@ require 'phpmailer/src/SMTP.php';
 
 $errors = array();
 $otp_sent = false;
+$email = ''; // Initialize email variable to retain its value
 
 if (isset($_POST['login_user'])) {
     $con = mysqli_connect('localhost', 'root', '', 'guidancehub');
@@ -19,7 +20,7 @@ if (isset($_POST['login_user'])) {
         die("Connection failed: " . mysqli_connect_error());
     }
 
-    $email = mysqli_real_escape_string($con, $_POST['email']);
+    $email = mysqli_real_escape_string($con, $_POST['email']); // Capture email input
 
     if (empty($email)) {
         array_push($errors, "Email is required");
@@ -81,12 +82,12 @@ if (isset($_POST['verify_otp'])) {
         
         // Redirect to the appropriate dashboard based on the role
         if ($_SESSION['role'] == 'counselor') {
-            header('Location: /src/counselor/index.php'); // Redirect to counselor dashboard
+            header('Location: /src/counselor/dashboard.php'); // Redirect to counselor dashboard
         } else if ($_SESSION['role'] == 'student') {
-            header('Location: /src/student/index.php'); // Redirect to student dashboard
+            header('Location: /src/student/dashboard.php'); // Redirect to student dashboard
         }
         else if ($_SESSION['role'] == 'admin') {
-            header('Location: /src/admin/index.php'); // Redirect to admin dashboard
+            header('Location: /src/admin/dashboard.php'); // Redirect to admin dashboard
         }
         exit;
     } else {
@@ -102,8 +103,8 @@ if (isset($_POST['verify_otp'])) {
     <link rel="icon" type="images/x-icon" href="/src/images/UMAK-CGCS-logo.png" />
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <script src="https://cdn.tailwindcss.com"></script>
-        <script src="https://kit.fontawesome.com/95c10202b4.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://kit.fontawesome.com/95c10202b4.js" crossorigin="anonymous"></script>
 </head>
 <body>
     <!-- Background Image with overlay -->
@@ -115,11 +116,11 @@ if (isset($_POST['verify_otp'])) {
         <div class="relative z-10 flex items-center justify-center w-full h-full">
             <div class="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
                 <div class="float-left mb-4 text-xl font-semibold">
-                    <a href="/src/entry-page/index.php">
+                    <a href="/index.php">
                         <i class="fa-solid fa-arrow-left"></i>
                     </a>
                 </div>
-            <h2 class="mb-6 text-2xl font-semibold text-center">Login</h2>
+                <h2 class="mb-6 text-2xl font-semibold text-center">Login</h2>
 
                 <?php if (count($errors) > 0): ?>
                     <div class="p-3 mb-4 text-red-700 bg-red-100 rounded-md">
@@ -134,7 +135,7 @@ if (isset($_POST['verify_otp'])) {
                     <div class="space-y-4">
                         <div>
                             <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                            <input type="email" id="email" name="email" class="w-full px-4 py-2 mt-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600" required>
+                            <input type="email" id="email" name="email" value="<?= htmlspecialchars($email) ?>" class="w-full px-4 py-2 mt-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600" required>
                         </div>
                         <div>
                             <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
@@ -169,7 +170,5 @@ if (isset($_POST['verify_otp'])) {
             </div>
         </div>
     </div>
-
 </body>
-
 </html>

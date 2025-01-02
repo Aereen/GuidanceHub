@@ -33,6 +33,14 @@ while ($row = $result->fetch_assoc()) {
 $stmt->close();
 $con->close();
 
+// Check if logout is requested
+if (isset($_GET['logout'])) {
+    session_unset(); // Unset all session variables
+    session_destroy(); // Destroy the session
+    header("Location: /index.php"); // Redirect to the login page after logout
+    exit;
+}
+
 ?>
 
 <!doctype html>
@@ -76,7 +84,7 @@ $con->close();
     <div class="h-full px-3 pb-4 overflow-y-auto bg-white">
         <ul class="space-y-2 font-medium">
             <li>
-                <a href="index.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100"">
+                <a href="dashboard.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100"">
                 <i class="w-5 h-5 text-gray-500 fa-solid fa-house"></i>
                 <span class="ms-3">Dashboard</span>
                 </a>

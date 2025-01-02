@@ -81,7 +81,7 @@ $result = $con->query($sql);
     </div>
 </header>
 
-<!-- Hero Section -->
+<!--BANNER-->
 <section id="home" class="relative flex items-center justify-center text-center text-white bg-center bg-cover hero" 
     style="background-image: url('/src/images/UMak-Facade-Admin.jpg'); height: 75vh;">
     <div class="absolute inset-0 bg-slate-800 bg-opacity-60"></div>
@@ -92,7 +92,7 @@ $result = $con->query($sql);
     </div>
 </section>
 
-<!-- Services Section -->
+<!--SERVICES-->
 <section id="services" class="py-10 bg-yellow-400">
     <div class="container mx-auto text-center">
         <h2 class="mb-8 text-3xl font-semibold max-sm:text-4xl text-cyan-600">Our Services</h2>
@@ -134,7 +134,7 @@ $result = $con->query($sql);
     </div>
 </article>
 
-<!--ABOUT SECTION-->
+<!--ABOUT-->
 <section id="about" class="container px-4 mx-auto my-10">
     <div class="grid items-center grid-cols-1 gap-8 md:grid-cols-2">
         <div class="relative">
