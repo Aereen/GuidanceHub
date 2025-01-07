@@ -11,6 +11,23 @@ if (!$con) {
 // Fetch articles from the database
 $sql = "SELECT id, title, content, published_at FROM articles ORDER BY published_at DESC";
 $result = $con->query($sql);
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $student_id = $_POST['student_id'];
+    $counselor_name = $_POST['counselor_name'];
+    $reason = $_POST['reason'];
+    $referral_date = date('Y-m-d'); // Current date
+
+    // SQL query to insert referral data
+    $sql = "INSERT INTO referrals (student_id, counselor_name, referral_date, reason) 
+            VALUES ('$student_id', '$counselor_name', '$referral_date', '$reason')";
+
+    if (mysqli_query($conn, $sql)) {
+        echo "<script>alert('Referral submitted successfully');</script>";
+    } else {
+        echo "Error: " . $sql . "<br>" . mysqli_error($conn);
+    }
+}
 ?>
 
 
@@ -26,13 +43,39 @@ $result = $con->query($sql);
     <script src="https://kit.fontawesome.com/95c10202b4.js" crossorigin="anonymous"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- JavaScript for Toggle Menu -->
     <script>
+    //JavaScript for toggle menu
         const menuToggle = document.getElementById('menu-toggle');
         const menu = document.getElementById('menu');
 
         menuToggle.addEventListener('click', () => {
             menu.classList.toggle('hidden');
+        });
+
+    // JavaScript to toggle modal visibility
+        function toggleModal() {
+            const modal = document.getElementById('referralModal');
+            modal.classList.toggle('hidden');
+        }
+
+    // JavaScript to toggle the popover visibility
+        document.addEventListener('DOMContentLoaded', function () {
+            const button = document.querySelector('button[data-popover-target]');
+            const popover = document.getElementById(button.getAttribute('data-popover-target'));
+
+            button.addEventListener('click', function () {
+                popover.classList.toggle('invisible');
+                popover.classList.toggle('opacity-0');
+                popover.classList.toggle('opacity-100');
+            });
+
+            // Optional: Close the popover if clicked outside
+            window.addEventListener('click', function (event) {
+                if (!popover.contains(event.target) && !button.contains(event.target)) {
+                    popover.classList.add('invisible', 'opacity-0');
+                    popover.classList.remove('opacity-100');
+                }
+            });
         });
     </script>
 
@@ -71,7 +114,6 @@ $result = $con->query($sql);
                 <li><a href="#home" class="hover:text-cyan-950">Home</a></li>
                 <li><a href="#services" class="hover:text-cyan-950">Services</a></li>
                 <li><a href="#about" class="hover:text-cyan-950">About</a></li>
-                <li><a href="#contact" class="hover:text-cyan-950">Contact</a></li>
                 <li>
                     <a href="/src/entry-page/login.php" 
                         class="px-4 py-2 text-white rounded-md bg-cyan-800 hover:bg-cyan-950">Login</a>
@@ -93,9 +135,9 @@ $result = $con->query($sql);
 </section>
 
 <!--SERVICES-->
-<section id="services" class="py-10 bg-yellow-400">
+<section id="services" class="py-5 bg-yellow-300">
     <div class="container mx-auto text-center">
-        <h2 class="mb-8 text-3xl font-semibold max-sm:text-4xl text-cyan-600">Our Services</h2>
+        <h2 class="mb-5 text-4xl font-semibold max-sm:text-4xl text-cyan-600">Our Services</h2>
             <div class="grid gap-8 md:grid-cols-3">
                 <div class="p-6 bg-white rounded-lg shadow-md">
                     <h3 class="mb-4 text-2xl font-semibold">Personal Counseling</h3>
@@ -134,16 +176,91 @@ $result = $con->query($sql);
     </div>
 </article>
 
+<!--REFERRAL SYSTEM-->
+<section id="referral" class="container px-4 mx-auto my-10">
+    <h4 class="p-2 text-xl font-semibold text-white bg-teal-500 rounded-lg">REFERRAL SYSTEM</h4>
+        <div class="grid gap-2 p-5 my-1 bg-white border-2 rounded-lg dark:border-gray-300">
+            <h4 class="p-2 text-xl font-bold">Process Flow:</h4>
+            <div class="grid gap-6 bg-white md:grid-cols-3 sm:grid-cols-2 lg:grid-cols-30">
+                <!-- Faculty Section -->
+                <div class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:border-gray-300">
+                    <h3 class="text-xl font-bold text-gray-700">Faculty</h3>
+                    <p class="text-gray-600">The Faculty will fill out an Online Referral Form indicating the reason why the student is being referred.</p>
+                </div>
+
+                <!-- Guidance Counselor Section -->
+                <div class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:border-gray-300">
+                    <h3 class="text-xl font-bold text-gray-700">Guidance Counselor</h3>
+                    <p class="text-gray-600">The Guidance Counselor will contact the referred student to schedule a counseling session.</p>
+                </div>
+
+                <!-- Student Section -->
+                <div class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:border-gray-300">
+                    <h3 class="text-xl font-bold text-gray-700">Student</h3>
+                    <p class="text-gray-600">The referred student will meet the guidance counselor through an online platform for an initial interview/counseling and/or psychological assessment if necessary.</p>
+                </div>
+            </div>  
+
+            <!-- Button to open the modal -->
+            <button onclick="toggleModal()" class="px-4 py-2 mt-8 ml-8 text-white bg-blue-500 rounded-md">Open Referral Form</button>
+
+            <!-- Modal -->
+            <div id="referralModal" class="fixed inset-0 z-50 flex items-center justify-center hidden overflow-y-auto bg-black bg-opacity-50">
+                <div class="relative grid w-full max-w-xl grid-cols-2 gap-10 p-6 my-1 bg-white border-2 rounded-lg shadow-lg dark:border-gray-300">
+                    <div class="p-2 m-3">
+                        <h3 class="text-xl font-semibold">Indicators that the student may need counseling?</h3>
+                            <ol class="m-1 list-decimal list-inside">
+                                <li class="p-1">Absenteeism</li>
+                                <li class="p-1">Lack of energy and Enthusiasm for studies</li>
+                                <li class="p-1">Abrasive/Aggressive Behavior</li>
+                                <li class="p-1">Sleep Deprived during class</li>
+                                <li class="p-1">Low Self-Esteem</li>
+                                <li class="p-1">Marked Changes in Academic Performace</li>
+                                <li class="p-1">Talking to self</li>
+                                <li class="p-1">Suicidal Attempts</li>
+                                <li class="p-1">Excessive Dependency on others</li>
+                            </ol>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-semibold text-gray-700">Referral Form</h2>
+                            <button 
+                                class="absolute top-0 right-0 m-5 text-gray-500 hover:text-red-600"
+                                onclick="toggleModal()">
+                                <i class="text-xl fa-solid fa-circle-xmark"></i>
+                            </button>
+                            <form action="submit_referral.php" method="POST" class="mt-4">
+                                <div class="mb-4">
+                                    <label for="student_id" class="block text-sm font-medium text-gray-700">Student ID</label>
+                                    <input type="text" id="student_id" name="student_id" class="w-full p-2 mt-1 border border-gray-300 rounded-md" required>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="counselor_name" class="block text-sm font-medium text-gray-700">Counselor Name</label>
+                                    <input type="text" id="counselor_name" name="counselor_name" class="w-full p-2 mt-1 border border-gray-300 rounded-md" required>
+                                </div>
+                                <div class="mb-4">
+                                    <label for="reason" class="block text-sm font-medium text-gray-700">Reason for Referral</label>
+                                    <textarea id="reason" name="reason" rows="4" class="w-full p-2 mt-1 border border-gray-300 rounded-md" required></textarea>
+                                </div>
+                                <!-- Submit Button -->
+                                <button type="submit" class="px-4 py-2 text-white bg-blue-500 rounded-md">
+                                    Submit Referral
+                                </button>
+                            </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+</section>
+
+
 <!--ABOUT-->
 <section id="about" class="container px-4 mx-auto my-10">
     <div class="grid items-center grid-cols-1 gap-8 md:grid-cols-2">
-        <div class="relative">
             <img 
                 src="/src/images/CGCS-About.jpg" 
                 alt="About Us Highlight"  
                 class="w-full rounded-lg"
             >
-        </div>
         <div>
             <h3 class="text-3xl font-semibold text-cyan-600">About Us</h3>
                 <h1 class="mb-4 text-4xl font-bold text-gray-800">GuidanceHub</h1>
