@@ -1,5 +1,5 @@
 <?php
-// Include server logic if required
+session_start();
 include('E:/GuidanceHub/src/entry-page/server.php');
 
 // Database connection using PDO
@@ -10,11 +10,12 @@ try {
     $password = '';
     $con = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
     $con->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        } catch (PDOException $e) {
-            die("Connection failed: " . $e->getMessage());
-        }
+} catch (PDOException $e) {
+    die("Connection failed: " . $e->getMessage());
+}
 
-//Announcements
+
+// Fetch announcements
 try {
     $query = $con->query("SELECT * FROM announcements ORDER BY created_at DESC");
     $announcements = $query->fetchAll(PDO::FETCH_ASSOC);
@@ -22,38 +23,7 @@ try {
     die("Error fetching announcements: " . $e->getMessage());
 }
 
-// Profile Update
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    try {
-        $first_name = htmlspecialchars($_POST['first_name']);
-        $last_name = htmlspecialchars($_POST['last_name']);
-        $email = htmlspecialchars($_POST['email']);// Assuming role is part of the users table
-        $current_time = date('Y-m-d H:i:s'); // Timestamp for the update
-
-        // Update the existing user's data in the users table
-        $query = "UPDATE users SET 
-                    first_name=:first_name, 
-                    last_name=:last_name, 
-                    updated_at=:updated_at,
-                    WHERE email=:email"; // Assuming updated_at field exists
-
-        $stmt = $con->prepare($query);
-        $stmt->execute([
-            ':first_name' => $first_name,
-            ':last_name' => $last_name,
-            ':email' => $email,
-            ':updated_at' => $current_time, // Set current timestamp for updates
-        ]);
-    } catch (PDOException $e) {
-        die("Error updating data: " . $e->getMessage());
-    }
-}
-
-$query = $con->prepare("SELECT * FROM users WHERE email = :email");
-$query->execute([':email' => $email]);
-$user = $query->fetch(PDO::FETCH_ASSOC);
-
-//When logout is requested
+// When logout is requested
 if (isset($_GET['logout'])) {
     session_unset(); // Unset all session variables
     session_destroy(); // Destroy the session
@@ -73,25 +43,16 @@ if (isset($_GET['logout'])) {
         <link href="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.css"  rel="stylesheet" />
         <script src="https://kit.fontawesome.com/95c10202b4.js" crossorigin="anonymous"></script>
         <script src="https://cdn.tailwindcss.com"></script>
-        <link href="./output.css" rel="stylesheet">    
-<style>
-    body::-webkit-scrollbar {
-        width: 15px; }
-    body::-webkit-scrollbar-track {
-        background: #f1f1f1; }
-    body::-webkit-scrollbar-thumb {
-        background: #888; }
-    body::-webkit-scrollbar-thumb:hover {
-        background: #555; }
-</style>
+        <link href="./output.css" rel="stylesheet">   
+
 </head>
-<body>
+<body class="bg-gray-100">
 <!--TOP NAVIGATION BAR-->
 <nav class="fixed top-0 z-50 w-full bg-white border-b border-gray-200 dark:border-gray-300">
     <div class="px-3 py-3 lg:px-5 lg:pl-3">
         <div class="flex items-center justify-between">
             <div class="flex items-center justify-start rtl:justify-end">
-                <button data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" aria-controls="logo-sidebar" type="button" class="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg sm:hidden focus:outline-none dark:text-gray-400 dark:hover:bg-gray-500">
+                <button data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" aria-controls="logo-sidebar" type="button" class="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600">
                     <span class="sr-only">Open sidebar</span>
                     <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                     <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
@@ -103,14 +64,13 @@ if (isset($_GET['logout'])) {
                 </a>
             </div>
             <div class="flex items-center justify-end">
-
             </div>
         </div>
     </div>
 </nav>
 
 <!--SIDE NAVIGATION MENU-->
-<aside id="logo-sidebar" class="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform -translate-x-full border-r dark:border-gray-300 sm:translate-x-0" aria-label="Sidebar">
+<aside id="logo-sidebar" class="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform -translate-x-full bg-white border-r dark:border-gray-300 sm:translate-x-0" aria-label="Sidebar">
     <div class="h-full px-3 pb-4 overflow-y-auto bg-white dark:border-gray-300">
         <ul class="space-y-2 font-medium">
             <li>
@@ -158,14 +118,141 @@ if (isset($_GET['logout'])) {
 </aside>
 
 <!--CONTENT-->
-<main class="p-4 mt-10 sm:ml-64">
-<h2 class="p-3 text-4xl font-bold">Dashboard</h2>
+<main class="p-4 mt-12 sm:ml-64">
+    <h2 class="p-3 text-4xl font-bold tracking-tight">Dashboard</h2>
 
-<div class="grid grid-cols-1 gap-4 p-6 lg:grid-cols-4">
+    <div class="grid grid-cols-1 gap-4 p-1 lg:grid-cols-4">
 
-<!-- ANNOUNCEMENT SECTION -->
-    <section class="col-span-3 p-5 border-2 rounded-lg bg-gray-50 dark:border-gray-300">
-        <h4 class="p-2 text-xl font-semibold text-white bg-teal-500 rounded-lg">ANNOUNCEMENTS</h4>
+        <!-- ACTIVITIES -->
+        <section class="col-span-1 p-5 my-3 bg-white border-2 rounded-lg lg:col-span-3 dark:border-gray-300">
+            <div class="grid grid-cols-1 gap-4 m-5 sm:grid-cols-2 lg:grid-cols-2">
+                <?php if (empty($announcements)): ?>
+                    <p class="text-gray-500 col-span-full">No announcements available.</p>
+                <?php else: ?>
+                    <?php foreach ($announcements as $announcement): ?>
+                        <div class="p-4 rounded-lg shadow-xl bg-gray-50">
+                            <h3 class="mb-2 text-xl font-semibold text-blue-800">
+                                <?php echo htmlspecialchars($announcement['title']); ?>
+                            </h3>
+                            <p class="text-gray-700">
+                                <?php echo nl2br(htmlspecialchars($announcement['message'])); ?>
+                            </p>
+                            <p class="mt-2 text-sm text-gray-500">
+                                Posted on: <?php echo date('F j, Y, g:i a', strtotime($announcement['created_at'])); ?>
+                            </p>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
+
+        <!-- CALENDAR -->
+            <div class="p-3 mt-1 bg-white border-2 rounded-lg dark:border-gray-300">
+                <h2 class="mb-4 text-2xl font-bold text-center text-gray-800">
+                    <?php echo date('F Y'); ?>
+                </h2>
+                <div class="grid grid-cols-7 gap-2 font-semibold text-center text-gray-600">
+                    <?php foreach ($daysOfWeek as $day): ?>
+                        <div class="p-1 text-white bg-teal-500 rounded-lg"><?php echo $day; ?></div>
+                    <?php endforeach; ?>
+                </div>
+                <div class="grid grid-cols-7 gap-2 mt-2 text-center">
+                    <?php foreach ($calendar as $week): ?>
+                        <?php foreach ($week as $day): ?>
+                            <div class="p-2 <?php echo $day === (int)date('j') ? 'bg-teal-500 text-white' : 'bg-gray-100'; ?> rounded-lg">
+                                <?php echo $day ? $day : ''; ?>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </section>
+
+        <aside class="col-span-1 space-y-6">
+
+            <!-- PROFILE -->
+            <div class="flex flex-col items-center justify-center p-5 my-3 bg-white border-2 rounded-lg dark:border-gray-300">
+                <div class="flex items-center justify-between w-full">
+                    <h4 class="p-2 text-2xl font-bold text-gray-700">PROFILE</h4>
+                    <div class="text-xl font-semibold cursor-pointer" id="editProfileButton">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </div>
+                </div>
+                <div class="flex flex-col items-center justify-center p-3">
+                    <img src="/src/images/UMak-Facade-Admin.jpg" alt="Profile Picture" class="object-cover w-32 h-32 p-1 rounded-full lg:w-40 lg:h-40">
+                    <div class="w-full overflow-x-auto">
+                        <table class="w-full text-sm text-center text-gray-800">
+                            <tbody>
+                                <tr>
+                                    <td class="px-5 py-1">Eirene Grace Q. Armilla</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-5 py-1">A12035445</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-5 py-1">earmilla.a12035445@umak.edu.ph</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-5 py-1">College of Computing and Information Sciences</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-5 py-1">4th Year</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-5 py-1">AINS</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PROFILE EDIT Modal -->
+            <div id="editProfileModal" class="fixed inset-0 z-50 flex items-center justify-center hidden bg-black bg-opacity-50">
+                <div class="relative p-6 bg-white rounded shadow-lg max-h-[90vh] w-[80vw] overflow-y-auto">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-bold">Edit Profile</h3>
+                        <button id="closeModalButton" class="text-gray-600 hover:text-gray-800">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                    <form>
+                        <div class="mb-2">
+                            <label class="block mb-2 text-sm font-semibold text-gray-700">Full Name</label>
+                            <input type="text" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" value="Eirene Grace Q. Armilla">
+                        </div>
+                        <div class="mb-2">
+                            <label class="block mb-2 text-sm font-semibold text-gray-700">Student Number</label>
+                            <input type="text" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" value="A12035445">
+                        </div>
+                        <div class="mb-2">
+                            <label class="block mb-2 text-sm font-semibold text-gray-700">Email</label>
+                            <input type="email" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" value="earmilla.a12035445@umak.edu.ph">
+                        </div>
+                        <div class="mb-2">
+                            <label class="block mb-2 text-sm font-semibold text-gray-700">College</label>
+                            <input type="text" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" value="College of Computing and Information Sciences">
+                        </div>
+                        <div class="mb-2">
+                            <label class="block mb-2 text-sm font-semibold text-gray-700">Year</label>
+                            <input type="text" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" value="4th Year">
+                        </div>
+                        <div class="mb-2">
+                            <label class="block mb-2 text-sm font-semibold text-gray-700">Program</label>
+                            <input type="text" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" value="AINS">
+                        </div>
+                        <div class="flex justify-end">
+                            <button type="button" id="saveChangesButton" class="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </aside>
+    </div>
+
+    <!-- ANNOUNCEMENT SECTION -->
+    <h4 class="p-2 text-xl font-semibold text-white bg-teal-500 rounded-lg">ANNOUNCEMENTS</h4>
+    <section class="col-span-3 p-5 my-5 bg-white border-2 rounded-lg dark:border-gray-300">
         <div class="grid grid-cols-1 gap-3 my-3 sm:grid-cols-2 lg:grid-cols-2">
             <?php if (empty($announcements)): ?>
                 <p class="text-gray-500 col-span-full">No announcements available.</p>
@@ -187,206 +274,44 @@ if (isset($_GET['logout'])) {
         </div>
     </section>
 
-<!-- PROFILE & CALENDAR SECTION -->
-    <aside class="col-span-1 space-y-5">
-
-    <!-- PROFILE -->
-        <div class="p-5 border-2 rounded-lg bg-gray-50 dark:border-gray-300">
-    <div class="flex items-center justify-between">
-        <h4 class="p-2 text-2xl font-bold text-gray-700">PROFILE</h4>
-        <div class="float-right text-xl font-semibold cursor-pointer" onclick="showForm()">
-            <i class="fa-solid fa-pen-to-square"></i>
-        </div>
-    </div>
-    <div class="flex flex-col items-center justify-center p-3">
-        <div class="flex flex-col items-center space-y-4">
-            <img src="/src/images/UMak-Facade-Admin.jpg" alt="Profile Picture" class="object-cover w-48 h-48 p-2 rounded-full">
-            <div class="w-full overflow-x-auto">
-                <table class="w-full p-1 text-sm text-center">
-                    <tbody>
-                        <tr>
-                            <td scope="row"><?= htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?></td>
-                        </tr>
-                        <tr>
-                            <td scope="row"><?= htmlspecialchars($user['email']); ?></td>
-                        </tr>
-                        <tr>
-                            <td scope="row"><?= htmlspecialchars($user['role']); ?></td> <!-- Assuming role exists in the users table -->
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- PROFILE UPDATE MODAL -->
-    <div id="editFormModal" class="fixed inset-0 z-50 items-center justify-center hidden bg-gray-500 bg-opacity-50">
-        <div class="w-1/2 p-6 bg-white rounded-lg">
-            <h4 class="mb-4 text-xl font-bold text-gray-700">Edit Profile</h4>
-            <form method="POST" action="">
-                <table class="w-full text-sm text-center">
-                    <tbody>
-                        <tr>
-                            <th scope="row" class="px-6 py-3 text-right">FIRST NAME:</th>
-                            <td class="px-6 py-3">
-                                <input type="text" name="first_name" value="<?= htmlspecialchars($user['first_name']); ?>" class="w-full px-2 py-1 border rounded-md">
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row" class="px-6 py-3 text-right">LAST NAME:</th>
-                            <td class="px-6 py-3">
-                                <input type="text" name="last_name" value="<?= htmlspecialchars($user['last_name']); ?>" class="w-full px-2 py-1 border rounded-md">
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row" class="px-6 py-3 text-right">EMAIL:</th>
-                            <td class="px-6 py-3">
-                                <input type="email" name="email" value="<?= htmlspecialchars($user['email']); ?>" class="w-full px-2 py-1 border rounded-md" readonly>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row" class="px-6 py-3 text-right">ROLE:</th>
-                            <td class="px-6 py-3">
-                                <input type="text" name="role" value="<?= htmlspecialchars($user['role']); ?>" class="w-full px-2 py-1 border rounded-md">
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div class="mt-4">
-                    <button type="submit" class="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700">Save Changes</button>
-                </div>
-            </form>
-            <div class="mt-4">
-                <button type="button" class="px-4 py-2 text-white bg-red-600 rounded-md hover:bg-red-700" onclick="closeForm()">Cancel</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-    <!-- CALENDAR -->
-        <div class="p-5 border-2 rounded-lg bg-gray-50 dark:border-gray-300">
-            <h2 class="mb-6 text-2xl font-bold text-center text-gray-800">
-                <?php echo date('F Y'); ?>
-            </h2>
-            <div class="grid grid-cols-7 gap-2 font-semibold text-center text-gray-600">
-                <?php foreach ($daysOfWeek as $day): ?>
-                    <div class="p-1 text-white bg-teal-500 rounded-lg"><?php echo $day; ?></div>
-                <?php endforeach; ?>
-            </div>
-            <div class="grid grid-cols-7 gap-2 mt-2 text-center">
-                <?php foreach ($calendar as $week): ?>
-                    <?php foreach ($week as $day): ?>
-                        <div class="p-2 <?php echo $day === (int)date('j') ? 'bg-teal-500 text-white' : 'bg-gray-100'; ?> rounded-lg">
-                            <?php echo $day ? $day : ''; ?>
-                        </div>
-                    <?php endforeach; ?>
-                <?php endforeach; ?>
-            </div>
-        </div>
-    </aside>
-</div>
-
-
-<!--COUNSELING PROCESS-->
+    <!-- COUNSELING PROCESS -->
     <h4 class="p-2 text-xl font-semibold text-white bg-teal-500 rounded-lg">PROCESS</h4>
-        <section class="grid grid-cols-1 gap-4 p-5 my-5 border-2 rounded-lg sm:grid-cols-2 lg:grid-cols-3 dark:border-gray-300">
-            <!-- Card 1 -->
-            <div class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:border-gray-300">
-                <h5 class="mb-2 text-2xl font-bold tracking-tight text-black">Needs Assessment</h5>
-                    <p class="mb-3 text-gray-700 dark:text-gray-800">To identify students' needs and concerns, conduct surveys or questionnaires, analyze academic records, attendance data, and disciplinary referrals, and consult with teachers, parents, and other school staff.</p>
-            </div>
+    <section class="grid grid-cols-1 gap-4 p-5 my-5 bg-white border-2 rounded-lg sm:grid-cols-2 lg:grid-cols-3 dark:border-gray-300">
+        <!-- Card 1 -->
+        <div class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:border-gray-300">
+            <h5 class="mb-2 text-2xl font-bold tracking-tight text-black">Needs Assessment</h5>
+            <p class="mb-3 text-gray-700 dark:text-gray-800">To identify students' needs and concerns, conduct surveys or questionnaires...</p>
+        </div>
 
-            <!-- Card 2 -->
-            <div class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:border-gray-300">
-                <h5 class="mb-2 text-2xl font-bold tracking-tight text-black">Program Planning</h5>
-                    <p class="mb-3 text-gray-700 dark:text-gray-800">Include a plan for delivering services, such as individual counseling, group counseling, classroom guidance, and crisis intervention.</p>
-            </div>
+        <!-- Card 2 -->
+        <div class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:border-gray-300">
+            <h5 class="mb-2 text-2xl font-bold tracking-tight text-black">Program Planning</h5>
+            <p class="mb-3 text-gray-700 dark:text-gray-800">Include a plan for delivering services, such as individual counseling...</p>
+        </div>
 
-            <!-- Card 3 -->
-            <div class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:border-gray-300">
-                <h5 class="mb-2 text-2xl font-bold tracking-tight text-black">Counseling and Intervention</h5>
-                    <p class="mb-3 text-gray-700 dark:text-gray-800">Individual counseling provides one-on-one support to address specific concerns and goals. Crisis intervention involves responding promptly to emergencies and connecting students to necessary resources.</p>
-            </div>
+        <!-- Card 3 -->
+        <div class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:border-gray-300">
+            <h5 class="mb-2 text-2xl font-bold tracking-tight text-black">Counseling and Intervention</h5>
+            <p class="mb-3 text-gray-700 dark:text-gray-800">Individual counseling provides one-on-one support...</p>
+        </div>
 
-            <!-- Card 4 -->
-            <div class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:border-gray-300">
-                <h5 class="mb-2 text-2xl font-bold tracking-tight text-black">Follow-up Consultation</h5>
-                    <p class="mb-3 text-gray-700 dark:text-gray-800">Monitor the progress of students and provide ongoing support as needed and maintain communication with external providers to stay informed about students' progress and coordinate care.</p>
-            </div>
+        <!-- Card 4 -->
+        <div class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:border-gray-300">
+            <h5 class="mb-2 text-2xl font-bold tracking-tight text-black">Follow-up Consultation</h5>
+            <p class="mb-3 text-gray-700 dark:text-gray-800">Monitor the progress of students and provide ongoing support...</p>
+        </div>
 
-            <!-- Card 5 -->
-            <div class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:border-gray-300">
-                <h5 class="mb-2 text-2xl font-bold tracking-tight text-black">Evaluation and Program Improvement</h5>
-                    <p class="mb-3 text-gray-700 dark:text-gray-800">Collect and analyze data on the outcomes of the guidance and counseling program, such as student achievement, behavior, and well-being. Use the findings to make evidence-based improvements to the program and adapt it to meet the changing needs of students and the school community.</p>
-            </div>
-        </section>
-
-<!--LINKS SECTION-->
-    <section>
-        <h4 class="p-2 text-xl font-semibold text-white bg-teal-500 rounded-lg">LINKS</h4>
-            <div class="grid grid-cols-1 gap-6 p-5 my-5 border-2 rounded-lg sm:grid-cols-2 lg:grid-cols-4 dark:border-gray-300">
-                    <!-- Card 1 -->
-                    <div class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:border-gray-300">
-                    <a href="#">
-                        <h5 class="mb-2 text-2xl font-bold tracking-tight text-black ">Appointment Scheduling</h5>
-                    </a>
-                    <p class="mb-3 text-gray-700 dark:text-gray-800">Here are the biggest enterprise technology acquisitions of 2021 so far, in reverse chronological order.</p>
-                    <a href="#" class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                        Read more
-                        <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
-                        </svg>
-                    </a>
-                    </div>
-
-                    <!-- Card 2 -->
-                    <div class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:border-gray-300">
-                    <a href="#">
-                        <h5 class="mb-2 text-2xl font-bold tracking-tight text-black">Assessment</h5>
-                    </a>
-                    <p class="mb-3 text-gray-700 dark:text-gray-800">Here are the biggest enterprise technology acquisitions of 2021 so far, in reverse chronological order.</p>
-                    <a href="#" class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                        Read more
-                        <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
-                        </svg>
-                    </a>
-                    </div>
-
-                    <!-- Card 3 -->
-                    <div class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:border-gray-300">
-                    <a href="#">
-                        <h5 class="mb-2 text-2xl font-bold tracking-tight text-black">Library</h5>
-                    </a>
-                    <p class="mb-3 text-gray-700 dark:text-gray-800">Here are the biggest enterprise technology acquisitions of 2021 so far, in reverse chronological order.</p>
-                    <a href="#" class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                        Read more
-                        <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
-                        </svg>
-                    </a>
-                    </div>
-
-                    <!-- Card 4 -->
-                    <div class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:border-gray-300">
-                    <a href="#">
-                        <h5 class="mb-2 text-2xl font-bold tracking-tight text-black">Appointment Scheduling</h5>
-                    </a>
-                    <p class="mb-3 text-gray-700 dark:text-gray-800">Here are the biggest enterprise technology acquisitions of 2021 so far, in reverse chronological order.</p>
-                    <a href="#" class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                        Read more
-                        <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
-                        </svg>
-                    </a>
-                    </div>
-            </div>
+        <!-- Card 5 -->
+        <div class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:border-gray-300">
+            <h5 class="mb-2 text-2xl font-bold tracking-tight text-black">Evaluation and Program Improvement</h5>
+            <p class="mb-3 text-gray-700 dark:text-gray-800">Conduct regular evaluations to assess the effectiveness...</p>
+        </div>
     </section>
 </main>
 
+
 <!--FOOTER-->
-<footer class="overflow-auto bg-white sm:ml-64 w-75">
+<footer class="overflow-auto bg-gray-100 sm:ml-64 w-75">
     <div class="w-full max-w-screen-xl p-4 py-6 mx-auto lg:py-8 dark:text-gray-800">
         <div class="md:flex md:justify-between">
             <div class="mb-6 md:mb-0">
@@ -472,15 +397,24 @@ if (isset($_GET['logout'])) {
 </footer>
 
 <script>
-    // Show the modal (form)
-    function showForm() {
-        document.getElementById('editFormModal').classList.remove('hidden');
-    }
+    const editProfileButton = document.getElementById("editProfileButton");
+    const editProfileModal = document.getElementById("editProfileModal");
+    const closeModalButton = document.getElementById("closeModalButton");
 
-    // Close the modal (form)
-    function closeForm() {
-        document.getElementById('editFormModal').classList.add('hidden');
-    }
+    editProfileButton.addEventListener("click", () => {
+        editProfileModal.classList.remove("hidden");
+    });
+
+    closeModalButton.addEventListener("click", () => {
+        editProfileModal.classList.add("hidden");
+    });
+
+    // Close modal on outside click
+    window.addEventListener("click", (event) => {
+        if (event.target === editProfileModal) {
+            editProfileModal.classList.add("hidden");
+        }
+    });
 </script>
 <script src="../path/to/flowbite/dist/flowbite.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>

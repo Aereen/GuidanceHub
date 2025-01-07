@@ -67,19 +67,11 @@
 
                 <!-- Sign Up Form -->
                 <form action="server.php" method="POST" onsubmit="return validatePasswords()">
-                    <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-                        <!-- First Name -->
-                        <div>
-                            <label for="first_name" class="block text-sm font-medium text-gray-700">First Name</label>
-                            <input type="text" id="first_name" name="first_name" class="w-full px-4 py-2 mt-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600" required>
+                        <!-- Name -->
+                        <div class="mb-2">
+                            <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
+                            <input type="text" id="name" name="name" class="w-full px-4 py-2 mt-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600" required>
                         </div>
-
-                        <!-- Last Name -->
-                        <div>
-                            <label for="last_name" class="block text-sm font-medium text-gray-700">Last Name</label>
-                            <input type="text" id="last_name" name="last_name" class="w-full px-4 py-2 mt-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600" required>
-                        </div>
-                    </div>
 
                     <!-- Email -->
                     <div class="mb-4">

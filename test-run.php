@@ -1,105 +1,177 @@
 <?php
-// Include database connection
+// Include server logic if required
 include('E:/GuidanceHub/src/entry-page/server.php');
 
-// Database connection using PDO
-try {
-    $host = 'localhost';
-    $dbname = 'guidancehub';
-    $username = 'root';
-    $password = '';
-    $con = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
-    $con->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die("Connection failed: " . $e->getMessage());
+// Create MySQLi connection
+$con = new mysqli('localhost', 'root', '', 'guidancehub');
+
+// Check connection
+if ($con->connect_error) {
+    die("Connection failed: " . $con->connect_error);
 }
 
-// Fetch the profile data from the database
-$query = "SELECT * FROM students WHERE id = 1"; // assuming user with ID 1
-$stmt = $con->prepare($query);
-$stmt->execute();
-$row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-// Handle form submission
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $name = $_POST['name'];
-    $student_number = $_POST['student_number'];
-    $college = $_POST['college'];
-    $year_level = $_POST['year_level'];
-    $section = $_POST['section'];
-    $profile_picture = $_FILES['profile_picture']['name'];
-
-    // Handle profile picture upload
-    if ($profile_picture) {
-        move_uploaded_file($_FILES['profile_picture']['tmp_name'], "uploads/" . $profile_picture);
-    } else {
-        $profile_picture = $row['profile_picture']; // keep the old picture if none is uploaded
+// Announcements
+$query = "SELECT * FROM announcements ORDER BY created_at DESC";
+$result = $con->query($query);
+$announcements = [];
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $announcements[] = $row;
     }
-
-    // Update the profile details in the database
-    $update_query = "UPDATE students SET name = :name, student_number = :student_number, college = :college, year_level = :year_level, section = :section, profile_picture = :profile_picture WHERE id = 1";
-    $update_stmt = $con->prepare($update_query);
-    $update_stmt->bindParam(':name', $name);
-    $update_stmt->bindParam(':student_number', $student_number);
-    $update_stmt->bindParam(':college', $college);
-    $update_stmt->bindParam(':year_level', $year_level);
-    $update_stmt->bindParam(':section', $section);
-    $update_stmt->bindParam(':profile_picture', $profile_picture);
-
-    $update_stmt->execute();
-
-    // Redirect or refresh to show updated profile
-    header("Location: test-run.php");
 }
+
+// Check if email is set before running the query
+if (isset($email)) {
+    // Fetch the user's profile data
+    $query = "SELECT * FROM users WHERE email = ?";
+    $stmt = $con->prepare($query);
+    $stmt->bind_param('s', $email); // 's' for string
+    $stmt->execute();
+    $user_result = $stmt->get_result();
+    $user = $user_result->fetch_assoc();
+
+    // Check if the user data was returned
+    if ($user === null) {
+        echo "<div class='text-red-600'>No user found with this email.</div>";
+    }
+} else {
+    echo "<div class='text-red-600'>Email is not set.</div>";
+}
+
+// Handle form submission for profile update
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['email'])) {
+    $name = htmlspecialchars($_POST['name']);
+    $email = htmlspecialchars($_POST['email']);
+    $id_number = htmlspecialchars($_POST['id_number']);
+    $college = htmlspecialchars($_POST['college']);
+    $year = htmlspecialchars($_POST['year']);
+    $section = htmlspecialchars($_POST['section']);
+    $current_time = date('Y-m-d H:i:s'); // Timestamp for the update
+
+    // Update the existing user's data in the users table
+    $query = "UPDATE users SET 
+                name = ?, 
+                id_number = ?, 
+                college = ?, 
+                year = ?, 
+                section = ?, 
+                updated_at = ? 
+                WHERE email = ?";
+    $stmt = $con->prepare($query);
+    $stmt->bind_param('sssssss', $name, $id_number, $college, $year, $section, $current_time, $email);
+
+    if ($stmt->execute()) {
+        echo "<div class='text-green-600'>Profile updated successfully!</div>";
+    } else {
+        echo "<div class='text-red-600'>Error updating profile.</div>";
+    }
+}
+
+// Close connection
+$con->close();
 ?>
 
-<h4 class="p-2 text-xl font-semibold text-gray-700">PROFILE</h4>
-<div class="flex flex-col items-center justify-center p-5">
-    <form method="POST" enctype="multipart/form-data" class="w-full max-w-lg">
-        <div class="flex flex-col items-center space-y-4">
-            <img src="uploads/<?php echo $row['profile_picture']; ?>" alt="Profile Picture" class="object-cover w-48 h-48 p-2 rounded-full">
-            
-            <label for="profile_picture" class="text-gray-700 font-semibold">Upload Profile Picture</label>
-            <input type="file" id="profile_picture" name="profile_picture" class="p-2 border rounded-md text-gray-800" accept="image/*">
-            
-            <div class="w-full overflow-x-auto">
-                <table class="w-full text-sm text-center text-gray-800">
-                    <tbody>
-                        <tr>
-                            <th scope="row" class="px-6 py-3 text-right">NAME:</th>
-                            <td class="px-6 py-3">
-                                <input type="text" name="name" value="<?php echo $row['name']; ?>" class="px-3 py-2 border rounded-md" required>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row" class="px-6 py-3 text-right">STUDENT NO.:</th>
-                            <td class="px-6 py-3">
-                                <input type="text" name="student_number" value="<?php echo $row['student_number']; ?>" class="px-3 py-2 border rounded-md" required>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row" class="px-6 py-3 text-right">COLLEGE/INSTITUTE:</th>
-                            <td class="px-6 py-3">
-                                <input type="text" name="college" value="<?php echo $row['college']; ?>" class="px-3 py-2 border rounded-md" required>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row" class="px-6 py-3 text-right">YEAR LEVEL:</th>
-                            <td class="px-6 py-3">
-                                <input type="text" name="year_level" value="<?php echo $row['year_level']; ?>" class="px-3 py-2 border rounded-md" required>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row" class="px-6 py-3 text-right">SECTION:</th>
-                            <td class="px-6 py-3">
-                                <input type="text" name="section" value="<?php echo $row['section']; ?>" class="px-3 py-2 border rounded-md" required>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
 
-            <button type="submit" class="px-6 py-3 mt-4 text-white bg-blue-500 rounded-md">Save Changes</button>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+<link rel="icon" type="images/x-icon" href="/src/images/UMAK-CGCS-logo.png" />
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.css"  rel="stylesheet" />
+        <script src="https://kit.fontawesome.com/95c10202b4.js" crossorigin="anonymous"></script>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="./output.css" rel="stylesheet">  
+</head>
+<body>
+    <!-- PROFILE -->
+        <div class="p-5 border-2 rounded-lg bg-gray-50 dark:border-gray-300">
+    <div class="flex items-center justify-between">
+        <h4 class="p-2 text-2xl font-bold text-gray-700">PROFILE</h4>
+        <div class="float-right text-xl font-semibold cursor-pointer" onclick="showForm()">
+            <i class="fa-solid fa-pen-to-square"></i>
         </div>
-    </form>
+    </div>
+    <div class="flex flex-col items-center justify-center p-3">
+        <div class="flex flex-col items-center space-y-4">
+            <img src="/src/images/UMak-Facade-Admin.jpg" alt="Profile Picture" class="object-cover w-48 h-48 p-2 rounded-full">
+            <div class="w-full overflow-x-auto">
+                <table class="mt-4 text-sm table-auto">
+                    <tr>
+                        <th class="text-right">Full Name:</th>
+                        <td><?= htmlspecialchars($user['name']); ?></td>
+                    </tr>
+                    <tr>
+                        <th class="text-right">Email:</th>
+                        <td><?= htmlspecialchars($user['email']); ?></td>
+                    </tr>
+                    <tr>
+                        <th class="text-right">ID Number:</th>
+                        <td><?= htmlspecialchars($user['id_number']); ?></td>
+                    </tr>
+                    <tr>
+                        <th class="text-right">College:</th>
+                        <td><?= htmlspecialchars($user['college']); ?></td>
+                    </tr>
+                    <tr>
+                        <th class="text-right">Year:</th>
+                        <td><?= htmlspecialchars($user['year']); ?></td>
+                    </tr>
+                    <tr>
+                        <th class="text-right">Section:</th>
+                        <td><?= htmlspecialchars($user['section']); ?></td>
+                    </tr>
+                </table>                
+            </div>
+        </div>
+    </div>
+
+    <!-- PROFILE UPDATE MODAL -->
+    <div id="editFormModal" class="fixed inset-0 z-50 items-center justify-center hidden bg-gray-500 bg-opacity-50">
+        <div class="w-1/2 p-6 bg-white rounded-lg">
+            <h4 class="mb-4 text-xl font-bold">Edit Profile</h4>
+                <form method="POST">
+                    <table class="w-full text-sm">
+                        <tr>
+                            <th class="text-right">Name:</th>
+                            <td><input type="text" name="name" value="<?= htmlspecialchars($user['name']); ?>" class="w-full px-2 py-1 border rounded" required></td>
+                        </tr>
+                        <tr>
+                            <th class="text-right">Email:</th>
+                            <td><input type="email" name="email" value="<?= htmlspecialchars($user['email']); ?>" class="w-full px-2 py-1 border rounded" readonly></td>
+                        </tr>
+                        <tr>
+                            <th class="text-right">ID Number:</th>
+                            <td><input type="text" name="id_number" value="<?= htmlspecialchars($user['id_number']); ?>" class="w-full px-2 py-1 border rounded" required></td>
+                        </tr>
+                        <tr>
+                            <th class="text-right">College:</th>
+                            <td><input type="text" name="college" value="<?= htmlspecialchars($user['college']); ?>" class="w-full px-2 py-1 border rounded" required></td>
+                        </tr>
+                        <tr>
+                            <th class="text-right">Year:</th>
+                            <td><input type="text" name="year" value="<?= htmlspecialchars($user['year']); ?>" class="w-full px-2 py-1 border rounded" required></td>
+                        </tr>
+                        <tr>
+                            <th class="text-right">Section:</th>
+                            <td><input type="text" name="section" value="<?= htmlspecialchars($user['section']); ?>" class="w-full px-2 py-1 border rounded" required></td>
+                        </tr>
+                    </table>
+                    <div class="mt-4">
+                        <button type="submit" class="px-4 py-2 text-white bg-blue-600 rounded hover:bg-blue-700">Save Changes</button>
+                    </div>
+                </form>
+            <div class="mt-4">
+                <button type="button" class="px-4 py-2 text-white bg-red-600 rounded-md hover:bg-red-700" onclick="closeForm()">Cancel</button>
+            </div>
+        </div>
+    </div>
 </div>
+</body>
+</html>

@@ -79,11 +79,11 @@ if (isset($_POST['verify_otp'])) {
         array_push($errors, "OTP has expired. Please request a new one.");
     } else if ($entered_otp == $_SESSION['otp']) {
         $_SESSION['success'] = "You are now logged in";
-        
         // Redirect to the appropriate dashboard based on the role
         if ($_SESSION['role'] == 'counselor') {
             header('Location: /src/counselor/dashboard.php'); // Redirect to counselor dashboard
-        } else if ($_SESSION['role'] == 'student') {
+        } 
+        else if ($_SESSION['role'] == 'student') {
             header('Location: /src/student/dashboard.php'); // Redirect to student dashboard
         }
         else if ($_SESSION['role'] == 'admin') {
