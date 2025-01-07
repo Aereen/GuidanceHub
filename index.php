@@ -55,7 +55,7 @@ $result = $con->query($sql);
         <div class="flex items-center space-x-3">
             <img src="/src/images/UMAK-logo.png" alt="UMAK Logo" class="w-10 h-auto md:w-14"> <!--CHANGE INTO UMAK LOGO-->
             <img src="/src/images/UMAK-CGCS-logo.png" alt="CGCS Logo" class="w-10 h-auto md:w-14">
-            <span class="font-bold tracking-wide text-white md:text-2xl">GuidanceHub</span>
+            <span class="font-semibold tracking-wide text-white md:text-2xl">GuidanceHub</span>
         </div>
 
         <!-- Hamburger Icon -->

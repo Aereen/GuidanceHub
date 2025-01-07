@@ -1,49 +1,59 @@
-<?php include('E:/GuidanceHub/src/entry-page/server.php'); ?>
 <?php
-// Connect to the database
-$con = mysqli_connect('localhost', 'root', '', 'guidancehub');
+// Include server logic if required
+include('E:/GuidanceHub/src/entry-page/server.php');
 
-$host = 'localhost';
-$dbname = 'guidancehub';
-$username = 'root';
-$password = '';
-$con = new PDO("mysql: host= $host; dbname=$dbname", $username, $password);
+// Database connection using PDO
+try {
+    $host = 'localhost';
+    $dbname = 'guidancehub';
+    $username = 'root';
+    $password = '';
+    $con = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
+    $con->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        } catch (PDOException $e) {
+            die("Connection failed: " . $e->getMessage());
+        }
 
-// Fetch announcements
-$query = $con->query("SELECT * FROM announcements ORDER BY created_at DESC");
-$announcements = $query->fetchAll(PDO::FETCH_ASSOC);
+//Announcements
+try {
+    $query = $con->query("SELECT * FROM announcements ORDER BY created_at DESC");
+    $announcements = $query->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    die("Error fetching announcements: " . $e->getMessage());
+}
 
-// Set timezone
-date_default_timezone_set('Asia/Manila');
+// Profile Update
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    try {
+        $first_name = htmlspecialchars($_POST['first_name']);
+        $last_name = htmlspecialchars($_POST['last_name']);
+        $email = htmlspecialchars($_POST['email']);// Assuming role is part of the users table
+        $current_time = date('Y-m-d H:i:s'); // Timestamp for the update
 
-// Get current month and year
-$month = date('m');
-$year = date('Y');
+        // Update the existing user's data in the users table
+        $query = "UPDATE users SET 
+                    first_name=:first_name, 
+                    last_name=:last_name, 
+                    updated_at=:updated_at,
+                    WHERE email=:email"; // Assuming updated_at field exists
 
-// Get first day of the month and total days in the month
-$firstDayOfMonth = date('w', strtotime("$year-$month-01"));
-$totalDays = date('t', strtotime("$year-$month-01"));
-
-// Days of the week
-$daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
-// Generate calendar
-$calendar = [];
-$row = array_fill(0, 7, null);
-$dayCounter = 1;
-
-for ($i = 0; $i < 42; $i++) {
-    if ($i >= $firstDayOfMonth && $dayCounter <= $totalDays) {
-        $row[$i % 7] = $dayCounter++;
-    }
-
-    if ($i % 7 === 6) {
-        $calendar[] = $row;
-        $row = array_fill(0, 7, null);
+        $stmt = $con->prepare($query);
+        $stmt->execute([
+            ':first_name' => $first_name,
+            ':last_name' => $last_name,
+            ':email' => $email,
+            ':updated_at' => $current_time, // Set current timestamp for updates
+        ]);
+    } catch (PDOException $e) {
+        die("Error updating data: " . $e->getMessage());
     }
 }
 
-// Check if logout is requested
+$query = $con->prepare("SELECT * FROM users WHERE email = :email");
+$query->execute([':email' => $email]);
+$user = $query->fetch(PDO::FETCH_ASSOC);
+
+//When logout is requested
 if (isset($_GET['logout'])) {
     session_unset(); // Unset all session variables
     session_destroy(); // Destroy the session
@@ -136,14 +146,6 @@ if (isset($_GET['logout'])) {
                 </a>
             </li>
             <li>
-                <a href="profile.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
-                <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18">
-                    <i class="fa-solid fa-user"></i>
-                </svg>
-                <span class="flex-1 ms-3 whitespace-nowrap">Profile</span>
-                </a>
-            </li>
-            <li>
                 <a href="?logout=true" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
                     <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 16">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/> <i class="fa-solid fa-right-from-bracket"></i>
@@ -157,12 +159,12 @@ if (isset($_GET['logout'])) {
 
 <!--CONTENT-->
 <main class="p-4 mt-10 sm:ml-64">
-<h2 class="p-3 my-1 text-4xl font-bold">Dashboard</h2>
+<h2 class="p-3 text-4xl font-bold">Dashboard</h2>
 
-<div class="grid grid-cols-1 gap-6 p-6 lg:grid-cols-2">
+<div class="grid grid-cols-1 gap-4 p-6 lg:grid-cols-4">
 
-<!--ANNOUNCEMENT--> <!--CREATE AN CONTENT MANAGER OF THIS ON ADMIN & COUNSELOR-->
-    <section class="p-5 border-2 rounded-lg bg-gray-50 dark:border-gray-300">
+<!-- ANNOUNCEMENT SECTION -->
+    <section class="col-span-3 p-5 border-2 rounded-lg bg-gray-50 dark:border-gray-300">
         <h4 class="p-2 text-xl font-semibold text-white bg-teal-500 rounded-lg">ANNOUNCEMENTS</h4>
         <div class="grid grid-cols-1 gap-3 my-3 sm:grid-cols-2 lg:grid-cols-2">
             <?php if (empty($announcements)): ?>
@@ -170,7 +172,7 @@ if (isset($_GET['logout'])) {
             <?php else: ?>
                 <?php foreach ($announcements as $announcement): ?>
                     <div class="p-4 bg-white rounded-lg shadow-lg">
-                        <h3 class="text-lg font-semibold text-blue-800">
+                        <h3 class="mb-2 text-xl font-semibold text-blue-800">
                             <?php echo htmlspecialchars($announcement['title']); ?>
                         </h3>
                         <p class="text-gray-700">
@@ -185,34 +187,31 @@ if (isset($_GET['logout'])) {
         </div>
     </section>
 
-<aside>
-<!--PROFILE-->
-<h4 class="p-2 text-xl font-semibold text-gray-700">PROFILE</h4>
-    <div class="flex flex-col items-center justify-center p-5">
+<!-- PROFILE & CALENDAR SECTION -->
+    <aside class="col-span-1 space-y-5">
+
+    <!-- PROFILE -->
+        <div class="p-5 border-2 rounded-lg bg-gray-50 dark:border-gray-300">
+    <div class="flex items-center justify-between">
+        <h4 class="p-2 text-2xl font-bold text-gray-700">PROFILE</h4>
+        <div class="float-right text-xl font-semibold cursor-pointer" onclick="showForm()">
+            <i class="fa-solid fa-pen-to-square"></i>
+        </div>
+    </div>
+    <div class="flex flex-col items-center justify-center p-3">
         <div class="flex flex-col items-center space-y-4">
             <img src="/src/images/UMak-Facade-Admin.jpg" alt="Profile Picture" class="object-cover w-48 h-48 p-2 rounded-full">
             <div class="w-full overflow-x-auto">
-                <table class="w-full text-sm text-center">
+                <table class="w-full p-1 text-sm text-center">
                     <tbody>
                         <tr>
-                            <th scope="row" class="px-6 py-3 text-right">NAME:</th>
-                            <td class="px-6 py-3">Eirene Grace Q. Armilla</td>
+                            <td scope="row"><?= htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?></td>
                         </tr>
                         <tr>
-                            <th scope="row" class="px-6 py-3 text-right">STUDENT NO.:</th>
-                            <td class="px-6 py-3">A12035445</td>
+                            <td scope="row"><?= htmlspecialchars($user['email']); ?></td>
                         </tr>
                         <tr>
-                            <th scope="row" class="px-6 py-3 text-right">COLLEGE/INSTITUTE:</th>
-                            <td class="px-6 py-3">College of Computing and Information Sciences</td>
-                        </tr>
-                        <tr>
-                            <th scope="row" class="px-6 py-3 text-right">YEAR LEVEL:</th>
-                            <td class="px-6 py-3">4th Year</td>
-                        </tr>
-                        <tr>
-                            <th scope="row" class="px-6 py-3 text-right">SECTION:</th>
-                            <td class="px-6 py-3">AINS</td>
+                            <td scope="row"><?= htmlspecialchars($user['role']); ?></td> <!-- Assuming role exists in the users table -->
                         </tr>
                     </tbody>
                 </table>
@@ -220,32 +219,73 @@ if (isset($_GET['logout'])) {
         </div>
     </div>
 
-
-<!--CALENDAR-->
-    <div class="p-5 border-2 rounded-lg bg-gray-50 dark:border-gray-300">
-        <h2 class="mb-6 text-2xl font-bold text-center text-gray-800">
-            <?php echo date('F Y'); ?>
-        </h2>
-        <div class="grid grid-cols-7 gap-2 font-semibold text-center text-gray-600">
-            <?php foreach ($daysOfWeek as $day): ?>
-                <div class="p-2 text-white bg-teal-500 rounded-lg"><?php echo $day; ?></div>
-            <?php endforeach; ?>
-        </div>
-        <div class="grid grid-cols-7 gap-2 mt-2 text-center">
-            <?php foreach ($calendar as $week): ?>
-                <?php foreach ($week as $day): ?>
-                    <div class="p-2 <?php echo $day === (int)date('j') ? 'bg-teal-500 text-white' : 'bg-gray-100'; ?> rounded-lg">
-                        <?php echo $day ? $day : ''; ?>
-                    </div>
-                <?php endforeach; ?>
-            <?php endforeach; ?>
+    <!-- PROFILE UPDATE MODAL -->
+    <div id="editFormModal" class="fixed inset-0 z-50 items-center justify-center hidden bg-gray-500 bg-opacity-50">
+        <div class="w-1/2 p-6 bg-white rounded-lg">
+            <h4 class="mb-4 text-xl font-bold text-gray-700">Edit Profile</h4>
+            <form method="POST" action="">
+                <table class="w-full text-sm text-center">
+                    <tbody>
+                        <tr>
+                            <th scope="row" class="px-6 py-3 text-right">FIRST NAME:</th>
+                            <td class="px-6 py-3">
+                                <input type="text" name="first_name" value="<?= htmlspecialchars($user['first_name']); ?>" class="w-full px-2 py-1 border rounded-md">
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row" class="px-6 py-3 text-right">LAST NAME:</th>
+                            <td class="px-6 py-3">
+                                <input type="text" name="last_name" value="<?= htmlspecialchars($user['last_name']); ?>" class="w-full px-2 py-1 border rounded-md">
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row" class="px-6 py-3 text-right">EMAIL:</th>
+                            <td class="px-6 py-3">
+                                <input type="email" name="email" value="<?= htmlspecialchars($user['email']); ?>" class="w-full px-2 py-1 border rounded-md" readonly>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row" class="px-6 py-3 text-right">ROLE:</th>
+                            <td class="px-6 py-3">
+                                <input type="text" name="role" value="<?= htmlspecialchars($user['role']); ?>" class="w-full px-2 py-1 border rounded-md">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="mt-4">
+                    <button type="submit" class="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700">Save Changes</button>
+                </div>
+            </form>
+            <div class="mt-4">
+                <button type="button" class="px-4 py-2 text-white bg-red-600 rounded-md hover:bg-red-700" onclick="closeForm()">Cancel</button>
+            </div>
         </div>
     </div>
-
 </div>
-</aside>
 
 
+    <!-- CALENDAR -->
+        <div class="p-5 border-2 rounded-lg bg-gray-50 dark:border-gray-300">
+            <h2 class="mb-6 text-2xl font-bold text-center text-gray-800">
+                <?php echo date('F Y'); ?>
+            </h2>
+            <div class="grid grid-cols-7 gap-2 font-semibold text-center text-gray-600">
+                <?php foreach ($daysOfWeek as $day): ?>
+                    <div class="p-1 text-white bg-teal-500 rounded-lg"><?php echo $day; ?></div>
+                <?php endforeach; ?>
+            </div>
+            <div class="grid grid-cols-7 gap-2 mt-2 text-center">
+                <?php foreach ($calendar as $week): ?>
+                    <?php foreach ($week as $day): ?>
+                        <div class="p-2 <?php echo $day === (int)date('j') ? 'bg-teal-500 text-white' : 'bg-gray-100'; ?> rounded-lg">
+                            <?php echo $day ? $day : ''; ?>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    </aside>
+</div>
 
 
 <!--COUNSELING PROCESS-->
@@ -431,7 +471,17 @@ if (isset($_GET['logout'])) {
     </div>
 </footer>
 
+<script>
+    // Show the modal (form)
+    function showForm() {
+        document.getElementById('editFormModal').classList.remove('hidden');
+    }
 
+    // Close the modal (form)
+    function closeForm() {
+        document.getElementById('editFormModal').classList.add('hidden');
+    }
+</script>
 <script src="../path/to/flowbite/dist/flowbite.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
 </body>

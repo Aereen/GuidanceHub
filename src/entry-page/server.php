@@ -3,9 +3,8 @@
 // Connect to the database
 $con = mysqli_connect('localhost', 'root', '', 'guidancehub');
 
-// Check connection
-if (!$con) {
-    die("Connection failed: " . mysqli_connect_error());
+if ($con->connect_error) {
+    die("Connection failed: " . $con->connect_error);
 }
 
 // Initialize variables
@@ -58,7 +57,7 @@ if (isset($_POST['signup'])) {
         if (mysqli_query($con, $query)) {
             $_SESSION['email'] = $email;
             $_SESSION['success'] = "You are now registered";
-            header('location: login.php'); // Redirect to login page after successful registration
+            header('location: /src/entry-page/login.php'); // Redirect to login page after successful registration
             exit();
         } else {
             // If query fails
@@ -67,6 +66,36 @@ if (isset($_POST['signup'])) {
     }
 }
 
+//CALENDAR
+// Set timezone
+date_default_timezone_set('Asia/Manila');
+
+// Get current month and year
+$month = date('m');
+$year = date('Y');
+
+// Get first day of the month and total days in the month
+$firstDayOfMonth = date('w', strtotime("$year-$month-01"));
+$totalDays = date('t', strtotime("$year-$month-01"));
+
+// Days of the week
+$daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+// Generate calendar
+$calendar = [];
+$row = array_fill(0, 7, null);
+$dayCounter = 1;
+
+for ($i = 0; $i < 42; $i++) {
+    if ($i >= $firstDayOfMonth && $dayCounter <= $totalDays) {
+        $row[$i % 7] = $dayCounter++;
+    }
+
+    if ($i % 7 === 6) {
+        $calendar[] = $row;
+        $row = array_fill(0, 7, null);
+    }
+}
 
 
 
