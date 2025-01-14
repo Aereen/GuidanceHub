@@ -1,6 +1,6 @@
 <?php
 session_start();
-include('E:/GuidanceHub/src/entry-page/server.php');
+include('E:/GuidanceHub/src/ControlledData/server.php');
 
 // Database connection using PDO
 try {
@@ -17,7 +17,7 @@ try {
 
 // Fetch announcements
 try {
-    $query = $con->query("SELECT * FROM announcements ORDER BY created_at DESC");
+    $query = $con->query("SELECT * FROM announcement ORDER BY published_at DESC");
     $announcements = $query->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     die("Error fetching announcements: " . $e->getMessage());
@@ -119,30 +119,14 @@ if (isset($_GET['logout'])) {
 
 <!--CONTENT-->
 <main class="p-4 mt-12 sm:ml-64">
-    <h2 class="p-3 text-4xl font-bold tracking-tight">Dashboard</h2>
+    <h2 class="p-3 text-4xl font-bold tracking-tight">WELCOME, </h2>
 
     <div class="grid grid-cols-1 gap-4 p-1 lg:grid-cols-4">
 
         <!-- ACTIVITIES -->
         <section class="col-span-1 p-5 my-3 bg-white border-2 rounded-lg lg:col-span-3 dark:border-gray-300">
             <div class="grid grid-cols-1 gap-4 m-5 sm:grid-cols-2 lg:grid-cols-2">
-                <?php if (empty($announcements)): ?>
-                    <p class="text-gray-500 col-span-full">No announcements available.</p>
-                <?php else: ?>
-                    <?php foreach ($announcements as $announcement): ?>
-                        <div class="p-4 rounded-lg shadow-xl bg-gray-50">
-                            <h3 class="mb-2 text-xl font-semibold text-blue-800">
-                                <?php echo htmlspecialchars($announcement['title']); ?>
-                            </h3>
-                            <p class="text-gray-700">
-                                <?php echo nl2br(htmlspecialchars($announcement['message'])); ?>
-                            </p>
-                            <p class="mt-2 text-sm text-gray-500">
-                                Posted on: <?php echo date('F j, Y, g:i a', strtotime($announcement['created_at'])); ?>
-                            </p>
-                        </div>
-                    <?php endforeach; ?>
-                <?php endif; ?>
+                
             </div>
 
         <!-- CALENDAR -->
@@ -252,21 +236,21 @@ if (isset($_GET['logout'])) {
 
     <!-- ANNOUNCEMENT SECTION -->
     <h4 class="p-2 text-xl font-semibold text-white bg-teal-500 rounded-lg">ANNOUNCEMENTS</h4>
-    <section class="col-span-3 p-5 my-5 bg-white border-2 rounded-lg dark:border-gray-300">
+    <section class="col-span-3 p-2 my-5 bg-white border-2 border-gray-300 rounded-lg">
         <div class="grid grid-cols-1 gap-3 my-3 sm:grid-cols-2 lg:grid-cols-2">
             <?php if (empty($announcements)): ?>
                 <p class="text-gray-500 col-span-full">No announcements available.</p>
             <?php else: ?>
                 <?php foreach ($announcements as $announcement): ?>
-                    <div class="p-4 bg-white rounded-lg shadow-lg">
-                        <h3 class="mb-2 text-xl font-semibold text-blue-800">
+                    <div class="p-6 bg-white rounded-lg shadow-lg">
+                        <h3 class="mb-2 text-2xl font-semibold text-blue-800">
                             <?php echo htmlspecialchars($announcement['title']); ?>
                         </h3>
                         <p class="text-gray-700">
-                            <?php echo nl2br(htmlspecialchars($announcement['message'])); ?>
+                            <?php echo nl2br(htmlspecialchars($announcement['content'])); ?>
                         </p>
                         <p class="mt-2 text-sm text-gray-500">
-                            Posted on: <?php echo date('F j, Y, g:i a', strtotime($announcement['created_at'])); ?>
+                            Posted on: <?php echo date('F j, Y, g:i a', strtotime($announcement['published_at'])); ?>
                         </p>
                     </div>
                 <?php endforeach; ?>

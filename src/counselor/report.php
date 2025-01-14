@@ -1,4 +1,4 @@
-<?php include('E:/GuidanceHub/src/entry-page/server.php'); ?>
+<?php include('E:/GuidanceHub/src/ControlledData/server.php'); ?>
 <?php
 session_start(); // Start the session
 

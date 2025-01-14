@@ -1,4 +1,4 @@
-<?php include('E:/GuidanceHub/src/entry-page/server.php'); ?>
+<?php include('E:/GuidanceHub/src/ControlledData/server.php'); ?>
 <?php
 // Connect to the database
 $con = mysqli_connect('localhost', 'root', '', 'guidancehub');

@@ -1,4 +1,4 @@
-<?php include('E:/GuidanceHub/src/entry-page/server.php'); ?>
+<?php include('E:/GuidanceHub/src/ControlledData/server.php'); ?>
 <?php
 // Connect to the database
 $con = mysqli_connect('localhost', 'root', '', 'guidancehub');
@@ -9,9 +9,10 @@ if (!$con) {
 }
 
 // Fetch articles from the database
-$sql = "SELECT id, title, content, published_at FROM articles ORDER BY published_at DESC";
+$sql = "SELECT id, title, content, published_at FROM announcement ORDER BY published_at DESC";
 $result = $con->query($sql);
 
+//Referral System
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $student_id = $_POST['student_id'];
     $counselor_name = $_POST['counselor_name'];
@@ -43,41 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <script src="https://kit.fontawesome.com/95c10202b4.js" crossorigin="anonymous"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <script>
-    //JavaScript for toggle menu
-        const menuToggle = document.getElementById('menu-toggle');
-        const menu = document.getElementById('menu');
 
-        menuToggle.addEventListener('click', () => {
-            menu.classList.toggle('hidden');
-        });
-
-    // JavaScript to toggle modal visibility
-        function toggleModal() {
-            const modal = document.getElementById('referralModal');
-            modal.classList.toggle('hidden');
-        }
-
-    // JavaScript to toggle the popover visibility
-        document.addEventListener('DOMContentLoaded', function () {
-            const button = document.querySelector('button[data-popover-target]');
-            const popover = document.getElementById(button.getAttribute('data-popover-target'));
-
-            button.addEventListener('click', function () {
-                popover.classList.toggle('invisible');
-                popover.classList.toggle('opacity-0');
-                popover.classList.toggle('opacity-100');
-            });
-
-            // Optional: Close the popover if clicked outside
-            window.addEventListener('click', function (event) {
-                if (!popover.contains(event.target) && !button.contains(event.target)) {
-                    popover.classList.add('invisible', 'opacity-0');
-                    popover.classList.remove('opacity-100');
-                }
-            });
-        });
-    </script>
 
     <style>
         body::-webkit-scrollbar {
@@ -111,12 +78,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <!-- Navigation Menu -->
         <nav id="menu" class="hidden md:flex">
             <ul class="flex flex-col space-y-2 text-lg font-semibold text-white md:flex-row md:space-x-10 md:space-y-0">
-                <li><a href="#home" class="hover:text-cyan-950">Home</a></li>
-                <li><a href="#services" class="hover:text-cyan-950">Services</a></li>
-                <li><a href="#about" class="hover:text-cyan-950">About</a></li>
+                <li><a href="#home" class="hover:text-cyan-950 scroll-link">Home</a></li>
+                <li><a href="#services" class="hover:text-cyan-950 scroll-link">Services</a></li>
+                <li><a href="#about" class="hover:text-cyan-950 scroll-link">About</a></li>
                 <li>
-                    <a href="/src/entry-page/login.php" 
-                        class="px-4 py-2 text-white rounded-md bg-cyan-800 hover:bg-cyan-950">Login</a>
+                    <a href="/src/ControlledData/login.php" 
+                    class="px-4 py-2 text-white rounded-md bg-cyan-800 hover:bg-cyan-950">Login</a>
                 </li>
             </ul>
         </nav>
@@ -125,19 +92,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <!--BANNER-->
 <section id="home" class="relative flex items-center justify-center text-center text-white bg-center bg-cover hero" 
-    style="background-image: url('/src/images/UMak-Facade-Admin.jpg'); height: 75vh;">
+    style="background-image: url('/src/images/UMak-Facade-Admin.jpg'); height: 90vh;">
     <div class="absolute inset-0 bg-slate-800 bg-opacity-60"></div>
     <div class="relative z-10 max-w-4xl px-4 py-8 md:px-8">
-        <p class="mb-4 text-3xl font-medium max-sm:text-2xl" style="color: #1EB0A9">University of Makati</p>
+        <p class="mb-2 text-3xl font-medium max-sm:text-2xl">University of Makati</p>
         <p class="mb-4 text-4xl font-medium max-sm:text-3xl">Center of Guidance and Counseling Services</p>
-        <h1 class="font-bold text-8xl max-sm:text-6xl">Home of the Brave Herons</h1>
+        <h1 class="font-bold text-yellow-400 text-8xl max-sm:text-6xl">Home of the Brave Herons</h1>
     </div>
 </section>
 
 <!--SERVICES-->
-<section id="services" class="py-5 bg-yellow-300">
+<section id="services" class="py-5">
     <div class="container mx-auto text-center">
-        <h2 class="mb-5 text-4xl font-semibold max-sm:text-4xl text-cyan-600">Our Services</h2>
+        <h2 class="mb-5 text-4xl font-bold underline max-sm:text-4xl decoration-yellow-400">SERVICES</h2>
             <div class="grid gap-8 md:grid-cols-3">
                 <div class="p-6 bg-white rounded-lg shadow-md">
                     <h3 class="mb-4 text-2xl font-semibold">Personal Counseling</h3>
@@ -156,9 +123,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 </section>
 
 <!--ARTICLES---> <!--CREATE A CONTENT MANAGER OF ARTICLES IN ADMIN-->
-<article class="container px-4 mx-auto my-10">   
-    <h1 class="text-3xl font-semibold text-center text-cyan-600">Publications, Updates and More!</h1>
-    <div class="grid grid-cols-1 gap-6 mt-8 md:grid-cols-2 lg:grid-cols-3">
+<article class="container px-4 mx-auto my-5">   
+    <h1 class="text-4xl font-bold text-center underline decoration-yellow-400">Publications, Updates and More!</h1>
+    <div class="grid grid-cols-1 gap-6 mt-8 md:grid-cols-2 lg:grid-cols-4">
         <?php if ($result && $result->num_rows > 0): ?>
             <?php while ($row = $result->fetch_assoc()): ?>
                 <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-md">
@@ -176,94 +143,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </div>
 </article>
 
-<!--REFERRAL SYSTEM-->
-<section id="referral" class="container px-4 mx-auto my-10">
-    <h4 class="p-2 text-xl font-semibold text-white bg-teal-500 rounded-lg">REFERRAL SYSTEM</h4>
-        <div class="grid gap-2 p-5 my-1 bg-white border-2 rounded-lg dark:border-gray-300">
-            <h4 class="p-2 text-xl font-bold">Process Flow:</h4>
-            <div class="grid gap-6 bg-white md:grid-cols-3 sm:grid-cols-2 lg:grid-cols-30">
-                <!-- Faculty Section -->
-                <div class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:border-gray-300">
-                    <h3 class="text-xl font-bold text-gray-700">Faculty</h3>
-                    <p class="text-gray-600">The Faculty will fill out an Online Referral Form indicating the reason why the student is being referred.</p>
-                </div>
-
-                <!-- Guidance Counselor Section -->
-                <div class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:border-gray-300">
-                    <h3 class="text-xl font-bold text-gray-700">Guidance Counselor</h3>
-                    <p class="text-gray-600">The Guidance Counselor will contact the referred student to schedule a counseling session.</p>
-                </div>
-
-                <!-- Student Section -->
-                <div class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:border-gray-300">
-                    <h3 class="text-xl font-bold text-gray-700">Student</h3>
-                    <p class="text-gray-600">The referred student will meet the guidance counselor through an online platform for an initial interview/counseling and/or psychological assessment if necessary.</p>
-                </div>
-            </div>  
-
-            <!-- Button to open the modal -->
-            <button onclick="toggleModal()" class="px-4 py-2 mt-8 ml-8 text-white bg-blue-500 rounded-md">Open Referral Form</button>
-
-            <!-- Modal -->
-            <div id="referralModal" class="fixed inset-0 z-50 flex items-center justify-center hidden overflow-y-auto bg-black bg-opacity-50">
-                <div class="relative grid w-full max-w-xl grid-cols-2 gap-10 p-6 my-1 bg-white border-2 rounded-lg shadow-lg dark:border-gray-300">
-                    <div class="p-2 m-3">
-                        <h3 class="text-xl font-semibold">Indicators that the student may need counseling?</h3>
-                            <ol class="m-1 list-decimal list-inside">
-                                <li class="p-1">Absenteeism</li>
-                                <li class="p-1">Lack of energy and Enthusiasm for studies</li>
-                                <li class="p-1">Abrasive/Aggressive Behavior</li>
-                                <li class="p-1">Sleep Deprived during class</li>
-                                <li class="p-1">Low Self-Esteem</li>
-                                <li class="p-1">Marked Changes in Academic Performace</li>
-                                <li class="p-1">Talking to self</li>
-                                <li class="p-1">Suicidal Attempts</li>
-                                <li class="p-1">Excessive Dependency on others</li>
-                            </ol>
-                    </div>
-                    <div>
-                        <h2 class="text-xl font-semibold text-gray-700">Referral Form</h2>
-                            <button 
-                                class="absolute top-0 right-0 m-5 text-gray-500 hover:text-red-600"
-                                onclick="toggleModal()">
-                                <i class="text-xl fa-solid fa-circle-xmark"></i>
-                            </button>
-                            <form action="submit_referral.php" method="POST" class="mt-4">
-                                <div class="mb-4">
-                                    <label for="student_id" class="block text-sm font-medium text-gray-700">Student ID</label>
-                                    <input type="text" id="student_id" name="student_id" class="w-full p-2 mt-1 border border-gray-300 rounded-md" required>
-                                </div>
-                                <div class="mb-4">
-                                    <label for="counselor_name" class="block text-sm font-medium text-gray-700">Counselor Name</label>
-                                    <input type="text" id="counselor_name" name="counselor_name" class="w-full p-2 mt-1 border border-gray-300 rounded-md" required>
-                                </div>
-                                <div class="mb-4">
-                                    <label for="reason" class="block text-sm font-medium text-gray-700">Reason for Referral</label>
-                                    <textarea id="reason" name="reason" rows="4" class="w-full p-2 mt-1 border border-gray-300 rounded-md" required></textarea>
-                                </div>
-                                <!-- Submit Button -->
-                                <button type="submit" class="px-4 py-2 text-white bg-blue-500 rounded-md">
-                                    Submit Referral
-                                </button>
-                            </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-</section>
-
-
 <!--ABOUT-->
 <section id="about" class="container px-4 mx-auto my-10">
     <div class="grid items-center grid-cols-1 gap-8 md:grid-cols-2">
             <img 
                 src="/src/images/CGCS-About.jpg" 
-                alt="About Us Highlight"  
+                alt="GuidanceHub-AboutUs"  
                 class="w-full rounded-lg"
             >
         <div>
-            <h3 class="text-3xl font-semibold text-cyan-600">About Us</h3>
-                <h1 class="mb-4 text-4xl font-bold text-gray-800">GuidanceHub</h1>
+            <h3 class="text-4xl font-bold underline decoration-yellow-400">ABOUT US</h3>
                 <p class="p-2 mb-8 text-xl text-gray-600">
                     GuidanceHub is committed to providing students with the necessary tools to succeed academically and emotionally. 
                     Our team of professional counselors is here to support your journey through personal growth, mental health, 
@@ -276,6 +165,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </a>
         </div>
     </div>
+</section>
+
+<!--GET TO KNOW US-->
+<section>
+
 </section>
 
 <!--FOOTER-->
@@ -324,45 +218,63 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </div>
             </div>
         </div>
-        <hr class="my-6 sm:mx-auto dark:border-gray-700 lg:my-8" />
         <div class="sm:flex sm:items-center sm:justify-between">
-            <span class="text-sm sm:text-center">© 2023 <a href="https://flowbite.com/" class="hover:underline">Flowbite™</a>. All Rights Reserved.
+            <span class="text-sm sm:text-center">© 2025 Group 8 | IV-AINS. All Rights Reserved.
             </span>
-            <div class="flex mt-4 sm:justify-center sm:mt-0">
-                <a href="#" class="hover:text-gray-900 dark:hover:text-white">
-                    <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 8 19">
-                            <path fill-rule="evenodd" d="M6.135 3H8V0H6.135a4.147 4.147 0 0 0-4.142 4.142V6H0v3h2v9.938h3V9h2.021l.592-3H5V3.591A.6.6 0 0 1 5.592 3h.543Z" clip-rule="evenodd"/>
-                        </svg>
-                    <span class="sr-only">Facebook page</span>
-                </a>
-                <a href="#" class="hover:text-gray-900 dark:hover:text-white ms-5">
-                    <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 21 16">
-                            <path d="M16.942 1.556a16.3 16.3 0 0 0-4.126-1.3 12.04 12.04 0 0 0-.529 1.1 15.175 15.175 0 0 0-4.573 0 11.585 11.585 0 0 0-.535-1.1 16.274 16.274 0 0 0-4.129 1.3A17.392 17.392 0 0 0 .182 13.218a15.785 15.785 0 0 0 4.963 2.521c.41-.564.773-1.16 1.084-1.785a10.63 10.63 0 0 1-1.706-.83c.143-.106.283-.217.418-.33a11.664 11.664 0 0 0 10.118 0c.137.113.277.224.418.33-.544.328-1.116.606-1.71.832a12.52 12.52 0 0 0 1.084 1.785 16.46 16.46 0 0 0 5.064-2.595 17.286 17.286 0 0 0-2.973-11.59ZM6.678 10.813a1.941 1.941 0 0 1-1.8-2.045 1.93 1.93 0 0 1 1.8-2.047 1.919 1.919 0 0 1 1.8 2.047 1.93 1.93 0 0 1-1.8 2.045Zm6.644 0a1.94 1.94 0 0 1-1.8-2.045 1.93 1.93 0 0 1 1.8-2.047 1.918 1.918 0 0 1 1.8 2.047 1.93 1.93 0 0 1-1.8 2.045Z"/>
-                        </svg>
-                    <span class="sr-only">Discord community</span>
-                </a>
-                <a href="#" class="hover:text-gray-900 dark:hover:text-white ms-5">
-                    <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 17">
-                        <path fill-rule="evenodd" d="M20 1.892a8.178 8.178 0 0 1-2.355.635 4.074 4.074 0 0 0 1.8-2.235 8.344 8.344 0 0 1-2.605.98A4.13 4.13 0 0 0 13.85 0a4.068 4.068 0 0 0-4.1 4.038 4 4 0 0 0 .105.919A11.705 11.705 0 0 1 1.4.734a4.006 4.006 0 0 0 1.268 5.392 4.165 4.165 0 0 1-1.859-.5v.05A4.057 4.057 0 0 0 4.1 9.635a4.19 4.19 0 0 1-1.856.07 4.108 4.108 0 0 0 3.831 2.807A8.36 8.36 0 0 1 0 14.184 11.732 11.732 0 0 0 6.291 16 11.502 11.502 0 0 0 17.964 4.5c0-.177 0-.35-.012-.523A8.143 8.143 0 0 0 20 1.892Z" clip-rule="evenodd"/>
-                    </svg>
-                    <span class="sr-only">Twitter page</span>
-                </a>
-                <a href="#" class="hover:text-gray-900 dark:hover:text-white ms-5">
-                    <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 .333A9.911 9.911 0 0 0 6.866 19.65c.5.092.678-.215.678-.477 0-.237-.01-1.017-.014-1.845-2.757.6-3.338-1.169-3.338-1.169a2.627 2.627 0 0 0-1.1-1.451c-.9-.615.07-.6.07-.6a2.084 2.084 0 0 1 1.518 1.021 2.11 2.11 0 0 0 2.884.823c.044-.503.268-.973.63-1.325-2.2-.25-4.516-1.1-4.516-4.9A3.832 3.832 0 0 1 4.7 7.068a3.56 3.56 0 0 1 .095-2.623s.832-.266 2.726 1.016a9.409 9.409 0 0 1 4.962 0c1.89-1.282 2.717-1.016 2.717-1.016.366.83.402 1.768.1 2.623a3.827 3.827 0 0 1 1.02 2.659c0 3.807-2.319 4.644-4.525 4.889a2.366 2.366 0 0 1 .673 1.834c0 1.326-.012 2.394-.012 2.72 0 .263.18.572.681.475A9.911 9.911 0 0 0 10 .333Z" clip-rule="evenodd"/>
-                    </svg>
-                    <span class="sr-only">GitHub account</span>
-                </a>
-                <a href="#" class="hover:text-gray-900 dark:hover:text-white ms-5">
-                    <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 0a10 10 0 1 0 10 10A10.009 10.009 0 0 0 10 0Zm6.613 4.614a8.523 8.523 0 0 1 1.93 5.32 20.094 20.094 0 0 0-5.949-.274c-.059-.149-.122-.292-.184-.441a23.879 23.879 0 0 0-.566-1.239 11.41 11.41 0 0 0 4.769-3.366ZM8 1.707a8.821 8.821 0 0 1 2-.238 8.5 8.5 0 0 1 5.664 2.152 9.608 9.608 0 0 1-4.476 3.087A45.758 45.758 0 0 0 8 1.707ZM1.642 8.262a8.57 8.57 0 0 1 4.73-5.981A53.998 53.998 0 0 1 9.54 7.222a32.078 32.078 0 0 1-7.9 1.04h.002Zm2.01 7.46a8.51 8.51 0 0 1-2.2-5.707v-.262a31.64 31.64 0 0 0 8.777-1.219c.243.477.477.964.692 1.449-.114.032-.227.067-.336.1a13.569 13.569 0 0 0-6.942 5.636l.009.003ZM10 18.556a8.508 8.508 0 0 1-5.243-1.8 11.717 11.717 0 0 1 6.7-5.332.509.509 0 0 1 .055-.02 35.65 35.65 0 0 1 1.819 6.476 8.476 8.476 0 0 1-3.331.676Zm4.772-1.462A37.232 37.232 0 0 0 13.113 11a12.513 12.513 0 0 1 5.321.364 8.56 8.56 0 0 1-3.66 5.73h-.002Z" clip-rule="evenodd"/>
-                    </svg>
-                    <span class="sr-only">Dribbble account</span>
-                </a>
-            </div>
         </div>
     </div>
 </footer>
 
+<script>
+    //Toggle menu
+        const menuToggle = document.getElementById('menu-toggle');
+        const menu = document.getElementById('menu');
+
+        menuToggle.addEventListener('click', () => {
+            menu.classList.toggle('hidden');
+        });
+
+    //Toggle modal visibility
+        function toggleModal() {
+            const modal = document.getElementById('referralModal');
+            modal.classList.toggle('hidden');
+        }
+
+    //Toggle the popover visibility
+        document.addEventListener('DOMContentLoaded', function () {
+            const button = document.querySelector('button[data-popover-target]');
+            const popover = document.getElementById(button.getAttribute('data-popover-target'));
+
+            button.addEventListener('click', function () {
+                popover.classList.toggle('invisible');
+                popover.classList.toggle('opacity-0');
+                popover.classList.toggle('opacity-100');
+            });
+
+            // Optional: Close the popover if clicked outside
+            window.addEventListener('click', function (event) {
+                if (!popover.contains(event.target) && !button.contains(event.target)) {
+                    popover.classList.add('invisible', 'opacity-0');
+                    popover.classList.remove('opacity-100');
+                }
+            });
+        });
+
+    //Toggle for link tab section slide
+        document.querySelectorAll('.scroll-link').forEach(link => {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+
+                if (targetElement) {
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
 </body>
 </html>

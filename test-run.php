@@ -1,68 +1,45 @@
 <?php
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "guidancehub";
+// Start the session
+session_start();
 
-// Create connection
-$conn = mysqli_connect($servername, $username, $password, $dbname);
+// Include database connection
+$conn = new mysqli("localhost", "root", "", "guidancehub");
 
 // Check connection
-if (!$conn) {
-    die("Connection failed: " . mysqli_connect_error());
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
 }
 
-// Check if form data is submitted
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $student_id = $_POST['student_id'];
-    $counselor_name = $_POST['counselor_name'];
-    $reason = $_POST['reason'];
-    $referral_date = date('Y-m-d'); // Current date
+// Check if the user is logged in
+if (isset($_SESSION['email'])) {
+    // Get the user ID from the session
+    $email = $_SESSION['email'];
 
-    // SQL query to insert referral data
-    $sql = "INSERT INTO referrals (student_id, counselor_name, referral_date, reason) 
-            VALUES ('$student_id', '$counselor_name', '$referral_date', '$reason')";
+    // Fetch user details from the database
+    $stmt = $conn->prepare("SELECT name FROM users WHERE id = ?");
+    $stmt->bind_param("i", $email);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-    if (mysqli_query($conn, $sql)) {
-        echo "<script>alert('Referral submitted successfully');</script>";
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        $name = htmlspecialchars($row['name']);
+
+        // Display the welcome banner
+        echo "<div style='background-color: #4CAF50; color: white; padding: 10px; text-align: center; font-size: 20px;'>
+                Welcome, $name!
+                </div>";
     } else {
-        echo "Error: " . $sql . "<br>" . mysqli_error($conn);
+        echo "<div style='background-color: #f44336; color: white; padding: 10px; text-align: center; font-size: 20px;'>
+                User not found.
+                </div>";
     }
+} else {
+    // Redirect to login page if not logged in
+    header("Location: /src/ControlledData/login.php");
+    exit();
 }
+
+// Close connection
+$conn->close();
 ?>
-
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Referral Form</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-</head>
-<body class="bg-gray-100">
-    <div class="container p-8 mx-auto">
-        <div class="p-6 bg-white rounded-lg shadow-lg">
-            <h2 class="text-xl font-semibold text-gray-700">Referral Form</h2>
-            <form action="submit_referral.php" method="POST" class="mt-4">
-                <div class="mb-4">
-                    <label for="student_id" class="block text-sm font-medium text-gray-700">Student ID</label>
-                    <input type="text" id="student_id" name="student_id" class="w-full p-2 mt-1 border border-gray-300 rounded-md" required>
-                </div>
-
-                <div class="mb-4">
-                    <label for="counselor_id" class="block text-sm font-medium text-gray-700">Counselor ID</label>
-                    <input type="text" id="counselor_id" name="counselor_id" class="w-full p-2 mt-1 border border-gray-300 rounded-md" required>
-                </div>
-
-                <div class="mb-4">
-                    <label for="reason" class="block text-sm font-medium text-gray-700">Reason for Referral</label>
-                    <textarea id="reason" name="reason" rows="4" class="w-full p-2 mt-1 border border-gray-300 rounded-md" required></textarea>
-                </div>
-
-                <button type="submit" class="px-4 py-2 text-white bg-blue-500 rounded-md">Submit Referral</button>
-            </form>
-        </div>
-    </div>
-</body>
-</html>
