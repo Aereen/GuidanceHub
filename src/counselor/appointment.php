@@ -116,8 +116,8 @@ if (isset($_GET['logout'])) {
 <!--CONTENT HERE-->
 <<div class="p-4 mt-10 sm:ml-64">
     <h2 class="p-3 my-2 text-4xl font-bold">Scheduled Appointments</h2>
-    <div class="p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
-        <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Appointments Overview</h5>
+    <div class="p-6 bg-white border border-gray-200 rounded-lg shadow dark:border-gray-700">
+        <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900">Appointments Overview</h5>
         <div class="overflow-x-auto">
             <!-- Adjusted table width -->
             <table class="w-full text-xs text-left text-gray-500 dark:text-gray-400 md:text-sm lg:text-base">
@@ -156,7 +156,7 @@ if (isset($_GET['logout'])) {
                     if (mysqli_num_rows($result) > 0) {
                         $counter = 1;
                         while ($row = mysqli_fetch_assoc($result)) {
-                            echo "<tr class='bg-white border-b dark:bg-gray-800 dark:border-gray-700'>
+                            echo "<tr class='bg-white border-b dark:border-gray-700'>
                                     <td class='px-4 py-2'>" . $counter++ . "</td>
                                     <td class='px-4 py-2'>" . htmlspecialchars($row['full_name']) . "</td>
                                     <td class='px-4 py-2'>" . htmlspecialchars($row['student_number']) . "</td>

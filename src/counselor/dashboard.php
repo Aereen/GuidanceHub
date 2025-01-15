@@ -21,11 +21,13 @@ if (isset($_GET['logout'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link href="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.css"  rel="stylesheet" />
         <script src="https://kit.fontawesome.com/95c10202b4.js" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="https://cdn.tailwindcss.com"></script>
         <link href="./output.css" rel="stylesheet">   
+
 </head>
 <body>
-<!--TOP NAVIGATION BAR-->
+<!-- TOP NAVIGATION BAR -->
 <nav class="fixed top-0 z-50 w-full bg-white border-b border-gray-200">
     <div class="flex px-3 py-3 lg:px-5 lg:pl-3">
         <div class="flex items-center justify-between w-full max-w-7xl">
@@ -73,8 +75,8 @@ if (isset($_GET['logout'])) {
     </div>
 </nav>
 
-<!--SIDE NAVIGATION MENU-->
-<aside id="logo-sidebar" class="fixed z-40 h-screen pt-20 transition-transform -translate-x-full bg-white border-r w-60 dark:border-gray-300 sm:translate-x-0" aria-label="Sidebar">
+<!-- SIDE NAVIGATION MENU -->
+<aside id="logo-sidebar" class="fixed z-40 w-64 h-screen pt-20 transition-transform -translate-x-full bg-white border-r dark:border-gray-300 sm:translate-x-0" aria-label="Sidebar">
     <div class="h-full px-3 pb-4 overflow-y-auto bg-white border-gray-300">
         <ul class="m-3 space-y-2 font-medium">
             <li>
@@ -113,9 +115,9 @@ if (isset($_GET['logout'])) {
     </div>
 </aside>
 
-<!--CONTENT-->
-<div class="p-4 mt-16 sm:ml-64">
-    <!--ANALYTICS-->
+<!--CONTENT HERE-->
+<section class="p-4 mt-10 sm:ml-64">
+<div class="px-4 py-10 mx-auto max-w-7xl">
         <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
             <!-- Total Students Served -->
             <div class="p-6 bg-white rounded-lg shadow">
@@ -137,64 +139,32 @@ if (isset($_GET['logout'])) {
             </div>
         </div>
 
-    <!--RECENT ACTIVITIES-->
-            <div class="p-6 mb-8 bg-white rounded-lg shadow-md">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-lg font-semibold">Recent Activities</h2>
-                    <a href="#" class="text-blue-600 hover:underline">View All</a>
-                </div>
-                <table class="w-full border-collapse">
-                    <thead>
-                        <tr class="bg-gray-200">
-                            <th class="px-4 py-2 text-left">Student</th>
-                            <th class="px-4 py-2 text-left">Session Date</th>
-                            <th class="px-4 py-2 text-left">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr class="border-b">
-                            <td class="px-4 py-2">John Doe</td>
-                            <td class="px-4 py-2">2024-11-25</td>
-                            <td class="px-4 py-2 text-green-500">Completed</td>
-                        </tr>
-                        <tr class="border-b">
-                            <td class="px-4 py-2">Jane Smith</td>
-                            <td class="px-4 py-2">2024-11-27</td>
-                            <td class="px-4 py-2 text-yellow-500">Pending</td>
-                        </tr>
-                    </tbody>
-                </table>
+        <!-- Chart Section -->
+        <div class="p-6 mt-10 bg-white rounded-lg shadow">
+            <h2 class="mb-6 text-2xl font-semibold text-gray-700">Session Overview</h2>
+            <div class="relative h-80">
+                <canvas id="analytics-chart"></canvas>
             </div>
-
-    <!--UPCOMING APPOINTMENTS-->
-            <div class="p-6 bg-white rounded-lg shadow-md">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-lg font-semibold">Upcoming Appointments</h2>
-                </div>
-                <table class="w-full">
-                    <tbody>
-                        <tr class="flex items-center py-4 space-x-4 border-b">
-                            <td class="w-16">
-                                <img src="assets/imgs/customer02.jpg" alt="User Avatar" class="w-12 h-12 rounded-full">
-                            </td>
-                            <td>
-                                <h4 class="font-semibold">David <span class="text-gray-500">Italy</span></h4>
-                                <p class="text-sm text-gray-500">2024-11-30, 2:00 PM</p>
-                            </td>
-                        </tr>
-                        <tr class="flex items-center py-4 space-x-4 border-b">
-                            <td class="w-16">
-                                <img src="assets/imgs/customer01.jpg" alt="User Avatar" class="w-12 h-12 rounded-full">
-                            </td>
-                            <td>
-                                <h4 class="font-semibold">Amit <span class="text-gray-500">India</span></h4>
-                                <p class="text-sm text-gray-500">2024-12-02, 11:00 AM</p>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-</div>
+        </div>
+        <!-- Detailed Report Table -->
+        <div class="p-6 mt-10 bg-white rounded-lg shadow">
+            <h2 class="mb-6 text-2xl font-semibold text-gray-700">Detailed Reports</h2>
+            <table class="min-w-full border border-collapse border-gray-200">
+                <thead>
+                    <tr class="bg-gray-50">
+                        <th class="px-4 py-2 text-sm font-semibold text-left text-gray-600 border border-gray-300">#</th>
+                        <th class="px-4 py-2 text-sm font-semibold text-left text-gray-600 border border-gray-300">Student Name</th>
+                        <th class="px-4 py-2 text-sm font-semibold text-left text-gray-600 border border-gray-300">Issue</th>
+                        <th class="px-4 py-2 text-sm font-semibold text-left text-gray-600 border border-gray-300">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="report-table">
+                    <!-- JavaScript will populate this -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
 
 <!--FOOTER-->
 <footer class="overflow-auto bg-gray-100 sm:ml-64 w-75">
@@ -283,7 +253,7 @@ if (isset($_GET['logout'])) {
 </footer>
 
 <script>
-    // Fake Data
+        // Fake Data
         const stats = {
             studentsServed: Math.floor(Math.random() * (200 - 100 + 1)) + 100,
             sessionsConducted: Math.floor(Math.random() * (200 - 50 + 1)) + 50,
