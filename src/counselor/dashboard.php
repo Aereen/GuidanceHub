@@ -1,33 +1,12 @@
+<?php include('E:/GuidanceHub/src/ControlledData/server.php'); ?>
 <?php
-session_start();
-include('E:/GuidanceHub/src/ControlledData/server.php');
+session_start(); // Start the session
 
-// Database connection using PDO
-try {
-    $host = 'localhost';
-    $dbname = 'guidancehub';
-    $username = 'root';
-    $password = '';
-    $con = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
-    $con->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die("Connection failed: " . $e->getMessage());
-}
-
-
-// Fetch announcements
-try {
-    $query = $con->query("SELECT * FROM announcement ORDER BY published_at DESC");
-    $announcements = $query->fetchAll(PDO::FETCH_ASSOC);
-} catch (PDOException $e) {
-    die("Error fetching announcements: " . $e->getMessage());
-}
-
-// When logout is requested
+// Check if logout is requested
 if (isset($_GET['logout'])) {
     session_unset(); // Unset all session variables
     session_destroy(); // Destroy the session
-    header("Location: /index.php"); // Redirect to the webpage after logout
+    header("Location: /index.php"); // Redirect to the login page after logout
     exit;
 }
 ?>
@@ -35,7 +14,7 @@ if (isset($_GET['logout'])) {
 <!doctype html>
 <html>
 <head>
-<title>GuidanceHub | Dashboard</title>
+<title> GuidanceHub </title>
     <link rel="icon" type="images/x-icon" href="/src/images/UMAK-CGCS-logo.png" />
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -44,9 +23,8 @@ if (isset($_GET['logout'])) {
         <script src="https://kit.fontawesome.com/95c10202b4.js" crossorigin="anonymous"></script>
         <script src="https://cdn.tailwindcss.com"></script>
         <link href="./output.css" rel="stylesheet">   
-
 </head>
-<body class="bg-gray-100">
+<body>
 <!--TOP NAVIGATION BAR-->
 <nav class="fixed top-0 z-50 w-full bg-white border-b border-gray-200">
     <div class="flex px-3 py-3 lg:px-5 lg:pl-3">
@@ -108,14 +86,6 @@ if (isset($_GET['logout'])) {
                 </a>
             </li>
             <li>
-                <a href="assessment.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
-                <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 18">
-                    <i class="fa-solid fa-book-open"></i>
-                </svg>
-                <span class="flex-1 ms-3 whitespace-nowrap">Assessment</span>
-                </a>
-            </li>
-            <li>
                 <a href="appointment.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
                 <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 18">
                     <i class="fa-solid fa-calendar-check"></i>
@@ -124,11 +94,11 @@ if (isset($_GET['logout'])) {
                 </a>
             </li>
             <li>
-                <a href="library.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
-                <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                    <i class="fa-solid fa-book-open"></i>
+                <a href="report.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 18">
+                    <i class="fa-solid fa-chart-pie"></i>
                 </svg>
-                <span class="flex-1 ms-3 whitespace-nowrap">Library</span>
+                <span class="flex-1 ms-3 whitespace-nowrap">Report & Analytic</span>
                 </a>
             </li>
             <li>
@@ -144,181 +114,87 @@ if (isset($_GET['logout'])) {
 </aside>
 
 <!--CONTENT-->
-<main class="p-4 mt-12 sm:ml-64">
-    <h2 class="p-3 text-4xl font-bold tracking-tight">WELCOME, !</h2>
+<div class="p-4 mt-16 sm:ml-64">
+    <!--ANALYTICS-->
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+            <!-- Total Students Served -->
+            <div class="p-6 bg-white rounded-lg shadow">
+                <h2 class="text-2xl font-semibold text-gray-700">Students Served</h2>
+                <p class="mt-4 text-4xl font-bold text-green-500" id="students-served"></p>
+                <p class="mt-2 text-sm text-gray-500">in the past year</p>
+            </div>
+            <!-- Sessions Conducted -->
+            <div class="p-6 bg-white rounded-lg shadow">
+                <h2 class="text-2xl font-semibold text-gray-700">Sessions Conducted</h2>
+                <p class="mt-4 text-4xl font-bold text-blue-500" id="sessions-conducted"></p>
+                <p class="mt-2 text-sm text-gray-500">total sessions</p>
+            </div>
+            <!-- Active Cases -->
+            <div class="p-6 bg-white rounded-lg shadow">
+                <h2 class="text-2xl font-semibold text-gray-700">Active Cases</h2>
+                <p class="mt-4 text-4xl font-bold text-red-500" id="active-cases"></p>
+                <p class="mt-2 text-sm text-gray-500">currently in progress</p>
+            </div>
+        </div>
 
-    <div class="grid grid-cols-1 gap-4 p-1 lg:grid-cols-4">
-
-        <!-- ACTIVITIES -->
-        <section class="col-span-1 p-5 my-3 bg-white border-2 rounded-lg lg:col-span-3 dark:border-gray-300">
-            <div class="grid grid-cols-1 gap-4 m-5 sm:grid-cols-2 lg:grid-cols-2">
-                
+    <!--RECENT ACTIVITIES-->
+            <div class="p-6 mb-8 bg-white rounded-lg shadow-md">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold">Recent Activities</h2>
+                    <a href="#" class="text-blue-600 hover:underline">View All</a>
+                </div>
+                <table class="w-full border-collapse">
+                    <thead>
+                        <tr class="bg-gray-200">
+                            <th class="px-4 py-2 text-left">Student</th>
+                            <th class="px-4 py-2 text-left">Session Date</th>
+                            <th class="px-4 py-2 text-left">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b">
+                            <td class="px-4 py-2">John Doe</td>
+                            <td class="px-4 py-2">2024-11-25</td>
+                            <td class="px-4 py-2 text-green-500">Completed</td>
+                        </tr>
+                        <tr class="border-b">
+                            <td class="px-4 py-2">Jane Smith</td>
+                            <td class="px-4 py-2">2024-11-27</td>
+                            <td class="px-4 py-2 text-yellow-500">Pending</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
 
-        <!-- CALENDAR -->
-            <div class="p-3 mt-1 bg-white border-2 rounded-lg dark:border-gray-300">
-                <h2 class="mb-4 text-2xl font-bold text-center text-gray-800">
-                    <?php echo date('F Y'); ?>
-                </h2>
-                <div class="grid grid-cols-7 gap-2 font-semibold text-center text-gray-600">
-                    <?php foreach ($daysOfWeek as $day): ?>
-                        <div class="p-1 text-white bg-teal-500 rounded-lg"><?php echo $day; ?></div>
-                    <?php endforeach; ?>
+    <!--UPCOMING APPOINTMENTS-->
+            <div class="p-6 bg-white rounded-lg shadow-md">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold">Upcoming Appointments</h2>
                 </div>
-                <div class="grid grid-cols-7 gap-2 mt-2 text-center">
-                    <?php foreach ($calendar as $week): ?>
-                        <?php foreach ($week as $day): ?>
-                            <div class="p-2 <?php echo $day === (int)date('j') ? 'bg-teal-500 text-white' : 'bg-gray-100'; ?> rounded-lg">
-                                <?php echo $day ?: ''; ?>
-                            </div>
-                        <?php endforeach; ?>
-                    <?php endforeach; ?>
-                </div>
+                <table class="w-full">
+                    <tbody>
+                        <tr class="flex items-center py-4 space-x-4 border-b">
+                            <td class="w-16">
+                                <img src="assets/imgs/customer02.jpg" alt="User Avatar" class="w-12 h-12 rounded-full">
+                            </td>
+                            <td>
+                                <h4 class="font-semibold">David <span class="text-gray-500">Italy</span></h4>
+                                <p class="text-sm text-gray-500">2024-11-30, 2:00 PM</p>
+                            </td>
+                        </tr>
+                        <tr class="flex items-center py-4 space-x-4 border-b">
+                            <td class="w-16">
+                                <img src="assets/imgs/customer01.jpg" alt="User Avatar" class="w-12 h-12 rounded-full">
+                            </td>
+                            <td>
+                                <h4 class="font-semibold">Amit <span class="text-gray-500">India</span></h4>
+                                <p class="text-sm text-gray-500">2024-12-02, 11:00 AM</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-        </section>
-
-        <aside class="col-span-1 space-y-6">
-
-            <!-- PROFILE -->
-            <div class="flex flex-col items-center justify-center p-5 my-3 bg-white border-2 rounded-lg dark:border-gray-300">
-                <div class="flex items-center justify-between w-full">
-                    <h4 class="p-2 text-2xl font-bold text-gray-700">PROFILE</h4>
-                    <div class="text-xl font-semibold cursor-pointer" id="editProfileButton">
-                        <i class="fa-solid fa-pen-to-square"></i>
-                    </div>
-                </div>
-                <div class="flex flex-col items-center justify-center p-3">
-                    <img src="/src/images/UMak-Facade-Admin.jpg" alt="Profile Picture" class="object-cover w-32 h-32 p-1 rounded-full lg:w-40 lg:h-40">
-                    <div class="w-full overflow-x-auto">
-                        <table class="w-full text-sm text-center text-gray-800">
-                            <tbody>
-                                <tr>
-                                    <td class="px-5 py-1">Eirene Grace Q. Armilla</td>
-                                </tr>
-                                <tr>
-                                    <td class="px-5 py-1">A12035445</td>
-                                </tr>
-                                <tr>
-                                    <td class="px-5 py-1">earmilla.a12035445@umak.edu.ph</td>
-                                </tr>
-                                <tr>
-                                    <td class="px-5 py-1">College of Computing and Information Sciences</td>
-                                </tr>
-                                <tr>
-                                    <td class="px-5 py-1">4th Year</td>
-                                </tr>
-                                <tr>
-                                    <td class="px-5 py-1">AINS</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- PROFILE EDIT Modal -->
-            <div id="editProfileModal" class="fixed inset-0 z-50 items-center justify-center hidden bg-black bg-opacity-50">
-                <div class="relative p-6 bg-white rounded shadow-lg max-h-[90vh] w-[80vw] overflow-y-auto">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-xl font-bold">Edit Profile</h3>
-                        <button id="closeModalButton" class="text-gray-600 hover:text-gray-800">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
-                    </div>
-                    <form>
-                        <div class="mb-2">
-                            <label class="block mb-2 text-sm font-semibold text-gray-700">Full Name</label>
-                            <input type="text" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" value="Eirene Grace Q. Armilla">
-                        </div>
-                        <div class="mb-2">
-                            <label class="block mb-2 text-sm font-semibold text-gray-700">Student Number</label>
-                            <input type="text" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" value="A12035445">
-                        </div>
-                        <div class="mb-2">
-                            <label class="block mb-2 text-sm font-semibold text-gray-700">Email</label>
-                            <input type="email" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" value="earmilla.a12035445@umak.edu.ph">
-                        </div>
-                        <div class="mb-2">
-                            <label class="block mb-2 text-sm font-semibold text-gray-700">College</label>
-                            <input type="text" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" value="College of Computing and Information Sciences">
-                        </div>
-                        <div class="mb-2">
-                            <label class="block mb-2 text-sm font-semibold text-gray-700">Year</label>
-                            <input type="text" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" value="4th Year">
-                        </div>
-                        <div class="mb-2">
-                            <label class="block mb-2 text-sm font-semibold text-gray-700">Program</label>
-                            <input type="text" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" value="AINS">
-                        </div>
-                        <div class="flex justify-end">
-                            <button type="button" id="saveChangesButton" class="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700">Save Changes</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-        </aside>
-    </div>
-
-    <!-- ANNOUNCEMENT SECTION -->
-    <h4 class="p-2 text-xl font-semibold text-white bg-teal-500 rounded-lg">ANNOUNCEMENTS</h4>
-    <section class="col-span-3 p-2 my-5 bg-white border-2 border-gray-300 rounded-lg">
-        <div class="grid grid-cols-1 gap-3 my-3 sm:grid-cols-2 lg:grid-cols-2">
-            <?php if (empty($announcements)): ?>
-                <p class="text-gray-500 col-span-full">No announcements available.</p>
-            <?php else: ?>
-                <?php foreach ($announcements as $announcement): ?>
-                    <div class="p-6 bg-white rounded-lg shadow-lg">
-                        <h3 class="mb-2 text-2xl font-semibold text-blue-800">
-                            <?php echo htmlspecialchars($announcement['title']); ?>
-                        </h3>
-                        <p class="text-gray-700">
-                            <?php echo nl2br(htmlspecialchars($announcement['content'])); ?>
-                        </p>
-                        <p class="mt-2 text-sm text-gray-500">
-                            Posted on: <?php echo date('F j, Y, g:i a', strtotime($announcement['published_at'])); ?>
-                        </p>
-                    </div>
-                <?php endforeach; ?>
-            <?php endif; ?>
-        </div>
-    </section>
-
-    <!-- COUNSELING PROCESS -->
-    <h4 class="p-2 text-xl font-semibold text-white bg-teal-500 rounded-lg">PROCESS</h4>
-    <section class="grid grid-cols-1 gap-4 p-5 my-5 bg-white border-2 rounded-lg sm:grid-cols-2 lg:grid-cols-3 dark:border-gray-300">
-        <!-- Card 1 -->
-        <div class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:border-gray-300">
-            <h5 class="mb-2 text-2xl font-bold tracking-tight text-black">Needs Assessment</h5>
-            <p class="mb-3 text-gray-700 dark:text-gray-800">To identify students' needs and concerns, conduct surveys or questionnaires...</p>
-        </div>
-
-        <!-- Card 2 -->
-        <div class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:border-gray-300">
-            <h5 class="mb-2 text-2xl font-bold tracking-tight text-black">Program Planning</h5>
-            <p class="mb-3 text-gray-700 dark:text-gray-800">Include a plan for delivering services, such as individual counseling...</p>
-        </div>
-
-        <!-- Card 3 -->
-        <div class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:border-gray-300">
-            <h5 class="mb-2 text-2xl font-bold tracking-tight text-black">Counseling and Intervention</h5>
-            <p class="mb-3 text-gray-700 dark:text-gray-800">Individual counseling provides one-on-one support...</p>
-        </div>
-
-        <!-- Card 4 -->
-        <div class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:border-gray-300">
-            <h5 class="mb-2 text-2xl font-bold tracking-tight text-black">Follow-up Consultation</h5>
-            <p class="mb-3 text-gray-700 dark:text-gray-800">Monitor the progress of students and provide ongoing support...</p>
-        </div>
-
-        <!-- Card 5 -->
-        <div class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:border-gray-300">
-            <h5 class="mb-2 text-2xl font-bold tracking-tight text-black">Evaluation and Program Improvement</h5>
-            <p class="mb-3 text-gray-700 dark:text-gray-800">Conduct regular evaluations to assess the effectiveness...</p>
-        </div>
-    </section>
-</main>
-
+</div>
 
 <!--FOOTER-->
 <footer class="overflow-auto bg-gray-100 sm:ml-64 w-75">
@@ -407,26 +283,64 @@ if (isset($_GET['logout'])) {
 </footer>
 
 <script>
-    const editProfileButton = document.getElementById("editProfileButton");
-    const editProfileModal = document.getElementById("editProfileModal");
-    const closeModalButton = document.getElementById("closeModalButton");
+    // Fake Data
+        const stats = {
+            studentsServed: Math.floor(Math.random() * (200 - 100 + 1)) + 100,
+            sessionsConducted: Math.floor(Math.random() * (200 - 50 + 1)) + 50,
+            activeCases: Math.floor(Math.random() * (50 - 10 + 1)) + 10,
+        };
 
-    editProfileButton.addEventListener("click", () => {
-        editProfileModal.classList.remove("hidden");
-    });
+        const reports = [
+            { name: "John Doe", issue: "Stress", status: "Resolved" },
+            { name: "Jane Smith", issue: "Anxiety", status: "Ongoing" },
+            { name: "Robert Brown", issue: "Family Issues", status: "Resolved" },
+            { name: "Emily Johnson", issue: "Bullying", status: "Ongoing" },
+        ];
 
-    closeModalButton.addEventListener("click", () => {
-        editProfileModal.classList.add("hidden");
-    });
+        // Populate Stats
+        document.getElementById("students-served").textContent = stats.studentsServed;
+        document.getElementById("sessions-conducted").textContent = stats.sessionsConducted;
+        document.getElementById("active-cases").textContent = stats.activeCases;
 
-    // Close modal on outside click
-    window.addEventListener("click", (event) => {
-        if (event.target === editProfileModal) {
-            editProfileModal.classList.add("hidden");
-        }
-    });
+        // Populate Report Table
+        const tableBody = document.getElementById("report-table");
+        reports.forEach((report, index) => {
+            const row = document.createElement("tr");
+            row.className = "border-t";
 
-    // JavaScript to handle search box toggling and icon change
+            row.innerHTML = `
+                <td class="px-4 py-2 text-gray-600 border border-gray-300">${index + 1}</td>
+                <td class="px-4 py-2 text-gray-600 border border-gray-300">${report.name}</td>
+                <td class="px-4 py-2 text-gray-600 border border-gray-300">${report.issue}</td>
+                <td class="px-4 py-2 text-gray-600 border border-gray-300">${report.status}</td>
+            `;
+
+            tableBody.appendChild(row);
+        });
+
+        // Chart.js Implementation
+        const ctx = document.getElementById('analytics-chart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Students Served', 'Sessions Conducted', 'Active Cases'],
+                datasets: [{
+                    data: [stats.studentsServed, stats.sessionsConducted, stats.activeCases],
+                    backgroundColor: ['#22c55e', '#3b82f6', '#ef4444'],
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                },
+            },
+        });
+
+// JavaScript to handle search box toggling and icon change
     document.addEventListener('DOMContentLoaded', function () {
         const searchToggle = document.getElementById('search-toggle');
         const searchBox = document.getElementById('search-box');

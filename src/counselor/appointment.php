@@ -1,4 +1,4 @@
-<?php include('E:/GuidanceHub/src/student/student_server.php'); ?>
+<?php include('E:/GuidanceHub/src/ControlledData/server.php'); ?>
 <?php
 session_start(); // Start the session
 
@@ -21,38 +21,64 @@ if (isset($_GET['logout'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link href="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.css"  rel="stylesheet" />
         <script src="https://kit.fontawesome.com/95c10202b4.js" crossorigin="anonymous"></script>
+        <script src="https://cdn.tailwindcss.com"></script>
         <link href="./output.css" rel="stylesheet">   
 </head>
 <body>
 <!--TOP NAVIGATION BAR-->
-<nav class="fixed top-0 z-50 w-full bg-yellow-400 border-b border-gray-200">    
-    <div class="px-3 py-3 lg:px-5 lg:pl-3">
-        <div class="flex items-center justify-between">
-            <div class="flex items-center justify-start rtl:justify-end">
+<nav class="fixed top-0 z-50 w-full bg-white border-b border-gray-200">
+    <div class="flex px-3 py-3 lg:px-5 lg:pl-3">
+        <div class="flex items-center justify-between w-full max-w-7xl">
+            <div class="flex items-center justify-start">
                 <button data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" aria-controls="logo-sidebar" type="button" class="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600">
                     <span class="sr-only">Open sidebar</span>
                     <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                    <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
+                        <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
                     </svg>
                 </button>
                 <a href="" class="flex ms-2 md:me-24">
-                <img src="/src/images/UMAK-CGCS-logo.png" class="h-8 me-3" alt="GuidanceHub Logo" />
-                <span class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">GuidanceHub</span>
+                    <img src="/src/images/UMAK-CGCS-logo.png" class="h-8 me-3" alt="GuidanceHub Logo" />
+                    <span class="self-center text-xl font-semibold text-black sm:text-2xl whitespace-nowrap">GuidanceHub</span>
                 </a>
             </div>
-            <div class="flex items-center justify-end">
+            <div class="flex items-center justify-end gap-7 text-gray">
+                <i class="fa-solid fa-message"></i>
+                <i class="fa-solid fa-bell"></i>
+                <div class="relative">
+                    <!-- Search Icon -->
+                    <button
+                        id="search-toggle"
+                        class="text-xl text-gray-700 hover:text-blue-600 focus:outline-none">
+                        <i id="search-icon" class="fa-solid fa-magnifying-glass"></i>
+                    </button>
 
+                    <!-- Search Box (Hidden Initially) -->
+                    <div id="search-box" class="absolute right-0 p-4 mt-2 overflow-hidden transition-all duration-300 ease-in-out bg-white border border-gray-300 rounded-lg shadow-lg opacity-0 w-80 max-h-0">
+                        <form action="" method="GET" class="w-full max-w-md mx-auto">
+                            <label for="default-search" class="mb-2 text-sm font-medium sr-only">Search</label>
+                            <div class="relative">
+                                <input type="search" id="default-search" name="query"
+                                    class="block w-full p-4 text-sm text-gray-900"
+                                    placeholder="Search" />
+                                <button type="submit"
+                                    class="absolute px-4 py-2 text-sm font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 right-2 bottom-2">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </nav>
 
 <!--SIDE NAVIGATION MENU-->
-<aside id="logo-sidebar" class="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform -translate-x-full bg-white border-r border-gray-200 sm:translate-x-0 dark:bg-gray-800 dark:border-gray-700" aria-label="Sidebar">
-    <div class="h-full px-3 pb-4 overflow-y-auto bg-white dark:bg-gray-800">
-        <ul class="space-y-2 font-medium">
+<aside id="logo-sidebar" class="fixed z-40 h-screen pt-20 transition-transform -translate-x-full bg-white border-r w-60 dark:border-gray-300 sm:translate-x-0" aria-label="Sidebar">
+    <div class="h-full px-3 pb-4 overflow-y-auto bg-white border-gray-300">
+        <ul class="m-3 space-y-2 font-medium">
             <li>
-                <a href="index.php" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                <a href="dashboard.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
                 <svg class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 21">
                     <i class="fa-solid fa-house"></i>
                 </svg>
@@ -60,7 +86,7 @@ if (isset($_GET['logout'])) {
                 </a>
             </li>
             <li>
-                <a href="appointment.php" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                <a href="appointment.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
                 <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 18">
                     <i class="fa-solid fa-calendar-check"></i>
                 </svg>
@@ -68,23 +94,15 @@ if (isset($_GET['logout'])) {
                 </a>
             </li>
             <li>
-                <a href="report.php" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-                <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                <a href="report.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 18">
                     <i class="fa-solid fa-chart-pie"></i>
                 </svg>
-                <span class="flex-1 ms-3 whitespace-nowrap">Reports and Analytics</span>
+                <span class="flex-1 ms-3 whitespace-nowrap">Report & Analytic</span>
                 </a>
             </li>
             <li>
-                <a href="profile.php" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-                <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18">
-                    <i class="fa-solid fa-user"></i>
-                </svg>
-                <span class="flex-1 ms-3 whitespace-nowrap">Profile</span>
-                </a>
-            </li>
-            <li>
-                <a href="?logout=true" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                <a href="?logout=true" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
                     <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 16">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/> <i class="fa-solid fa-right-from-bracket"></i>
                     </svg>
@@ -94,7 +112,6 @@ if (isset($_GET['logout'])) {
         </ul>
     </div>
 </aside>
-
 
 <!--CONTENT HERE-->
 <<div class="p-4 mt-10 sm:ml-64">
@@ -170,20 +187,19 @@ if (isset($_GET['logout'])) {
     </div>
 </div>
 
-
 <!--FOOTER-->
-<footer class="overflow-auto bg-white sm:ml-64 w-75 dark:bg-gray-900">
-    <div class="w-full max-w-screen-xl p-4 py-6 mx-auto lg:py-8">
+<footer class="overflow-auto bg-gray-100 sm:ml-64 w-75">
+    <div class="w-full max-w-screen-xl p-4 py-6 mx-auto lg:py-8 dark:text-gray-800">
         <div class="md:flex md:justify-between">
             <div class="mb-6 md:mb-0">
                 <a href="https://flowbite.com/" class="flex items-center">
                     <img src="/src/images/UMAK-CGCS-logo.png" class="h-8 me-3" alt="GuidanceHub Logo" />
-                    <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">GuidanceHub<span>
+                    <span class="self-center text-2xl font-semibold whitespace-nowrap">GuidanceHub<span>
                 </a>
             </div>
             <div class="grid grid-cols-2 gap-8 sm:gap-6 sm:grid-cols-3">
                 <div>
-                    <h2 class="mb-6 text-sm font-semibold text-gray-900 uppercase dark:text-white">Resources</h2>
+                    <h2 class="mb-6 text-sm font-semibold text-black uppercase">Resources</h2>
                     <ul class="font-medium text-gray-500 dark:text-gray-400">
                         <li class="mb-4">
                             <a href="https://flowbite.com/" class="hover:underline">GuidanceHub</a>
@@ -194,10 +210,10 @@ if (isset($_GET['logout'])) {
                     </ul>
                 </div>
                 <div>
-                    <h2 class="mb-6 text-sm font-semibold text-gray-900 uppercase dark:text-white">Follow us</h2>
+                    <h2 class="mb-6 text-sm font-semibold text-gray-900 uppercase">Follow us</h2>
                     <ul class="font-medium text-gray-500 dark:text-gray-400">
                         <li class="mb-4">
-                            <a href="https://github.com/themesberg/flowbite" class="hover:underline ">Github</a>
+                            <a href="https://github.com/themesberg/flowbite" class="hover:underline">Github</a>
                         </li>
                         <li>
                             <a href="https://discord.gg/4eeurUVvTy" class="hover:underline">Discord</a>
@@ -205,7 +221,7 @@ if (isset($_GET['logout'])) {
                     </ul>
                 </div>
                 <div>
-                    <h2 class="mb-6 text-sm font-semibold text-gray-900 uppercase dark:text-white">Legal</h2>
+                    <h2 class="mb-6 text-sm font-semibold text-gray-900 uppercase">Legal</h2>
                     <ul class="font-medium text-gray-500 dark:text-gray-400">
                         <li class="mb-4">
                             <a href="#" class="hover:underline">Privacy Policy</a>
@@ -217,7 +233,7 @@ if (isset($_GET['logout'])) {
                 </div>
             </div>
         </div>
-        <hr class="my-6 border-gray-200 sm:mx-auto dark:border-gray-700 lg:my-8" />
+        <hr class="my-6 border-gray-200 sm:mx-auto dark:border-gray-300 lg:my-8" />
         <div class="sm:flex sm:items-center sm:justify-between">
             <span class="text-sm text-gray-500 sm:text-center dark:text-gray-400">© 2023 <a href="https://flowbite.com/" class="hover:underline">Flowbite™</a>. All Rights Reserved.
             </span>
@@ -257,7 +273,39 @@ if (isset($_GET['logout'])) {
     </div>
 </footer>
 
+<script>
+// JavaScript to handle search box toggling and icon change
+    document.addEventListener('DOMContentLoaded', function () {
+        const searchToggle = document.getElementById('search-toggle');
+        const searchBox = document.getElementById('search-box');
+        const searchIcon = document.getElementById('search-icon');
+        const searchExit = document.getElementById('search-exit');
 
+        // Toggle the search box and icon when search icon is clicked
+        searchToggle.addEventListener('click', function () {
+            // Toggle search box visibility
+            if (searchBox.classList.contains('opacity-0')) {
+                searchBox.classList.remove('opacity-0', 'max-h-0');
+                searchBox.classList.add('opacity-100', 'max-h-screen');
+                searchIcon.classList.remove('fa-magnifying-glass');
+                searchIcon.classList.add('fa-circle-xmark');  // Change to exit icon
+            } else {
+                searchBox.classList.add('opacity-0', 'max-h-0');
+                searchBox.classList.remove('opacity-100', 'max-h-screen');
+                searchIcon.classList.remove('fa-circle-xmark'); // Revert to search icon
+                searchIcon.classList.add('fa-magnifying-glass');
+            }
+        });
+
+        // Hide search box when clicking the exit icon
+        searchExit.addEventListener('click', function () {
+            searchBox.classList.add('opacity-0', 'max-h-0');
+            searchBox.classList.remove('opacity-100', 'max-h-screen');
+            searchIcon.classList.remove('fa-circle-xmark');
+            searchIcon.classList.add('fa-magnifying-glass'); // Revert to search icon
+        });
+    });
+</script>
 <script src="../path/to/flowbite/dist/flowbite.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
 </body>

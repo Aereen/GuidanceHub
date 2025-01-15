@@ -97,31 +97,57 @@ if (isset($_GET['logout'])) {
 </head>
 <body>
 <!--TOP NAVIGATION BAR-->
-<nav class="fixed top-0 z-50 w-full bg-white border-b border-gray-200 dark:border-gray-300">
-    <div class="px-3 py-3 lg:px-5 lg:pl-3">
-        <div class="flex items-center justify-between">
-            <div class="flex items-center justify-start rtl:justify-end">
+<nav class="fixed top-0 z-50 w-full bg-white border-b border-gray-200">
+    <div class="flex px-3 py-3 lg:px-5 lg:pl-3">
+        <div class="flex items-center justify-between w-full max-w-7xl">
+            <div class="flex items-center justify-start">
                 <button data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" aria-controls="logo-sidebar" type="button" class="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600">
                     <span class="sr-only">Open sidebar</span>
                     <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                    <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
+                        <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
                     </svg>
                 </button>
                 <a href="" class="flex ms-2 md:me-24">
-                <img src="/src/images/UMAK-CGCS-logo.png" class="h-8 me-3" alt="GuidanceHub Logo" />
-                <span class="self-center text-xl font-semibold text-black sm:text-2xl whitespace-nowrap">GuidanceHub</span>
+                    <img src="/src/images/UMAK-CGCS-logo.png" class="h-8 me-3" alt="GuidanceHub Logo" />
+                    <span class="self-center text-xl font-semibold text-black sm:text-2xl whitespace-nowrap">GuidanceHub</span>
                 </a>
             </div>
-            <div class="flex items-center justify-end">
+            <div class="flex items-center justify-end gap-7 text-gray">
+                <i class="fa-solid fa-message"></i>
+                <i class="fa-solid fa-bell"></i>
+                <div class="relative">
+                    <!-- Search Icon -->
+                    <button
+                        id="search-toggle"
+                        class="text-xl text-gray-700 hover:text-blue-600 focus:outline-none">
+                        <i id="search-icon" class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+
+                    <!-- Search Box (Hidden Initially) -->
+                    <div id="search-box" class="absolute right-0 p-4 mt-2 overflow-hidden transition-all duration-300 ease-in-out bg-white border border-gray-300 rounded-lg shadow-lg opacity-0 w-80 max-h-0">
+                        <form action="" method="GET" class="w-full max-w-md mx-auto">
+                            <label for="default-search" class="mb-2 text-sm font-medium sr-only">Search</label>
+                            <div class="relative">
+                                <input type="search" id="default-search" name="query"
+                                    class="block w-full p-4 text-sm text-gray-900"
+                                    placeholder="Search" />
+                                <button type="submit"
+                                    class="absolute px-4 py-2 text-sm font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 right-2 bottom-2">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </nav>
 
 <!--SIDE NAVIGATION MENU-->
-<aside id="logo-sidebar" class="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform -translate-x-full border-r dark:border-gray-300 sm:translate-x-0" aria-label="Sidebar">
-    <div class="h-full px-3 pb-4 overflow-y-auto bg-white dark:border-gray-300">
-        <ul class="space-y-2 font-medium">
+<aside id="logo-sidebar" class="fixed z-40 h-screen pt-20 transition-transform -translate-x-full bg-white border-r w-60 dark:border-gray-300 sm:translate-x-0" aria-label="Sidebar">
+    <div class="h-full px-3 pb-4 overflow-y-auto bg-white border-gray-300">
+        <ul class="m-3 space-y-2 font-medium">
             <li>
                 <a href="dashboard.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
                 <svg class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 21">
@@ -566,6 +592,39 @@ if (isset($_GET['logout'])) {
     </div>
 </footer>
 
+<script>
+// JavaScript to handle search box toggling and icon change
+    document.addEventListener('DOMContentLoaded', function () {
+        const searchToggle = document.getElementById('search-toggle');
+        const searchBox = document.getElementById('search-box');
+        const searchIcon = document.getElementById('search-icon');
+        const searchExit = document.getElementById('search-exit');
+
+        // Toggle the search box and icon when search icon is clicked
+        searchToggle.addEventListener('click', function () {
+            // Toggle search box visibility
+            if (searchBox.classList.contains('opacity-0')) {
+                searchBox.classList.remove('opacity-0', 'max-h-0');
+                searchBox.classList.add('opacity-100', 'max-h-screen');
+                searchIcon.classList.remove('fa-magnifying-glass');
+                searchIcon.classList.add('fa-circle-xmark');  // Change to exit icon
+            } else {
+                searchBox.classList.add('opacity-0', 'max-h-0');
+                searchBox.classList.remove('opacity-100', 'max-h-screen');
+                searchIcon.classList.remove('fa-circle-xmark'); // Revert to search icon
+                searchIcon.classList.add('fa-magnifying-glass');
+            }
+        });
+
+        // Hide search box when clicking the exit icon
+        searchExit.addEventListener('click', function () {
+            searchBox.classList.add('opacity-0', 'max-h-0');
+            searchBox.classList.remove('opacity-100', 'max-h-screen');
+            searchIcon.classList.remove('fa-circle-xmark');
+            searchIcon.classList.add('fa-magnifying-glass'); // Revert to search icon
+        });
+    });
+</script>
 <script src="../path/to/flowbite/dist/flowbite.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
 </body>
