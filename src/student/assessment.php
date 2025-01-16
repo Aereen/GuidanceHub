@@ -95,7 +95,7 @@ if (isset($_GET['logout'])) {
     </script>
 
 </head>
-<body>
+<body class="bg-gray-100">
 <!--TOP NAVIGATION BAR-->
 <nav class="fixed top-0 z-50 w-full bg-white border-b border-gray-200">
     <div class="flex px-3 py-3 lg:px-5 lg:pl-3">
@@ -113,10 +113,64 @@ if (isset($_GET['logout'])) {
                 </a>
             </div>
             <div class="flex items-center justify-end gap-7 text-gray">
-                <i class="fa-solid fa-message"></i>
-                <i class="fa-solid fa-bell"></i>
+                <!--Message Icon-->
+                    <div class="relative">
+                        <button id="messageButton" class="text-gray-600 hover:text-gray-900 focus:outline-none">
+                            <i class="text-2xl fa-solid fa-message"></i>
+                            <!-- Unread Message Badge -->
+                            <span id="messageBadge" class="absolute top-0 right-0 inline-flex items-center justify-center hidden w-4 h-4 text-xs font-bold text-white bg-red-500 rounded-full">
+                                3
+                            </span>
+                        </button>
+                        <!-- Message Chat Modal -->
+                        <div id="chatModal" class="fixed inset-0 z-50 flex items-center justify-center hidden bg-black bg-opacity-50">
+                            <div class="w-full max-w-lg p-6 bg-white rounded-lg shadow-md">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="text-xl font-semibold">Chat with Support</h3>
+                                    <button onclick="closeChatModal()" class="text-gray-500 hover:text-gray-800">✖</button>
+                                </div>
+                                <div id="chatContent" class="h-64 mb-4 overflow-y-auto text-sm text-gray-700">
+                                    <div class="mb-2">
+                                        <p class="p-2 bg-gray-100 rounded">Hello! How can I assist you today?</p>
+                                    </div>
+                                    <div class="mb-2">
+                                        <p class="p-2 text-blue-800 bg-blue-100 rounded">I need help with my appointment.</p>
+                                    </div>
+                                </div>
+                                <div class="flex">
+                                    <input id="chatInput" type="text" class="w-full p-2 border border-gray-300 rounded-l-md" placeholder="Type your message...">
+                                    <button onclick="sendMessage()" class="px-4 py-2 text-white bg-blue-500 rounded-r-md hover:bg-blue-700">Send</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                <!--Notification Bell Icon-->
+                    <div class="relative">
+                        <button id="notificationButton" class="text-gray-600 hover:text-gray-900 focus:outline-none">
+                            <i class="text-2xl fa-solid fa-bell"></i>
+                            <!-- Notification Badge -->
+                            <span id="notificationBadge" class="absolute top-0 right-0 inline-flex items-center justify-center hidden w-4 h-4 text-xs font-bold text-white bg-red-500 rounded-full">
+                                0
+                            </span>
+                        </button>
+                        <!-- Notification Dropdown -->
+                        <div id="notificationDropdown" class="absolute right-0 z-50 hidden w-64 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg">
+                            <div class="p-4 text-sm text-gray-700">
+                                <h4 class="text-lg font-bold">Notifications</h4>
+                                <ul id="notificationList" class="mt-2 space-y-2">
+                                    <li class="text-gray-500">No new notifications</li>
+                                </ul>
+                                <!-- Mark as Read Button -->
+                                <button id="markReadButton" class="hidden w-full px-4 py-2 mt-4 text-sm font-medium text-white bg-blue-500 rounded hover:bg-blue-700">
+                                    Mark All as Read
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                <!-- Search Icon -->
                 <div class="relative">
-                    <!-- Search Icon -->
                     <button
                         id="search-toggle"
                         class="text-xl text-gray-700 hover:text-blue-600 focus:outline-none">
@@ -195,7 +249,7 @@ if (isset($_GET['logout'])) {
 <!--CONTENT-->
 <div class="p-4 mt-10 sm:ml-64">
     <h2 class="p-3 my-2 text-4xl font-bold tracking-tight">Available Assessment</h2>
-        <div class="p-5 bg-white">
+        <div class="px-5 py-2 bg-white border border-gray-300 rounded-md">
             <ul class="divide-y divide-gray-200 dark:divide-gray-400">
                 <!-- Career Interest Assessment -->
                 <li class="flex items-center justify-between py-4">
@@ -505,9 +559,8 @@ if (isset($_GET['logout'])) {
         </div>
     </div>
 
-
 <!--FOOTER-->
-<footer class="overflow-auto bg-white sm:ml-64 w-75">
+<footer class="overflow-auto sm:ml-64 w-75">
     <div class="w-full max-w-screen-xl p-4 py-6 mx-auto lg:py-8 dark:text-gray-800">
         <div class="md:flex md:justify-between">
             <div class="mb-6 md:mb-0">
@@ -593,6 +646,96 @@ if (isset($_GET['logout'])) {
 </footer>
 
 <script>
+//Toggle for Message
+const messageButton = document.getElementById('messageButton');
+    const chatModal = document.getElementById('chatModal');
+    const messageBadge = document.getElementById('messageBadge');
+    const chatContent = document.getElementById('chatContent');
+    const chatInput = document.getElementById('chatInput');
+
+    // Show chat modal when message icon is clicked
+    messageButton.addEventListener('click', () => {
+        chatModal.classList.toggle('hidden');
+    });
+
+    // Close the chat modal
+    function closeChatModal() {
+        chatModal.classList.add('hidden');
+    }
+
+    // Send a new message
+    function sendMessage() {
+        const messageText = chatInput.value.trim();
+        if (messageText) {
+            const newMessage = document.createElement('div');
+            newMessage.classList.add('mb-2');
+            newMessage.innerHTML = `<p class="p-2 text-blue-800 bg-blue-100 rounded">${messageText}</p>`;
+            chatContent.appendChild(newMessage);
+            chatInput.value = ''; // Clear input after sending
+            chatContent.scrollTop = chatContent.scrollHeight; // Scroll to the latest message
+        }
+    }
+
+    // Simulate unread messages (this would be dynamic in a real app)
+    function simulateUnreadMessages() {
+        const unreadMessages = 3; // Example count of unread messages
+        if (unreadMessages > 0) {
+            messageBadge.textContent = unreadMessages;
+            messageBadge.classList.remove('hidden');
+        } else {
+            messageBadge.classList.add('hidden');
+        }
+    }
+
+    // Initialize unread message count
+    simulateUnreadMessages();
+
+//Toggle for Notification
+const notificationButton = document.getElementById('notificationButton');
+    const notificationDropdown = document.getElementById('notificationDropdown');
+    const notificationBadge = document.getElementById('notificationBadge');
+    const notificationList = document.getElementById('notificationList');
+    const markReadButton = document.getElementById('markReadButton');
+
+    // Sample notifications array
+    let notifications = [
+        "Your appointment has been confirmed.",
+        "New message from the guidance office.",
+        "Reminder: Your appointment is tomorrow at 10:00 AM."
+    ];
+
+    // Function to display notifications
+    function updateNotifications() {
+        if (notifications.length > 0) {
+            notificationBadge.textContent = notifications.length;
+            notificationBadge.classList.remove('hidden');
+            markReadButton.classList.remove('hidden');
+
+            // Update the dropdown list
+            notificationList.innerHTML = notifications.map(
+                (notif) => `<li class="p-2 bg-gray-100 rounded hover:bg-gray-200">${notif}</li>`
+            ).join('');
+        } else {
+            notificationBadge.classList.add('hidden');
+            markReadButton.classList.add('hidden');
+            notificationList.innerHTML = `<li class="text-gray-500">No new notifications</li>`;
+        }
+    }
+
+    // Show or hide the dropdown
+    notificationButton.addEventListener('click', () => {
+        notificationDropdown.classList.toggle('hidden');
+    });
+
+    // Mark all notifications as read
+    markReadButton.addEventListener('click', () => {
+        notifications = []; // Clear notifications array
+        updateNotifications(); // Update the UI
+    });
+
+    // Initialize notifications on page load
+    updateNotifications();
+
 // JavaScript to handle search box toggling and icon change
     document.addEventListener('DOMContentLoaded', function () {
         const searchToggle = document.getElementById('search-toggle');
