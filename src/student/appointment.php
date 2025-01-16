@@ -104,10 +104,15 @@ if (isset($_GET['logout'])) {
                 </a>
             </div>
             <div class="flex items-center justify-end gap-7 text-gray">
-                <i class="fa-solid fa-message"></i>
-                <i class="fa-solid fa-bell"></i>
+                <!--Message Icon-->
+                    <i class="fa-solid fa-message"></i>
+
+                <!--Notification Icon-->
+                    <i class="fa-solid fa-bell"></i>
+        
+
+                <!-- Search Icon -->
                 <div class="relative">
-                    <!-- Search Icon -->
                     <button
                         id="search-toggle"
                         class="text-xl text-gray-700 hover:text-blue-600 focus:outline-none">

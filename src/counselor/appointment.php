@@ -114,29 +114,20 @@ if (isset($_GET['logout'])) {
 </aside>
 
 <!--CONTENT HERE-->
-<<div class="p-4 mt-10 sm:ml-64">
-    <h2 class="p-3 my-2 text-4xl font-bold">Scheduled Appointments</h2>
-    <div class="p-6 bg-white border border-gray-200 rounded-lg shadow dark:border-gray-700">
+<div class="p-4 mt-10 sm:ml-64">
+    <h2 class="p-3 my-2 text-4xl font-bold text-gray-800">Scheduled Appointments</h2>
+    <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-md dark:border-gray-700">
         <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900">Appointments Overview</h5>
         <div class="overflow-x-auto">
-            <!-- Adjusted table width -->
-            <table class="w-full text-xs text-left text-gray-500 dark:text-gray-400 md:text-sm lg:text-base">
-                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+            <table class="w-full text-sm text-left text-gray-600 dark:text-gray-400">
+                <thead class="text-sm text-gray-900 uppercase bg-gray-100">
                     <tr>
-                        <!-- Adjusted padding for columns -->
-                        <th scope="col" class="px-4 py-2">#</th>
-                        <th scope="col" class="px-4 py-2">Full Name</th>
-                        <th scope="col" class="px-4 py-2">Student Number</th>
-                        <th scope="col" class="px-4 py-2">Contact</th>
-                        <th scope="col" class="px-4 py-2">Email</th>
-                        <th scope="col" class="px-4 py-2">College</th>
-                        <th scope="col" class="px-4 py-2">Course</th>
-                        <th scope="col" class="px-4 py-2">Year Level</th>
-                        <th scope="col" class="px-4 py-2">Section</th>
-                        <th scope="col" class="px-4 py-2">Appointment Type</th>
-                        <th scope="col" class="px-4 py-2">Date</th>
-                        <th scope="col" class="px-4 py-2">Time</th>
-                        <th scope="col" class="px-4 py-2">Actions</th>
+                        <th scope="col" class="px-6 py-3">#</th>
+                        <th scope="col" class="px-6 py-3">Full Name</th>
+                        <th scope="col" class="px-6 py-3">Student Number</th>
+                        <th scope="col" class="px-6 py-3">Date</th>
+                        <th scope="col" class="px-6 py-3">Time</th>
+                        <th scope="col" class="px-6 py-3">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -144,39 +135,30 @@ if (isset($_GET['logout'])) {
                     // Connect to the database
                     $con = mysqli_connect('localhost', 'root', '', 'guidancehub');
                     
-                    // Check connection
                     if (!$con) {
                         die("Connection failed: " . mysqli_connect_error());
                     }
 
-                    // Fetch appointments from the database
                     $sql = "SELECT * FROM appointments";
                     $result = mysqli_query($con, $sql);
 
                     if (mysqli_num_rows($result) > 0) {
                         $counter = 1;
                         while ($row = mysqli_fetch_assoc($result)) {
-                            echo "<tr class='bg-white border-b dark:border-gray-700'>
-                                    <td class='px-4 py-2'>" . $counter++ . "</td>
-                                    <td class='px-4 py-2'>" . htmlspecialchars($row['full_name']) . "</td>
-                                    <td class='px-4 py-2'>" . htmlspecialchars($row['student_number']) . "</td>
-                                    <td class='px-4 py-2'>" . htmlspecialchars($row['contact_number']) . "</td>
-                                    <td class='px-4 py-2'>" . htmlspecialchars($row['email']) . "</td>
-                                    <td class='px-4 py-2'>" . htmlspecialchars($row['college']) . "</td>
-                                    <td class='px-4 py-2'>" . htmlspecialchars($row['course']) . "</td>
-                                    <td class='px-4 py-2'>" . htmlspecialchars($row['year_level']) . "</td>
-                                    <td class='px-4 py-2'>" . htmlspecialchars($row['section']) . "</td>
-                                    <td class='px-4 py-2'>" . htmlspecialchars($row['appointment_type']) . "</td>
-                                    <td class='px-4 py-2'>" . htmlspecialchars($row['appointment_date']) . "</td>
-                                    <td class='px-4 py-2'>" . htmlspecialchars($row['appointment_time']) . "</td>
-                                    <td class='px-4 py-2'>
+                            echo "<tr class='bg-white border-b text-black dark:border-gray-700 hover:bg-gray-100' onclick='showDetails(".json_encode($row).")'>
+                                    <td class='px-6 py-3'>" . $counter++ . "</td>
+                                    <td class='px-6 py-3'>" . htmlspecialchars($row['full_name']) . "</td>
+                                    <td class='px-6 py-3'>" . htmlspecialchars($row['student_number']) . "</td>
+                                    <td class='px-6 py-3'>" . htmlspecialchars($row['appointment_date']) . "</td>
+                                    <td class='px-6 py-3'>" . htmlspecialchars($row['appointment_time']) . "</td>
+                                    <td class='px-6 py-3'>
                                         <a href='edit_appointment.php?id=" . $row['id'] . "' class='text-blue-600 hover:underline'>Edit</a>
                                         <a href='delete_appointment.php?id=" . $row['id'] . "' class='ml-4 text-red-600 hover:underline'>Delete</a>
                                     </td>
                                 </tr>";
                         }
                     } else {
-                        echo "<tr><td colspan='13' class='px-4 py-2 text-center'>No appointments found</td></tr>";
+                        echo "<tr><td colspan='6' class='px-6 py-3 text-center'>No appointments found</td></tr>";
                     }
 
                     mysqli_close($con);
@@ -184,6 +166,20 @@ if (isset($_GET['logout'])) {
                 </tbody>
             </table>
         </div>
+    </div>
+</div>
+
+<!-- Pop-up Modal -->
+<div id="detailsModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div class="w-full max-w-2xl p-6 bg-white rounded-lg shadow-md">
+        <div class="flex justify-between">
+            <h3 id="modalTitle" class="text-xl font-semibold"></h3>
+            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-800">✖</button>
+        </div>
+        <div id="modalContent" class="mt-4 text-gray-700"></div>
+        <button onclick="closeModal()" class="mt-6 px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-700">
+            Close
+        </button>
     </div>
 </div>
 
@@ -274,6 +270,30 @@ if (isset($_GET['logout'])) {
 </footer>
 
 <script>
+// Show appointment details in a pop-up modal
+    function showDetails(row) {
+        const modal = document.getElementById('detailsModal');
+        document.getElementById('modalTitle').innerText = `Appointment Details for ${row.full_name}`;
+        document.getElementById('modalContent').innerHTML = `
+            <p><strong>Student Number:</strong> ${row.student_number}</p>
+            <p><strong>Contact Number:</strong> ${row.contact_number}</p>
+            <p><strong>Email:</strong> ${row.email}</p>
+            <p><strong>College:</strong> ${row.college}</p>
+            <p><strong>Course:</strong> ${row.course}</p>
+            <p><strong>Year Level:</strong> ${row.year_level}</p>
+            <p><strong>Section:</strong> ${row.section}</p>
+            <p><strong>Appointment Type:</strong> ${row.appointment_type}</p>
+            <p><strong>Date:</strong> ${row.appointment_date}</p>
+            <p><strong>Time:</strong> ${row.appointment_time}</p>
+        `;
+        modal.classList.remove('hidden');
+    }
+
+    // Close modal
+    function closeModal() {
+        document.getElementById('detailsModal').classList.add('hidden');
+    }
+
 // JavaScript to handle search box toggling and icon change
     document.addEventListener('DOMContentLoaded', function () {
         const searchToggle = document.getElementById('search-toggle');
