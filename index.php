@@ -15,7 +15,6 @@ $result = $con->query($sql);
 //Referral System
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $student_id = $_POST['student_id'];
-    $counselor_name = $_POST['counselor_name'];
     $reason = $_POST['reason'];
     $referral_date = date('Y-m-d'); // Current date
 
@@ -58,8 +57,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </style>
 </head>
 <body class="font-sans antialiased bg-gray-100">
+
 <!--HEADER-->
-<header class="sticky top-0 z-50 py-4 shadow-md" style="background-color: #1EB0A9">
+<header class="fixed top-0 left-0 z-50 w-full py-4 shadow-md" style="background-color: #1EB0A9">
     <div class="container flex items-center justify-between px-4 mx-auto md:px-8">
         <!-- Logo -->
         <div class="flex items-center space-x-3">
@@ -91,39 +91,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 </header>
 
 <!--BANNER-->
-<section id="home" class="relative flex items-center justify-center text-center text-white bg-center bg-cover hero" 
+<section id="home" class="relative top-0 left-0 flex items-center justify-center mt-16 text-center text-white bg-center bg-cover hero" 
     style="background-image: url('/src/images/UMak-Facade-Admin.jpg'); height: 90vh;">
     <div class="absolute inset-0 bg-slate-800 bg-opacity-60"></div>
-    <div class="relative z-10 max-w-4xl px-4 py-8 md:px-8">
+    <div class="relative max-w-4xl px-4 py-8 md:px-8">
         <p class="mb-2 text-3xl font-medium max-sm:text-2xl">University of Makati</p>
         <p class="mb-4 text-4xl font-medium max-sm:text-3xl">Center of Guidance and Counseling Services</p>
         <h1 class="font-bold text-yellow-400 text-8xl max-sm:text-6xl">Home of the Brave Herons</h1>
     </div>
 </section>
 
-<!--SERVICES-->
-<section id="services" class="py-5">
-    <div class="container mx-auto text-center">
-        <h2 class="mb-5 text-4xl font-bold underline max-sm:text-4xl decoration-yellow-400">SERVICES</h2>
-            <div class="grid gap-8 md:grid-cols-3">
-                <div class="p-6 bg-white rounded-lg shadow-md">
-                    <h3 class="mb-4 text-2xl font-semibold">Personal Counseling</h3>
-                    <p>We provide one-on-one counseling to help students overcome personal challenges and achieve mental well-being.</p>
-                </div>
-                <div class="p-6 bg-white rounded-lg shadow-md">
-                    <h3 class="mb-4 text-2xl font-semibold">Academic Assistance</h3>
-                    <p>Get help with your academic decisions, study techniques, and career planning from our expert counselors.</p>
-                </div>
-                <div class="p-6 bg-white rounded-lg shadow-md">
-                    <h3 class="mb-4 text-2xl font-semibold">Career Guidance</h3>
-                    <p>Explore career opportunities and get professional advice to shape your future career path.</p>
-                </div>
-            </div>
-    </div>
-</section>
-
-<!--ARTICLES---> <!--CREATE A CONTENT MANAGER OF ARTICLES IN ADMIN-->
-<article class="container px-4 mx-auto my-5">   
+<!--ARTICLES-->
+<article class="container px-4 mx-auto my-5">
     <h1 class="text-4xl font-bold text-center underline decoration-yellow-400">Publications, Updates and More!</h1>
     <div class="grid grid-cols-1 gap-6 mt-8 md:grid-cols-2 lg:grid-cols-4">
         <?php if ($result && $result->num_rows > 0): ?>
@@ -143,9 +122,101 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </div>
 </article>
 
+<!--SERVICES-->
+<section id="services" class="py-5">
+    <div class="container mx-auto text-center">
+        <h2 class="mb-5 text-4xl font-bold underline max-sm:text-4xl decoration-yellow-400">SERVICES</h2>
+            <div class="grid gap-8 md:grid-cols-3">
+                <div class="p-6 bg-white rounded-lg shadow-md">
+                    <p>Facilitates and helps students in the achievement of their personal, social, spiritual and academic 
+                        development as well as the acquisition of relevant knowledge and skills in career planning.</p>
+                </div>
+                <div class="p-6 bg-white rounded-lg shadow-md">
+                    <p>Promotes holistic development and helps students to become well-adjusted individuals through 
+                        responsive guidance and counseling services in line with the year level thrust and the university’s vision-mission.</p>
+                </div>
+                <div class="p-6 bg-white rounded-lg shadow-md">
+                    <p>Creates preventive/proactive guidance programs that lead to the enrichment and satisfaction of students 
+                        learning and experiences necessary for a successful and well-balanced student life.</p>
+                </div>
+            </div>
+    </div>
+</section>
+
+<!--REFERRAL FORM-->
+<section id="referral" class="container px-6 mx-auto my-10">
+    <h4 class="p-3 text-2xl font-semibold text-center text-white bg-teal-500 rounded-lg">
+        REFERRAL SYSTEM
+    </h4>
+
+    <div class="grid gap-6 p-6 my-4 bg-white border-2 rounded-lg dark:border-gray-300 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+        <!-- Faculty Section -->
+        <div class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow">
+            <h3 class="text-xl font-bold text-gray-700">Faculty</h3>
+            <p class="text-gray-600">The Faculty will fill out an Online Referral Form indicating the reason why the student is being referred.</p>
+        </div>
+
+        <!-- Guidance Counselor Section -->
+        <div class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow">
+            <h3 class="text-xl font-bold text-gray-700">Guidance Counselor</h3>
+            <p class="text-gray-600">The Guidance Counselor will contact the referred student to schedule a counseling session.</p>
+        </div>
+
+        <!-- Student Section -->
+        <div class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow">
+            <h3 class="text-xl font-bold text-gray-700">Student</h3>
+            <p class="text-gray-600">The referred student will meet the guidance counselor through an online platform for an initial interview/counseling and/or psychological assessment if necessary.</p>
+        </div>
+    </div>
+
+    <!-- Button to open the modal -->
+    <div class="flex justify-center mt-6">
+        <button onclick="toggleModal()" class="px-6 py-2 text-lg font-semibold text-white bg-blue-500 rounded-md hover:bg-blue-600">
+            Referral Form
+        </button>
+    </div>
+
+    <!-- Modal -->
+    <div id="referralModal" class="fixed inset-0 flex items-center justify-center hidden bg-gray-800 bg-opacity-50">
+        <div class="w-full max-w-md p-6 bg-white rounded-lg shadow-lg">
+            <h2 class="text-2xl font-semibold text-center text-gray-700">Referral Form</h2>
+            <form action="submit_referral.php" method="POST" class="mt-4">
+                <div class="mb-4">
+                    <label for="student_id" class="block text-sm font-medium text-gray-700">Student ID</label>
+                    <input type="text" id="student_id" name="student_id" class="w-full p-2 mt-1 border border-gray-300 rounded-md" required>
+                </div>
+
+                <div class="mb-4">
+                    <label for="student_name" class="block text-sm font-medium text-gray-700">Student Name</label>
+                    <input type="text" id="student_name" name="student_name" class="w-full p-2 mt-1 border border-gray-300 rounded-md" required>
+                </div>
+
+                <div class="mb-4">
+                    <label for="reason" class="block text-sm font-medium text-gray-700">Reason for Referral</label>
+                    <textarea id="reason" name="reason" rows="4" class="w-full p-2 mt-1 border border-gray-300 rounded-md" required></textarea>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex justify-center">
+                    <button type="submit" class="px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600">
+                        Submit Referral
+                    </button>
+                </div>
+            </form>
+
+            <!-- Close button -->
+            <div class="flex justify-center mt-4">
+                <button onclick="toggleModal()" class="text-gray-500 hover:text-gray-700">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
 <!--ABOUT-->
 <section id="about" class="container px-4 mx-auto my-10">
-    <div class="grid items-center grid-cols-1 gap-8 md:grid-cols-2">
+    <div class="grid items-center grid-cols-1 gap-8 my-2 md:grid-cols-2">
             <img 
                 src="/src/images/CGCS-About.jpg" 
                 alt="GuidanceHub-AboutUs"  
@@ -160,16 +231,64 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </p>
                 <a 
                     href="https://www.facebook.com/UMakCGCS" 
-                    class="px-6 py-3 text-white rounded-full bg-cyan-800 hover:bg-cyan-950">
+                    class="px-6 py-3 mx-3 text-white rounded-full bg-cyan-800 hover:bg-cyan-950">
                     More Details
                 </a>
+                <a href="javascript:void(0);" onclick="toggleGuidanceStaffModal()" 
+            class="px-6 py-3 mx-3 text-white rounded-full bg-cyan-800 hover:bg-cyan-950">
+                GuidanceHub Staff
+            </a>
+
+            <!-- Modal Background -->
+            <div id="guidanceStaffModal" class="fixed inset-0 flex items-center justify-center hidden bg-gray-800 bg-opacity-50">
+                <!-- Modal Content -->
+                <div class="w-full max-w-lg p-6 bg-white rounded-lg shadow-lg">
+                    <h2 class="mb-4 text-2xl font-semibold text-center text-gray-700">Guidance Staff</h2>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full border border-collapse border-gray-300">
+                            <thead>
+                                <tr class="bg-gray-200">
+                                    <th class="px-4 py-2 text-left border border-gray-300">Staff</th>
+                                    <th class="px-4 py-2 text-left border border-gray-300">Role</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td class="px-4 py-2 border">Prof. Ryan C. Villanueva, MAEd, RGC, LPT, CLDP, CHRA</td><td class="px-4 py-2 border">Director</td></tr>
+                                <tr><td class="px-4 py-2 border">Karen M. Rico, MAEd, RGC</td><td class="px-4 py-2 border">Guidance Counselor</td></tr>
+                                <tr><td class="px-4 py-2 border">Gichelle Hanna C. Roxas, MAEd, RPm</td><td class="px-4 py-2 border">Guidance Counselor</td></tr>
+                                <tr><td class="px-4 py-2 border">Ma. Romanita C. De Borja, RPm, LPT</td><td class="px-4 py-2 border">Guidance Coordinator</td></tr>
+                                <tr><td class="px-4 py-2 border">Bowie L. Bello, RPm</td><td class="px-4 py-2 border">Guidance Coordinator</td></tr>
+                                <tr><td class="px-4 py-2 border">Estella O. Obnamia, MP, RPm, LPT</td><td class="px-4 py-2 border">Guidance Coordinator</td></tr>
+                                <tr><td class="px-4 py-2 border">Aiko B. Caguioa</td><td class="px-4 py-2 border">Guidance Coordinator</td></tr>
+                                <tr><td class="px-4 py-2 border">Carolyn S.M. Balsamo, RSW</td><td class="px-4 py-2 border">IEGAD Coordinator</td></tr>
+                                <tr><td class="px-4 py-2 border">Janella M. Largadas, CHRA</td><td class="px-4 py-2 border">Guidance Secretary/Coordinator</td></tr>
+                                <tr><td class="px-4 py-2 border">Dr. Evangeline M. Alayon, RGC, LPT</td><td class="px-4 py-2 border">Associate Guidance Counselor</td></tr>
+                                <tr><td class="px-4 py-2 border">Dr. Lucia B. Dela Cruz, RGC</td><td class="px-4 py-2 border">Associate Guidance Counselor</td></tr>
+                                <tr><td class="px-4 py-2 border">Prof. Kim Patrick Magdangan, MAEd, RGC</td><td class="px-4 py-2 border">Associate Guidance Counselor</td></tr>
+                                <tr><td class="px-4 py-2 border">Dr. Francisco M. Lambojon, Jr., RPsy</td><td class="px-4 py-2 border">Associate Psychologist</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Close Button -->
+                    <div class="flex justify-center mt-4">
+                        <button onclick="toggleGuidanceStaffModal()" class="px-4 py-2 text-white bg-red-500 rounded-md hover:bg-red-600">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-</section>
+    <div class="grid items-center grid-cols-1 gap-8 my-2 md:grid-cols-3">
+        <h4>Vision</h4>
 
-<!--GET TO KNOW US-->
-<section>
+        <h4>Mission</h4>
 
+        <h4>Core Values</h4>
+
+    </div>
 </section>
 
 <!--FOOTER-->
@@ -275,6 +394,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 }
             });
         });
+
+    //Toggle for Guidance Staff Modal
+        function toggleGuidanceStaffModal() {
+        const modal = document.getElementById('guidanceStaffModal');
+        modal.classList.toggle('hidden');
+    }
     </script>
 </body>
 </html>

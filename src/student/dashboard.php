@@ -204,7 +204,8 @@ if (isset($_GET['logout'])) {
     <div class="grid grid-cols-1 gap-4 p-1 lg:grid-cols-4">
 
         <!-- ACTIVITIES -->
-        <section class="col-span-1 p-5 my-3 bg-white border-2 rounded-lg lg:col-span-3 dark:border-gray-300">
+        <section class="col-span-1 p-5 my-3 bg-white border-2 rounded-lg lg:col-span-3 dark:border-gray-300">   
+            <h3 class="font-bold">Activities</h3>
             <div class="grid grid-cols-1 gap-4 m-5 sm:grid-cols-2 lg:grid-cols-2">
                 
             </div>
@@ -314,7 +315,7 @@ if (isset($_GET['logout'])) {
         </aside>
     </div>
 
-    <!-- ANNOUNCEMENT SECTION -->
+<!-- ANNOUNCEMENT SECTION -->
     <h4 class="p-2 text-xl font-semibold text-white bg-teal-500 rounded-lg">ANNOUNCEMENTS</h4>
     <section class="col-span-3 p-2 my-5 bg-white border-2 border-gray-300 rounded-lg">
         <div class="grid grid-cols-1 gap-3 my-3 sm:grid-cols-2 lg:grid-cols-2">
@@ -338,7 +339,7 @@ if (isset($_GET['logout'])) {
         </div>
     </section>
 
-    <!-- COUNSELING PROCESS -->
+<!-- COUNSELING PROCESS -->
     <h4 class="p-2 text-xl font-semibold text-white bg-teal-500 rounded-lg">PROCESS</h4>
     <section class="grid grid-cols-1 gap-4 p-5 my-5 bg-white border-2 rounded-lg sm:grid-cols-2 lg:grid-cols-3 dark:border-gray-300">
         <!-- Card 1 -->
