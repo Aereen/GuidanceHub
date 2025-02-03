@@ -8,7 +8,7 @@ if ($con->connect_error) {
 }
 
 // Initialize variables
-$name = $email = $role = $password = "";
+$name = $email = $id_number = $role = $password = "";
 $errors = array(); 
 
 // SIGNUP USER
@@ -16,6 +16,7 @@ if (isset($_POST['signup'])) {
     // Receive form data
     $name = mysqli_real_escape_string($con, $_POST['name']);
     $email = mysqli_real_escape_string($con, $_POST['email']);
+    $id_number = mysqli_real_escape_string($con, $_POST['id_number']);
     $role = mysqli_real_escape_string($con, $_POST['role']); // This will be either 'Counselor' or 'Student'
     $password = mysqli_real_escape_string($con, $_POST['password']);
     $confirm_password = mysqli_real_escape_string($con, $_POST['confirm_password']);
@@ -23,6 +24,7 @@ if (isset($_POST['signup'])) {
     // Form validation: Ensure required fields are filled
     if (empty($name)) { array_push($errors, "Name is required"); }
     if (empty($email)) { array_push($errors, "Email is required"); }
+    if (empty($id_number)) { array_push($errors, "ID Number is required"); }
     if (empty($role)) { array_push($errors, "Role is required"); }
     if (empty($password)) { array_push($errors, "Password is required"); }
     if ($password !== $confirm_password) { array_push($errors, "Passwords do not match"); }
@@ -49,8 +51,8 @@ if (isset($_POST['signup'])) {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
         // Insert user into the database
-        $query = "INSERT INTO users (name, email, role, password) 
-                    VALUES('$name', '$email', '$role', '$hashed_password')";
+        $query = "INSERT INTO users (name, email, id_number, role, password) 
+                    VALUES('$name', '$email', '$id_number', '$role', '$hashed_password')";
 
         if (mysqli_query($con, $query)) {
             $_SESSION['email'] = $email;
@@ -94,7 +96,6 @@ for ($i = 0; $i < 42; $i++) {
         $row = array_fill(0, 7, null);
     }
 }
-
 
 
 

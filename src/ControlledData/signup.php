@@ -79,17 +79,25 @@
                         <input type="email" id="email" name="email" class="w-full px-4 py-2 mt-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600" required>
                     </div>
 
-                    <!-- Role Selection: Counselor or Student -->
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700">Role</label>
-                        <div class="flex items-center space-x-4">
-                            <div>
-                                <input type="radio" id="counselor" name="role" value="Counselor" class="mr-2" required>
-                                <label for="counselor" class="text-sm font-medium text-gray-700">Counselor</label>
-                            </div>
-                            <div>
-                                <input type="radio" id="student" name="role" value="Student" class="mr-2" required>
-                                <label for="student" class="text-sm font-medium text-gray-700">Student</label>
+                    <div class="mb-4 flex flex-col md:flex-row md:items-center md:space-x-6">
+                        <!-- ID Number -->
+                        <div class="w-full md:w-1/2">
+                            <label for="id_number" class="block text-sm font-medium text-gray-700">ID Number</label>
+                            <input type="text" id="id_number" name="id_number" class="w-full px-4 py-2 mt-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600" required>
+                        </div>
+
+                        <!-- Role Selection -->
+                        <div class="w-full md:w-1/2">
+                            <label class="block text-sm font-medium text-gray-700">Role</label>
+                            <div class="flex text-center space-x-4 mt-1">
+                                <div>
+                                    <input type="radio" id="counselor" name="role" value="Counselor" class="mr-2" required>
+                                    <label for="counselor" class="text-sm font-medium text-gray-700">Counselor</label>
+                                </div>
+                                <div>
+                                    <input type="radio" id="student" name="role" value="Student" class="mr-2" required>
+                                    <label for="student" class="text-sm font-medium text-gray-700">Student</label>
+                                </div>
                             </div>
                         </div>
                     </div>

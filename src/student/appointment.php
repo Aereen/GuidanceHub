@@ -14,17 +14,17 @@ $errors = array();
 // Handle form submission for appointment scheduling
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Sanitize and assign POST values to variables
-    $fullName = mysqli_real_escape_string($con, $_POST['full-name']);
-    $studentNumber = mysqli_real_escape_string($con, $_POST['student_number']);
+    $fullName = mysqli_real_escape_string($con, $_POST['name']);
+    $studentNumber = mysqli_real_escape_string($con, $_POST['id_number']);
     $contactNumber = mysqli_real_escape_string($con, $_POST['contact']);
     $email = mysqli_real_escape_string($con, $_POST['email']);
     $college = mysqli_real_escape_string($con, $_POST['college']);
     $course = mysqli_real_escape_string($con, $_POST['course']);
-    $yearLevel = mysqli_real_escape_string($con, $_POST['year-level']);
+    $yearLevel = mysqli_real_escape_string($con, $_POST['year_level']);
     $section = mysqli_real_escape_string($con, $_POST['section']);
-    $appointmentType = mysqli_real_escape_string($con, $_POST['appointment-type']);
-    $appointmentDate = mysqli_real_escape_string($con, $_POST['appointment-date']);
-    $appointmentTime = mysqli_real_escape_string($con, $_POST['appointment-time']);
+    $appointmentType = mysqli_real_escape_string($con, $_POST['appointment_type']);
+    $appointmentDate = mysqli_real_escape_string($con, $_POST['appointment_date']);
+    $appointmentTime = mysqli_real_escape_string($con, $_POST['appointment_time']);
 
     // Validate form fields to ensure no empty values
     if (empty($fullName)) { array_push($errors, "Full Name is required"); }
@@ -41,7 +41,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // If no errors, proceed to insert the data into the database
     if (count($errors) == 0) {
-        $sql = "INSERT INTO appointments (full_name, student_number, contact_number, email, college, course, year_level, section, appointment_type, appointment_date, appointment_time)
+        $sql = "INSERT INTO appointments (name, id_number, contact_number, email, college, course, year_level, section, appointment_type, appointment_date, appointment_time)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         
         $stmt = $con->prepare($sql);
@@ -258,8 +258,8 @@ if (isset($_GET['logout'])) {
                             
                             <!-- Student Number -->
                             <div>
-                                <label for="student_name" class="block mb-2 text-sm font-medium text-black">Student Number</label>
-                                <input type="text" id="student_number" name="student_number" required
+                                <label for="id_number" class="block mb-2 text-sm font-medium text-black">Student Number</label>
+                                <input type="text" id="id_number" name="id_number" required
                                     class="w-full px-4 py-2 text-gray-900 border rounded-lg dark:border-gray-600 focus:ring-teal-500 focus:border-teal-500"
                                     placeholder="k12345678">
                             </div>
@@ -300,8 +300,8 @@ if (isset($_GET['logout'])) {
                         <div class="grid grid-cols-1 gap-6 md:grid-cols-2">     
                             <!-- Year Level -->
                             <div>
-                                <label for="year-level" class="block mb-2 text-sm font-medium text-black">Year Level</label>
-                                <input type="text" id="year-level" name="year-level" required
+                                <label for="year_level" class="block mb-2 text-sm font-medium text-black">Year Level</label>
+                                <input type="text" id="year_level" name="year_level" required
                                     class="w-full px-4 py-2 text-gray-900 border rounded-lg dark:border-gray-600 focus:ring-teal-500 focus:border-teal-500"
                                     placeholder="4th Year">
                             </div>
@@ -317,14 +317,15 @@ if (isset($_GET['logout'])) {
 
                         <!-- Appointment Type -->
                         <div>
-                            <label for="appointment-type" class="block mb-2 text-sm font-medium text-black">Appointment Type</label>
-                            <select id="appointment-type" name="appointment-type" required
+                            <label for="appointment_type" class="block mb-2 text-sm font-medium text-black">Appointment Type</label>
+                            <select id="appointment_type" name="appointment_type" required
                                 class="w-full px-4 py-2 text-gray-900 border rounded-lg focus:ring-teal-500 focus:border-teal-500">
                                 <option value="" disabled selected>Select Type</option>
                                 <option value="career">Career Counseling</option>
                                 <option value="mental-health">Mental Health Support</option>
                                 <option value="academic">Academic Assistance</option>
                                 <option value="personal-growth">Personal Growth</option>
+                                <option value="others">Others</option>
                             </select>
                         </div>
 
@@ -332,14 +333,14 @@ if (isset($_GET['logout'])) {
                         <div class="grid gap-6 md:grid-cols-2">
                             <!-- Appointment Date -->
                             <div>
-                                <label for="appointment-date" class="block mb-2 text-sm font-medium text-black">Appointment Date</label>
-                                <input type="date" id="appointment-date" name="appointment-date" required
+                                <label for="appointment_date" class="block mb-2 text-sm font-medium text-black">Appointment Date</label>
+                                <input type="date" id="appointment_date" name="appointment_date" required
                                     class="w-full px-4 py-2 text-gray-900 border rounded-lg dark:border-gray-600 focus:ring-teal-500 focus:border-teal-500">
                             </div>
                             <!-- Appointment Time -->
                             <div>
-                                <label for="appointment-time" class="block mb-2 text-sm font-medium text-black">Appointment Time</label>
-                                <input type="time" id="appointment-time" name="appointment-time" required
+                                <label for="appointment_time" class="block mb-2 text-sm font-medium text-black">Appointment Time</label>
+                                <input type="time" id="appointment_time" name="appointment_time" required
                                     class="w-full px-4 py-2 text-gray-900 border rounded-lg dark:border-gray-600 focus:ring-teal-500 focus:border-teal-500">
                             </div>
                         </div>

@@ -71,25 +71,46 @@ if (isset($_POST['login_user'])) {
     }
 }
 
+// OTP verification process
 if (isset($_POST['verify_otp'])) {
     $entered_otp = mysqli_real_escape_string($con, $_POST['otp']);
+    $email = $_SESSION['email'];  // Retrieve the email from the session
 
     // Check if OTP is expired
     if (time() > $_SESSION['otp_expiration']) {
         array_push($errors, "OTP has expired. Please request a new one.");
     } else if ($entered_otp == $_SESSION['otp']) {
         $_SESSION['success'] = "You are now logged in";
-        // Redirect to the appropriate dashboard based on the role
-        if ($_SESSION['role'] == 'counselor') {
-            header('Location: /src/counselor/dashboard.php'); // Redirect to counselor dashboard
-        } 
-        else if ($_SESSION['role'] == 'student') {
-            header('Location: /src/student/dashboard.php'); // Redirect to student dashboard
+
+        // Fetch user details from the database based on the email in session
+        $sql = "SELECT id_number, name, email, role FROM users WHERE email = ?";
+        $stmt = $con->prepare($sql);
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($result->num_rows > 0) {
+            // Store user details in the session
+            $user_data = $result->fetch_assoc();
+            $_SESSION['id_number'] = $user_data['id_number'];
+            $_SESSION['name'] = $user_data['name'];
+            $_SESSION['email'] = $user_data['email'];
+            $_SESSION['role'] = $user_data['role'];
+
+            // Redirect to the appropriate dashboard based on the user's role
+            if ($_SESSION['role'] == 'counselor') {
+                header('Location: /src/counselor/dashboard.php'); // Redirect to counselor dashboard
+            } 
+            else if ($_SESSION['role'] == 'student') {
+                header("Location: /src/student/dashboard.php"); // Redirect to student dashboard
+            }
+            else if ($_SESSION['role'] == 'admin') {
+                header('Location: /src/admin/dashboard.php'); // Redirect to admin dashboard
+            }
+            exit;
+        } else {
+            array_push($errors, "User not found.");
         }
-        else if ($_SESSION['role'] == 'admin') {
-            header('Location: /src/admin/dashboard.php'); // Redirect to admin dashboard
-        }
-        exit;
     } else {
         array_push($errors, "Incorrect OTP. Please try again.");
     }

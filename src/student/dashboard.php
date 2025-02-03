@@ -2,25 +2,26 @@
 session_start();
 include('E:/GuidanceHub/src/ControlledData/server.php');
 
-// Database connection using PDO
+$host = 'localhost';
+$dbname = 'guidancehub';
+$username = 'root';
+$password = '';
+
 try {
-    $host = 'localhost';
-    $dbname = 'guidancehub';
-    $username = 'root';
-    $password = '';
-    $con = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
-    $con->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
-    die("Connection failed: " . $e->getMessage());
+    die("Could not connect to the database $dbname :" . $e->getMessage());
 }
 
-
-// Fetch announcements
+// Fetch announcements from the database
 try {
-    $query = $con->query("SELECT * FROM announcement ORDER BY published_at DESC");
-    $announcements = $query->fetchAll(PDO::FETCH_ASSOC);
+    $stmt = $pdo->prepare("SELECT * FROM announcement ORDER BY published_at DESC");
+    $stmt->execute();
+    $announcements = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
-    die("Error fetching announcements: " . $e->getMessage());
+    // Handle any errors that occur during the database query
+    echo "Error fetching announcements: " . $e->getMessage();
 }
 
 // When logout is requested
@@ -30,6 +31,54 @@ if (isset($_GET['logout'])) {
     header("Location: /index.php"); // Redirect to the webpage after logout
     exit;
 }
+
+// Check if the user is logged in
+if (!isset($_SESSION['id_number'])) {
+    header("Location: /src/ControlledData/login.php"); //if not logged in
+    exit;
+}
+
+// Check if the user is logged in
+if (!isset($_SESSION['email'])) {
+    die(json_encode(["error" => "Unauthorized access."]));
+}
+
+$id_number = $_SESSION['id_number']; // Assuming ID is stored in session
+
+// Get upcoming appointments for the logged-in user
+$sql = "SELECT appointment_date, status FROM appointments WHERE id_number = ? AND appointment_date >= NOW() ORDER BY appointment_date ASC LIMIT 5";
+$stmt = $con->prepare($sql);
+$stmt->bind_param("i", $id_number);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $date = date("F j, Y, g:i A", strtotime($row['appointment_date']));
+        
+        // Status label with TailwindCSS styles
+        $statusClass = [
+            'pending' => 'bg-yellow-100 text-yellow-800 border-yellow-400',
+            'confirmed' => 'bg-blue-100 text-blue-800 border-blue-400',
+            'completed' => 'bg-green-100 text-green-800 border-green-400',
+            'canceled' => 'bg-red-100 text-red-800 border-red-400'
+        ][$row['status']] ?? 'bg-gray-100 text-gray-800 border-gray-400';
+
+        echo "<li class='p-3 border rounded-lg shadow-sm bg-white flex justify-between items-center'>
+                <div>
+                    <strong>$date</strong>
+                </div>
+                <span class='px-2 py-1 text-sm font-semibold border rounded $statusClass'>
+                    " . ucfirst($row['status']) . "
+                </span>
+                </li>";
+    }
+} else {
+    echo "";
+}
+
+$stmt->close();
+
 ?>
 
 <!doctype html>
@@ -198,17 +247,21 @@ if (isset($_GET['logout'])) {
 </aside>
 
 <!--CONTENT-->
-<main class="p-4 mt-12 sm:ml-64">
-    <h2 class="p-3 text-4xl font-bold tracking-tight">WELCOME, !</h2>
-
+<main class="p-4 mt-10 sm:ml-64">
+    <h2 class="p-3 text-4xl font-bold tracking-tight"><?php echo "Welcome, " . $_SESSION['name'] . "!<br>" ?></h2>
     <div class="grid grid-cols-1 gap-4 p-1 lg:grid-cols-4">
-
         <!-- ACTIVITIES -->
-        <section class="col-span-1 p-5 my-3 bg-white border-2 rounded-lg lg:col-span-3 dark:border-gray-300">   
-            <h3 class="font-bold">Activities</h3>
-            <div class="grid grid-cols-1 gap-4 m-5 sm:grid-cols-2 lg:grid-cols-2">
-                
-            </div>
+        <section class="col-span-1 p-5 bg-white border-2 rounded-lg lg:col-span-3 dark:border-gray-300">   
+            <h4 class="font-bold">Activities</h4>
+                <div class="grid grid-cols-1 gap-4 m-5 sm:grid-cols-2 lg:grid-cols-2">
+                    <!-- Reminder Card -->
+                        <div class="max-w-lg mx-auto p-6 bg-white shadow-md rounded-lg">
+                            <h2 class="text-xl font-bold text-gray-700 mb-3">Upcoming Appointments</h2>
+                            <ul id="appointments-list" class="space-y-3">
+                                <li class="text-gray-600">Loading appointments...</li>
+                            </ul>
+                        </div>
+                </div>
 
         <!-- CALENDAR -->
             <div class="p-3 mt-1 bg-white border-2 rounded-lg dark:border-gray-300">
@@ -232,92 +285,32 @@ if (isset($_GET['logout'])) {
             </div>
         </section>
 
-        <aside class="col-span-1 space-y-6">
-
-            <!-- PROFILE -->
-            <div class="flex flex-col items-center justify-center p-5 my-3 bg-white border-2 rounded-lg dark:border-gray-300">
-                <div class="flex items-center justify-between w-full">
-                    <h4 class="p-2 text-2xl font-bold text-gray-700">PROFILE</h4>
-                    <div class="text-xl font-semibold cursor-pointer" id="editProfileButton">
-                        <i class="fa-solid fa-pen-to-square"></i>
-                    </div>
+    <aside class="col-span-1 space-y-6">
+        <!-- PROFILE CARD -->
+            <div class="w-full max-w-lg p-5 bg-white border-2 rounded-lg shadow-lg">
+                <div class="flex items-center justify-between">
+                    <h4 class="text-2xl font-bold text-gray-700">PROFILE</h4>
                 </div>
-                <div class="flex flex-col items-center justify-center p-3">
-                    <img src="/src/images/UMak-Facade-Admin.jpg" alt="Profile Picture" class="object-cover w-32 h-32 p-1 rounded-full lg:w-40 lg:h-40">
-                    <div class="w-full overflow-x-auto">
-                        <table class="w-full text-sm text-center text-gray-800">
-                            <tbody>
-                                <tr>
-                                    <td class="px-5 py-1">Eirene Grace Q. Armilla</td>
-                                </tr>
-                                <tr>
-                                    <td class="px-5 py-1">A12035445</td>
-                                </tr>
-                                <tr>
-                                    <td class="px-5 py-1">earmilla.a12035445@umak.edu.ph</td>
-                                </tr>
-                                <tr>
-                                    <td class="px-5 py-1">College of Computing and Information Sciences</td>
-                                </tr>
-                                <tr>
-                                    <td class="px-5 py-1">4th Year</td>
-                                </tr>
-                                <tr>
-                                    <td class="px-5 py-1">AINS</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                <div class="flex flex-col items-center p-3">
+                    <img src="/src/images/UMak-Facade-Admin.jpg" alt="Profile Picture"
+                        class="w-32 h-32 rounded-full border-4 border-gray-300">
+                    <table class="w-full mt-4 text-sm text-center text-gray-800">
+                        <tbody>
+                            <tr><td class="px-5 py-1"><?php echo htmlspecialchars($_SESSION['name']); ?></td></tr>
+                            <tr><td class="px-5 py-1"><?php echo htmlspecialchars($_SESSION['id_number']); ?></td></tr>
+                            <tr><td class="px-5 py-1"><?php echo htmlspecialchars($_SESSION['email']); ?></td></tr>
+                            <tr><td class="px-5 py-1"><?php echo htmlspecialchars($_SESSION['college']); ?></td></tr>
+                            <tr><td class="px-5 py-1"><?php echo htmlspecialchars($_SESSION['year']); ?></td></tr>
+                            <tr><td class="px-5 py-1"><?php echo htmlspecialchars($_SESSION['section']); ?></td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
-
-            <!-- PROFILE EDIT Modal -->
-            <div id="editProfileModal" class="fixed inset-0 z-50 items-center justify-center hidden bg-black bg-opacity-50">
-                <div class="relative p-6 bg-white rounded shadow-lg max-h-[90vh] w-[80vw] overflow-y-auto">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-xl font-bold">Edit Profile</h3>
-                        <button id="closeModalButton" class="text-gray-600 hover:text-gray-800">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
-                    </div>
-                    <form>
-                        <div class="mb-2">
-                            <label class="block mb-2 text-sm font-semibold text-gray-700">Full Name</label>
-                            <input type="text" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" value="Eirene Grace Q. Armilla">
-                        </div>
-                        <div class="mb-2">
-                            <label class="block mb-2 text-sm font-semibold text-gray-700">Student Number</label>
-                            <input type="text" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" value="A12035445">
-                        </div>
-                        <div class="mb-2">
-                            <label class="block mb-2 text-sm font-semibold text-gray-700">Email</label>
-                            <input type="email" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" value="earmilla.a12035445@umak.edu.ph">
-                        </div>
-                        <div class="mb-2">
-                            <label class="block mb-2 text-sm font-semibold text-gray-700">College</label>
-                            <input type="text" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" value="College of Computing and Information Sciences">
-                        </div>
-                        <div class="mb-2">
-                            <label class="block mb-2 text-sm font-semibold text-gray-700">Year</label>
-                            <input type="text" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" value="4th Year">
-                        </div>
-                        <div class="mb-2">
-                            <label class="block mb-2 text-sm font-semibold text-gray-700">Program</label>
-                            <input type="text" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" value="AINS">
-                        </div>
-                        <div class="flex justify-end">
-                            <button type="button" id="saveChangesButton" class="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700">Save Changes</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-        </aside>
     </div>
 
 <!-- ANNOUNCEMENT SECTION -->
+<section class="col-span-3 p-2 my-5 bg-white border-2 border-gray-300 rounded-lg">
     <h4 class="p-2 text-xl font-semibold text-white bg-teal-500 rounded-lg">ANNOUNCEMENTS</h4>
-    <section class="col-span-3 p-2 my-5 bg-white border-2 border-gray-300 rounded-lg">
         <div class="grid grid-cols-1 gap-3 my-3 sm:grid-cols-2 lg:grid-cols-2">
             <?php if (empty($announcements)): ?>
                 <p class="text-gray-500 col-span-full">No announcements available.</p>
@@ -337,11 +330,12 @@ if (isset($_GET['logout'])) {
                 <?php endforeach; ?>
             <?php endif; ?>
         </div>
-    </section>
+</section>
+        
 
 <!-- COUNSELING PROCESS -->
-    <h4 class="p-2 text-xl font-semibold text-white bg-teal-500 rounded-lg">PROCESS</h4>
-    <section class="grid grid-cols-1 gap-4 p-5 my-5 bg-white border-2 rounded-lg sm:grid-cols-2 lg:grid-cols-3 dark:border-gray-300">
+<h4 class="p-2 text-xl font-semibold text-white bg-teal-500 rounded-lg">PROCESS</h4>
+    <section class="grid grid-cols-3 gap-4 p-5 my-5 bg-white border-2 rounded-lg dark:border-gray-300">
         <!-- Card 1 -->
         <div class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:border-gray-300">
             <h5 class="mb-2 text-2xl font-bold tracking-tight text-black">Needs Assessment</h5>
@@ -584,25 +578,6 @@ const notificationButton = document.getElementById('notificationButton');
         });
     });
 
-//Toggle for Profile Edit
-    const editProfileButton = document.getElementById("editProfileButton");
-    const editProfileModal = document.getElementById("editProfileModal");
-    const closeModalButton = document.getElementById("closeModalButton");
-
-    editProfileButton.addEventListener("click", () => {
-        editProfileModal.classList.remove("hidden");
-    });
-
-    closeModalButton.addEventListener("click", () => {
-        editProfileModal.classList.add("hidden");
-    });
-
-    // Close modal on outside click
-    window.addEventListener("click", (event) => {
-        if (event.target === editProfileModal) {
-            editProfileModal.classList.add("hidden");
-        }
-    });
 </script>
 <script src="../path/to/flowbite/dist/flowbite.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
