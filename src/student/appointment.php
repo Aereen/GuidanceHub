@@ -14,7 +14,7 @@ $errors = array();
 // Handle form submission for appointment scheduling
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Sanitize and assign POST values to variables
-    $fullName = mysqli_real_escape_string($con, $_POST['name']);
+    $name = mysqli_real_escape_string($con, $_POST['name']);
     $studentNumber = mysqli_real_escape_string($con, $_POST['id_number']);
     $contactNumber = mysqli_real_escape_string($con, $_POST['contact']);
     $email = mysqli_real_escape_string($con, $_POST['email']);
@@ -27,7 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $appointmentTime = mysqli_real_escape_string($con, $_POST['appointment_time']);
 
     // Validate form fields to ensure no empty values
-    if (empty($fullName)) { array_push($errors, "Full Name is required"); }
+    if (empty($name)) { array_push($errors, "Full Name is required"); }
     if (empty($studentNumber)) { array_push($errors, "Student Number is required"); }
     if (empty($contactNumber)) { array_push($errors, "Contact Number is required"); }
     if (empty($email)) { array_push($errors, "Email is required"); }
@@ -41,11 +41,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // If no errors, proceed to insert the data into the database
     if (count($errors) == 0) {
-        $sql = "INSERT INTO appointments (name, id_number, contact_number, email, college, course, year_level, section, appointment_type, appointment_date, appointment_time)
+        $sql = "INSERT INTO appointments (name, id_number, contact, email, college, course, year_level, section, appointment_type, appointment_date, appointment_time)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         
         $stmt = $con->prepare($sql);
-        $stmt->bind_param("sssssssssss", $fullName, $studentNumber, $contactNumber, $email, $college, $course, $yearLevel, $section, $appointmentType, $appointmentDate, $appointmentTime);
+        $stmt->bind_param("sssssssssss", $name, $studentNumber, $contactNumber, $email, $college, $course, $yearLevel, $section, $appointmentType, $appointmentDate, $appointmentTime);
 
         // If the appointment is successfully scheduled
         if ($stmt->execute()) {
@@ -250,8 +250,8 @@ if (isset($_GET['logout'])) {
                         <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                             <!-- Full Name -->
                             <div>
-                                <label for="full-name" class="block mb-2 text-sm font-medium text-black">Full Name</label>
-                                <input type="text" id="full-name" name="full-name" required
+                                <label for="name" class="block mb-2 text-sm font-medium text-black">Full Name</label>
+                                <input type="text" id="name" name="name" required
                                     class="w-full px-4 py-2 text-gray-900 border rounded-lg dark:border-gray-600 focus:ring-teal-500 focus:border-teal-500"
                                     placeholder="First Name-MI-Last Name">
                             </div>

@@ -2,6 +2,70 @@
 <?php
 session_start(); // Start the session
 
+$host = 'localhost';
+$dbname = 'guidancehub';
+$username = 'root';
+$password = '';
+
+try {
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    die("Could not connect to the database $dbname :" . $e->getMessage());
+}
+
+// Fetch announcements from the database
+try {
+    $stmt = $pdo->prepare("SELECT * FROM announcement ORDER BY published_at DESC");
+    $stmt->execute();
+    $announcements = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    // Handle any errors that occur during the database query
+    echo "Error fetching announcements: " . $e->getMessage();
+}
+
+// Check if the user is logged in
+if (!isset($_SESSION['id_number'])) {
+    header("Location: /src/ControlledData/login.php"); //if not logged in
+    exit;
+}
+
+$id_number = $_SESSION['id_number']; // Assuming ID is stored in session
+
+// Get upcoming appointments for the logged-in user
+$sql = "SELECT appointment_date, status FROM appointments WHERE id_number = ? AND appointment_date >= NOW() ORDER BY appointment_date ASC LIMIT 5";
+$stmt = $con->prepare($sql);
+$stmt->bind_param("i", $id_number);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $date = date("F j, Y, g:i A", strtotime($row['appointment_date']));
+        
+        // Status label with TailwindCSS styles
+        $statusClass = [
+            'pending' => 'bg-yellow-100 text-yellow-800 border-yellow-400',
+            'confirmed' => 'bg-blue-100 text-blue-800 border-blue-400',
+            'completed' => 'bg-green-100 text-green-800 border-green-400',
+            'canceled' => 'bg-red-100 text-red-800 border-red-400'
+        ][$row['status']] ?? 'bg-gray-100 text-gray-800 border-gray-400';
+
+        echo "<li class='flex items-center justify-between p-3 bg-white border rounded-lg shadow-sm'>
+                <div>
+                    <strong>$date</strong>
+                </div>
+                <span class='px-2 py-1 text-sm font-semibold border rounded $statusClass'>
+                    " . ucfirst($row['status']) . "
+                </span>
+                </li>";
+    }
+} else {
+    echo "";
+}
+
+$stmt->close();
+
 // Check if logout is requested
 if (isset($_GET['logout'])) {
     session_unset(); // Unset all session variables
@@ -170,7 +234,7 @@ if (isset($_GET['logout'])) {
 
 <!--CONTENT HERE-->
 <section class="p-4 mt-12 sm:ml-64">
-<h2 class="p-3 text-4xl font-bold tracking-tight">WELCOME, !</h2>
+<h2 class="p-3 text-4xl font-bold tracking-tight"><?php echo "Welcome, " . $_SESSION['name'] . "!<br>" ?></h2>
     <div class="px-4 py-3 mx-auto max-w-7xl">
         <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
             <!-- Total Students Served -->
@@ -196,9 +260,16 @@ if (isset($_GET['logout'])) {
         <!-- Chart Section -->
         <div class="p-6 mt-10 bg-white rounded-lg shadow">
             <h2 class="mb-6 text-2xl font-semibold text-gray-700">Session Overview</h2>
-            <div class="relative h-80">
-                <canvas id="analytics-chart"></canvas>
-            </div>
+                <section class="col-span-1 p-5 lg:col-span-3 "> 
+                    <div class="grid grid-cols-1 gap-4 m-5 sm:grid-cols-2 lg:grid-cols-2">
+                        <!-- Reminder Card -->
+                            <div class="max-w-lg p-6 mx-auto bg-white rounded-lg shadow-md">
+                                <h2 class="mb-3 text-xl font-bold text-gray-700">Upcoming Appointments</h2>
+                                <ul id="appointments-list" class="space-y-3">
+                                    <li class="text-gray-600">Loading appointments...</li>
+                                </ul>
+                            </div>
+                    </div>
         </div>
         <!-- Detailed Report Table -->
         <div class="p-6 mt-10 bg-white rounded-lg shadow">

@@ -1,6 +1,12 @@
 <?php
+// Start session
 session_start();
-include('E:/GuidanceHub/src/ControlledData/server.php');
+
+// Check if the user is logged in, redirect to login page if not
+if (!isset($_SESSION['id_number'])) {
+    header("Location: /src/ControlledData/login.php"); // If not logged in, redirect to login
+    exit;
+}
 
 $host = 'localhost';
 $dbname = 'guidancehub';
@@ -8,9 +14,11 @@ $username = 'root';
 $password = '';
 
 try {
+    // Create PDO connection
     $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
+    // Handle connection error
     die("Could not connect to the database $dbname :" . $e->getMessage());
 }
 
@@ -20,7 +28,7 @@ try {
     $stmt->execute();
     $announcements = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
-    // Handle any errors that occur during the database query
+    // Handle any errors during the query
     echo "Error fetching announcements: " . $e->getMessage();
 }
 
@@ -28,58 +36,63 @@ try {
 if (isset($_GET['logout'])) {
     session_unset(); // Unset all session variables
     session_destroy(); // Destroy the session
-    header("Location: /index.php"); // Redirect to the webpage after logout
+    header("Location: /index.php"); // Redirect after logout
     exit;
 }
-
-// Check if the user is logged in
-if (!isset($_SESSION['id_number'])) {
-    header("Location: /src/ControlledData/login.php"); //if not logged in
-    exit;
-}
-
-// Check if the user is logged in
-if (!isset($_SESSION['email'])) {
-    die(json_encode(["error" => "Unauthorized access."]));
-}
-
-$id_number = $_SESSION['id_number']; // Assuming ID is stored in session
 
 // Get upcoming appointments for the logged-in user
 $sql = "SELECT appointment_date, status FROM appointments WHERE id_number = ? AND appointment_date >= NOW() ORDER BY appointment_date ASC LIMIT 5";
-$stmt = $con->prepare($sql);
-$stmt->bind_param("i", $id_number);
+$stmt = $pdo->prepare($sql);
+$stmt->bindParam(1, $_SESSION['id_number'], PDO::PARAM_INT);  // Use PDO prepared statement binding
 $stmt->execute();
-$result = $stmt->get_result();
+$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-if ($result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        $date = date("F j, Y, g:i A", strtotime($row['appointment_date']));
-        
-        // Status label with TailwindCSS styles
-        $statusClass = [
-            'pending' => 'bg-yellow-100 text-yellow-800 border-yellow-400',
-            'confirmed' => 'bg-blue-100 text-blue-800 border-blue-400',
-            'completed' => 'bg-green-100 text-green-800 border-green-400',
-            'canceled' => 'bg-red-100 text-red-800 border-red-400'
-        ][$row['status']] ?? 'bg-gray-100 text-gray-800 border-gray-400';
+// Fetch student profile
+try {
+    $stmt = $pdo->prepare("SELECT name, student_number, email, college, year_level, section FROM student_profile WHERE student_number = ?");
+    $stmt->execute([$_SESSION['id_number']]);
+    $student = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        echo "<li class='p-3 border rounded-lg shadow-sm bg-white flex justify-between items-center'>
-                <div>
-                    <strong>$date</strong>
-                </div>
-                <span class='px-2 py-1 text-sm font-semibold border rounded $statusClass'>
-                    " . ucfirst($row['status']) . "
-                </span>
-                </li>";
+    if (!$student) {
+        die("Student not found.");
     }
-} else {
-    echo "";
+} catch (PDOException $e) {
+    die("Error: " . $e->getMessage());
 }
 
-$stmt->close();
+//CALENDAR
+// Set timezone
+date_default_timezone_set('Asia/Manila');
+
+// Get current month and year
+$month = date('m');
+$year = date('Y');
+
+// Get first day of the month and total days in the month
+$firstDayOfMonth = date('w', strtotime("$year-$month-01"));
+$totalDays = date('t', strtotime("$year-$month-01"));
+
+// Days of the week
+$daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+// Generate calendar
+$calendar = [];
+$row = array_fill(0, 7, null);
+$dayCounter = 1;
+
+for ($i = 0; $i < 42; $i++) {
+    if ($i >= $firstDayOfMonth && $dayCounter <= $totalDays) {
+        $row[$i % 7] = $dayCounter++;
+    }
+
+    if ($i % 7 === 6) {
+        $calendar[] = $row;
+        $row = array_fill(0, 7, null);
+    }
+}
 
 ?>
+
 
 <!doctype html>
 <html>
@@ -252,13 +265,13 @@ $stmt->close();
     <div class="grid grid-cols-1 gap-4 p-1 lg:grid-cols-4">
         <!-- ACTIVITIES -->
         <section class="col-span-1 p-5 bg-white border-2 rounded-lg lg:col-span-3 dark:border-gray-300">   
-            <h4 class="font-bold">Activities</h4>
+            <h2 class="text-2xl font-bold">Activities</h2>
                 <div class="grid grid-cols-1 gap-4 m-5 sm:grid-cols-2 lg:grid-cols-2">
                     <!-- Reminder Card -->
-                        <div class="max-w-lg mx-auto p-6 bg-white shadow-md rounded-lg">
-                            <h2 class="text-xl font-bold text-gray-700 mb-3">Upcoming Appointments</h2>
+                        <div class="max-w-md p-6 mx-auto bg-white rounded-lg shadow-md">
+                            <h2 class="mb-3 text-xl font-bold text-gray-700">Upcoming Appointments</h2>
                             <ul id="appointments-list" class="space-y-3">
-                                <li class="text-gray-600">Loading appointments...</li>
+                                <li class="text-gray-600">No Appointment...</li>
                             </ul>
                         </div>
                 </div>
@@ -287,25 +300,25 @@ $stmt->close();
 
     <aside class="col-span-1 space-y-6">
         <!-- PROFILE CARD -->
-            <div class="w-full max-w-lg p-5 bg-white border-2 rounded-lg shadow-lg">
-                <div class="flex items-center justify-between">
-                    <h4 class="text-2xl font-bold text-gray-700">PROFILE</h4>
-                </div>
-                <div class="flex flex-col items-center p-3">
-                    <img src="/src/images/UMak-Facade-Admin.jpg" alt="Profile Picture"
-                        class="w-32 h-32 rounded-full border-4 border-gray-300">
-                    <table class="w-full mt-4 text-sm text-center text-gray-800">
-                        <tbody>
-                            <tr><td class="px-5 py-1"><?php echo htmlspecialchars($_SESSION['name']); ?></td></tr>
-                            <tr><td class="px-5 py-1"><?php echo htmlspecialchars($_SESSION['id_number']); ?></td></tr>
-                            <tr><td class="px-5 py-1"><?php echo htmlspecialchars($_SESSION['email']); ?></td></tr>
-                            <tr><td class="px-5 py-1"><?php echo htmlspecialchars($_SESSION['college']); ?></td></tr>
-                            <tr><td class="px-5 py-1"><?php echo htmlspecialchars($_SESSION['year']); ?></td></tr>
-                            <tr><td class="px-5 py-1"><?php echo htmlspecialchars($_SESSION['section']); ?></td></tr>
-                        </tbody>
-                    </table>
-                </div>
+        <div class="w-full max-w-lg p-5 bg-white border-2 rounded-lg shadow-lg">
+            <div class="flex items-center justify-between">
+                <h4 class="text-2xl font-bold text-gray-700">PROFILE</h4>
             </div>
+            <div class="flex flex-col items-center p-3">
+                <img src="/src/images/UMak-Facade-Admin.jpg" alt="Profile Picture"
+                    class="w-32 h-32 border-4 border-gray-300 rounded-full">
+                <table class="w-full mt-4 text-sm text-center text-gray-800">
+                    <tbody>
+                        <tr><td class="px-5 py-1"><?php echo htmlspecialchars($student['name']); ?></td></tr>
+                        <tr><td class="px-5 py-1"><?php echo htmlspecialchars($student['student_number']); ?></td></tr>
+                        <tr><td class="px-5 py-1"><?php echo htmlspecialchars($student['email']); ?></td></tr>
+                        <tr><td class="px-5 py-1"><?php echo htmlspecialchars($student['college']); ?></td></tr>
+                        <tr><td class="px-5 py-1"><?php echo htmlspecialchars($student['year_level']); ?></td></tr>
+                        <tr><td class="px-5 py-1"><?php echo htmlspecialchars($student['section']); ?></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
 <!-- ANNOUNCEMENT SECTION -->

@@ -102,7 +102,24 @@ if (isset($_POST['verify_otp'])) {
                 header('Location: /src/counselor/dashboard.php'); // Redirect to counselor dashboard
             } 
             else if ($_SESSION['role'] == 'student') {
-                header("Location: /src/student/dashboard.php"); // Redirect to student dashboard
+                $email = $_SESSION['email'];  // Use the email from the session
+
+                // MySQLi for this query
+                $query = "SELECT COUNT(*) FROM student_profile WHERE email = '$email'"; // Corrected query
+
+                $result = mysqli_query($con, $query);
+
+                if ($result) {
+                    $count = mysqli_fetch_row($result)[0];  // Fetch count from result
+
+                    if ($count > 0) {
+                        header("Location: /src/student/dashboard.php"); // The student already has a record
+                    } else {
+                        header("Location: /src/student/information.php"); // The student does not have a record
+                    }
+                } else {
+                    array_push($errors, "Database query failed.");
+                }
             }
             else if ($_SESSION['role'] == 'admin') {
                 header('Location: /src/admin/dashboard.php'); // Redirect to admin dashboard

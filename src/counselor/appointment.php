@@ -201,8 +201,8 @@ if (isset($_GET['logout'])) {
                         while ($row = mysqli_fetch_assoc($result)) {
                             echo "<tr class='text-black bg-white border-b dark:border-gray-700 hover:bg-gray-100' onclick='showDetails(".json_encode($row).")'>
                                     <td class='px-6 py-3'>" . $counter++ . "</td>
-                                    <td class='px-6 py-3'>" . htmlspecialchars($row['full_name']) . "</td>
-                                    <td class='px-6 py-3'>" . htmlspecialchars($row['student_number']) . "</td>
+                                    <td class='px-6 py-3'>" . htmlspecialchars($row['name']) . "</td>
+                                    <td class='px-6 py-3'>" . htmlspecialchars($row['id_number']) . "</td>
                                     <td class='px-6 py-3'>" . htmlspecialchars($row['appointment_date']) . "</td>
                                     <td class='px-6 py-3'>" . htmlspecialchars($row['appointment_time']) . "</td>
                                     <td class='px-6 py-3'>
@@ -447,28 +447,29 @@ const notificationButton = document.getElementById('notificationButton');
     });
 
 // Show appointment details in a pop-up modal
-    function showDetails(row) {
-        const modal = document.getElementById('detailsModal');
-        document.getElementById('modalTitle').innerText = `Appointment Details for ${row.full_name}`;
-        document.getElementById('modalContent').innerHTML = `
-            <p><strong>Student Number:</strong> ${row.student_number}</p>
-            <p><strong>Contact Number:</strong> ${row.contact_number}</p>
-            <p><strong>Email:</strong> ${row.email}</p>
-            <p><strong>College:</strong> ${row.college}</p>
-            <p><strong>Course:</strong> ${row.course}</p>
-            <p><strong>Year Level:</strong> ${row.year_level}</p>
-            <p><strong>Section:</strong> ${row.section}</p>
-            <p><strong>Appointment Type:</strong> ${row.appointment_type}</p>
-            <p><strong>Date:</strong> ${row.appointment_date}</p>
-            <p><strong>Time:</strong> ${row.appointment_time}</p>
-        `;
-        modal.classList.remove('hidden');
-    }
+function showDetails(row) {
+    const modal = document.getElementById('detailsModal');
+    document.getElementById('modalTitle').innerText = `Appointment Details for ${row.name}`;
+    document.getElementById('modalContent').innerHTML = `
+        <p><strong>Student Number:</strong> ${row.id_number}</p>
+        <p><strong>Contact Number:</strong> ${row.contact}</p>
+        <p><strong>Email:</strong> ${row.email}</p>
+        <p><strong>College:</strong> ${row.college}</p>
+        <p><strong>Course:</strong> ${row.course}</p>
+        <p><strong>Year Level:</strong> ${row.year_level}</p>
+        <p><strong>Section:</strong> ${row.section}</p>
+        <p><strong>Appointment Type:</strong> ${row.appointment_type}</p>
+        <p><strong>Date:</strong> ${row.appointment_date}</p>
+        <p><strong>Time:</strong> ${row.appointment_time}</p>
+    `;
+    modal.classList.remove('hidden');
+}
 
-    // Close modal
-    function closeModal() {
-        document.getElementById('detailsModal').classList.add('hidden');
-    }
+// Close modal
+function closeModal() {
+    document.getElementById('detailsModal').classList.add('hidden');
+}
+
 </script>
 <script src="../path/to/flowbite/dist/flowbite.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
