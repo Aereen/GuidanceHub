@@ -40,12 +40,15 @@ if (isset($_GET['logout'])) {
     exit;
 }
 
-// Get upcoming appointments for the logged-in user
-$sql = "SELECT appointment_date, status FROM appointments WHERE id_number = ? AND appointment_date >= NOW() ORDER BY appointment_date ASC LIMIT 5";
-$stmt = $pdo->prepare($sql);
-$stmt->bindParam(1, $_SESSION['id_number'], PDO::PARAM_INT);  // Use PDO prepared statement binding
-$stmt->execute();
-$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// Query to check for an appointment
+$email = $_SESSION['email'];
+
+    $stmt = $pdo->prepare("SELECT * FROM appointments WHERE email = :email");
+    $stmt->bindParam(':email', $email, PDO::PARAM_STR);
+    $stmt->execute();
+
+    $appointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 
 // Fetch student profile
 try {
@@ -92,8 +95,6 @@ for ($i = 0; $i < 42; $i++) {
 }
 
 ?>
-
-
 <!doctype html>
 <html>
 <head>
@@ -268,12 +269,28 @@ for ($i = 0; $i < 42; $i++) {
             <h2 class="text-2xl font-bold">Activities</h2>
                 <div class="grid grid-cols-1 gap-4 m-5 sm:grid-cols-2 lg:grid-cols-2">
                     <!-- Reminder Card -->
-                        <div class="max-w-md p-6 mx-auto bg-white rounded-lg shadow-md">
-                            <h2 class="mb-3 text-xl font-bold text-gray-700">Upcoming Appointments</h2>
-                            <ul id="appointments-list" class="space-y-3">
+                    <div class="max-w-md p-6 mx-auto bg-white rounded-lg shadow-md">
+                        <h2 class="mb-3 text-xl font-bold underline text-gray-700">Upcoming Appointments</h2>
+                        <ul id="appointments-list" class="space-y-3">
+                            <?php if (!empty($appointments)): ?>
+                                <?php foreach ($appointments as $appointment): ?>
+                                    <li class="text-gray-800 flex items-center space-x-2">
+                                        <h2 class="font-medium">Date:</h2> 
+                                            <span><?= htmlspecialchars($appointment['appointment_date']) ?></span> 
+                                        <h2 class="font-medium">Time:</h2> 
+                                            <span><?= htmlspecialchars($appointment['appointment_time']) ?></span>
+                                        <!--ADD STATUS OF APPOINTMENT HERE-->
+                                    </li>
+                                <?php endforeach; ?>
+                            <?php else: ?>
                                 <li class="text-gray-600">No Appointment...</li>
-                            </ul>
-                        </div>
+                            <?php endif; ?>
+                        </ul>
+                    </div>
+                    <!---->
+                    <div class="max-w-md p-6 mx-auto bg-white rounded-lg shadow-md">
+
+                    </div>
                 </div>
 
         <!-- CALENDAR -->
