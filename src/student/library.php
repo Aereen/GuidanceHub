@@ -8,6 +8,9 @@ if (!$con) {
     die("Connection failed: " . mysqli_connect_error());
 }
 
+$sql = "SELECT * FROM library_resources ORDER BY date_added DESC";
+$result = $con->query($sql);
+
 // Initialize variables and error array
 $errors = array(); 
 
@@ -189,26 +192,31 @@ if (isset($_GET['logout'])) {
 <h2 class="p-3 my-2 text-4xl font-bold"> Resource Library </h2>
     <h4 class="p-2 text-xl font-semibold text-white bg-teal-500 rounded-lg"> Learn about yourself with... </h4>
     <main class="my-5">
-        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <?php
-        $sql = "SELECT * FROM resources";
-        $result = $con->query($sql);
+    <div class="flex justify-center mb-8">
+            <input type="text" id="search" placeholder="Search for resources..." class="w-1/3 p-2 border border-gray-300 rounded">
+        </div>
 
-        if ($result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-                echo '<div class="p-6 bg-white rounded-lg shadow-lg resource-card hover:bg-teal-50">';
-                echo '<h3 class="text-xl font-semibold text-gray-800">' . htmlspecialchars($row['title']) . '</h3>';
-                echo '<p class="mt-2 text-gray-600">' . htmlspecialchars($row['description']) . '</p>';
-                echo '<a href="' . htmlspecialchars($row['link']) . '" class="inline-block mt-4 font-semibold text-teal-500">Learn More &rarr;</a>';
-                echo '</div>';
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            <?php
+            if ($result->num_rows > 0) {
+                while ($row = $result->fetch_assoc()) {
+                    echo '<div class="overflow-hidden bg-white rounded-lg shadow-lg">';
+                    echo '  <img src="https://via.placeholder.com/400x200" alt="Resource Image" class="object-cover w-full h-48">';
+                    echo '  <div class="p-4">';
+                    echo '      <h2 class="mb-2 text-xl font-semibold">' . $row['title'] . '</h2>';
+                    echo '      <p class="mb-4 text-gray-700">' . substr($row['description'], 0, 100) . '...</p>';
+                    echo '      <a href="' . $row['resource_link'] . '" class="text-blue-600 hover:underline">Read more</a>';
+                    echo '  </div>';
+                    echo '</div>';
+                }
+            } else {
+                echo '<p class="col-span-4 text-center text-gray-600">No resources available at the moment.</p>';
             }
-        } else {
-            echo '<p>No resources available.</p>';
-        }
-        ?>
-    </div>
-    </div>
+
+            $con->close();
+            ?>
+        </div>
+    </main>
 </div>
 
 <!--FOOTER-->

@@ -43,11 +43,11 @@ if (isset($_GET['logout'])) {
 // Query to check for an appointment
 $email = $_SESSION['email'];
 
-    $stmt = $pdo->prepare("SELECT * FROM appointments WHERE email = :email");
-    $stmt->bindParam(':email', $email, PDO::PARAM_STR);
-    $stmt->execute();
+$stmt = $pdo->prepare("SELECT * FROM appointments WHERE email = :email");
+$stmt->bindParam(':email', $email, PDO::PARAM_STR);
+$stmt->execute();
 
-    $appointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$appointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
 // Fetch student profile
@@ -267,23 +267,29 @@ for ($i = 0; $i < 42; $i++) {
         <!-- ACTIVITIES -->
         <section class="col-span-1 p-5 bg-white border-2 rounded-lg lg:col-span-3 dark:border-gray-300">   
             <h2 class="text-2xl font-bold">Activities</h2>
-                <div class="grid grid-cols-1 gap-4 m-5 sm:grid-cols-2 lg:grid-cols-2">
-                    <!-- Reminder Card -->
+                <div class="grid grid-cols-1 gap-4 m-5 sm:grid-cols-1 lg:grid-cols-1">
+                    <!--UPCOMING SESSIONS-->
                     <div class="max-w-md p-6 mx-auto bg-white rounded-lg shadow-md">
-                        <h2 class="mb-3 text-xl font-bold underline text-gray-700">Upcoming Appointments</h2>
+                        <h2 class="mb-3 text-xl font-bold text-gray-700 underline">Upcoming Appointments</h2>
                         <ul id="appointments-list" class="space-y-3">
                             <?php if (!empty($appointments)): ?>
                                 <?php foreach ($appointments as $appointment): ?>
-                                    <li class="text-gray-800 flex items-center space-x-2">
-                                        <h2 class="font-medium">Date:</h2> 
-                                            <span><?= htmlspecialchars($appointment['appointment_date']) ?></span> 
-                                        <h2 class="font-medium">Time:</h2> 
-                                            <span><?= htmlspecialchars($appointment['appointment_time']) ?></span>
-                                        <!--ADD STATUS OF APPOINTMENT HERE-->
+                                    <li class="flex items-center space-x-2 text-gray-800">
+                                        <h2 class="font-medium">Date:</h2>
+                                        <span><?= htmlspecialchars($appointment['appointment_date']) ?></span>
+                                        <h2 class="font-medium">Time:</h2>
+                                        <span><?= htmlspecialchars($appointment['appointment_time']) ?></span>
+                                        <h2 class="font-medium">Status:</h2>
+                                        <span>
+                                            <?php 
+                                                $status = htmlspecialchars($appointment['status']);
+                                                echo $status ? $status : 'Pending'; // Default to "Pending" if status is empty
+                                            ?>
+                                        </span>
                                     </li>
                                 <?php endforeach; ?>
                             <?php else: ?>
-                                <li class="text-gray-600">No Appointment...</li>
+                                <li class="text-gray-600">No Appointments...</li>
                             <?php endif; ?>
                         </ul>
                     </div>
@@ -396,8 +402,24 @@ for ($i = 0; $i < 42; $i++) {
             <p class="mb-3 text-gray-700 dark:text-gray-800">Conduct regular evaluations to assess the effectiveness...</p>
         </div>
     </section>
-</main>
 
+<!--SCHEDULING CALL TO ACTION-->
+<section class="flex items-center justify-center">
+    <div class="p-8 text-center rounded-lg shadow-lg">
+        <h2 class="mb-4 text-3xl font-semibold text-gray-800">Schedule Your Counseling Appointment</h2>
+            <p class="mb-6 text-lg text-gray-600">Taking the first step toward mental well-being is easy. Book an appointment with our counselors today.</p>
+
+        <!-- Call to Action Button -->
+        <a href="/src/student/appointment.php" class="inline-block px-6 py-3 text-xl text-white transition duration-300 bg-blue-600 rounded-lg hover:bg-blue-700">Book Your Appointment</a>
+
+        <!-- Optional: Contact Details -->
+        <div class="mt-6 text-sm text-gray-500">
+            <p>If you need assistance, call us at <strong>(123) 456-7890</strong> or email <strong>support@counseling.com</strong></p>
+        </div>
+    </div>
+</section>
+
+</main>
 
 <!--FOOTER-->
 <footer class="overflow-auto bg-gray-100 sm:ml-64 w-75">

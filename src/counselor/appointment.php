@@ -175,12 +175,13 @@ if (isset($_GET['logout'])) {
         <div class="overflow-x-auto">
             <table class="w-full text-sm text-left text-gray-600 dark:text-gray-400">
                 <thead class="text-sm text-gray-900 uppercase bg-gray-100">
-                    <tr>
+                    <tr class="text-center">
                         <th scope="col" class="px-6 py-3">#</th>
                         <th scope="col" class="px-6 py-3">Full Name</th>
                         <th scope="col" class="px-6 py-3">Student Number</th>
                         <th scope="col" class="px-6 py-3">Date</th>
                         <th scope="col" class="px-6 py-3">Time</th>
+                        <th scope="col" class="px-6 py-3">Status</th>
                         <th scope="col" class="px-6 py-3">Actions</th>
                     </tr>
                 </thead>
@@ -199,15 +200,16 @@ if (isset($_GET['logout'])) {
                     if (mysqli_num_rows($result) > 0) {
                         $counter = 1;
                         while ($row = mysqli_fetch_assoc($result)) {
-                            echo "<tr class='text-black bg-white border-b dark:border-gray-700 hover:bg-gray-100' onclick='showDetails(".json_encode($row).")'>
+                            echo "<tr class='text-black bg-white border-b text-center dark:border-gray-700'>
                                     <td class='px-6 py-3'>" . $counter++ . "</td>
                                     <td class='px-6 py-3'>" . htmlspecialchars($row['name']) . "</td>
                                     <td class='px-6 py-3'>" . htmlspecialchars($row['id_number']) . "</td>
                                     <td class='px-6 py-3'>" . htmlspecialchars($row['appointment_date']) . "</td>
                                     <td class='px-6 py-3'>" . htmlspecialchars($row['appointment_time']) . "</td>
+                                    <td class='px-6 py-3'>" . htmlspecialchars($row['status']) . "</td>
                                     <td class='px-6 py-3'>
-                                        <a href='edit_appointment.php?id=" . $row['id'] . "' class='text-blue-600 hover:underline'>Edit</a>
-                                        <a href='delete_appointment.php?id=" . $row['id'] . "' class='ml-4 text-red-600 hover:underline'>Delete</a>
+                                        <button class='text-blue-600 hover:underline show-details-btn' onclick='showDetails(".json_encode($row).")'>Show Details</button>
+                                        <button class='ml-4 text-red-600 hover:underline delete-btn'>Delete</button>
                                     </td>
                                 </tr>";
                         }
@@ -469,6 +471,27 @@ function showDetails(row) {
 function closeModal() {
     document.getElementById('detailsModal').classList.add('hidden');
 }
+
+
+// Handle Delete button click
+    document.querySelectorAll('.delete-btn').forEach(button => {
+        button.addEventListener('click', function () {
+            const appointmentId = this.getAttribute('data-id');
+            if (confirm("Are you sure you want to delete this appointment?")) {
+                // Send AJAX request to delete the appointment
+                const xhr = new XMLHttpRequest();
+                xhr.open("POST", "delete_appointment.php", true);
+                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4 && xhr.status === 200) {
+                        alert('Appointment deleted!');
+                        location.reload();  // Reload the page to reflect changes
+                    }
+                };
+                xhr.send("id=" + appointmentId);
+            }
+        });
+    });
 
 </script>
 <script src="../path/to/flowbite/dist/flowbite.min.js"></script>

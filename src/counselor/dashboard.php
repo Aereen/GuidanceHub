@@ -14,57 +14,11 @@ try {
     die("Could not connect to the database $dbname :" . $e->getMessage());
 }
 
-// Fetch announcements from the database
-try {
-    $stmt = $pdo->prepare("SELECT * FROM announcement ORDER BY published_at DESC");
-    $stmt->execute();
-    $announcements = $stmt->fetchAll(PDO::FETCH_ASSOC);
-} catch (PDOException $e) {
-    // Handle any errors that occur during the database query
-    echo "Error fetching announcements: " . $e->getMessage();
-}
-
 // Check if the user is logged in
 if (!isset($_SESSION['id_number'])) {
     header("Location: /src/ControlledData/login.php"); //if not logged in
     exit;
 }
-
-$id_number = $_SESSION['id_number']; // Assuming ID is stored in session
-
-// Get upcoming appointments for the logged-in user
-$sql = "SELECT appointment_date, status FROM appointments WHERE id_number = ? AND appointment_date >= NOW() ORDER BY appointment_date ASC LIMIT 5";
-$stmt = $con->prepare($sql);
-$stmt->bind_param("i", $id_number);
-$stmt->execute();
-$result = $stmt->get_result();
-
-if ($result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        $date = date("F j, Y, g:i A", strtotime($row['appointment_date']));
-        
-        // Status label with TailwindCSS styles
-        $statusClass = [
-            'pending' => 'bg-yellow-100 text-yellow-800 border-yellow-400',
-            'confirmed' => 'bg-blue-100 text-blue-800 border-blue-400',
-            'completed' => 'bg-green-100 text-green-800 border-green-400',
-            'canceled' => 'bg-red-100 text-red-800 border-red-400'
-        ][$row['status']] ?? 'bg-gray-100 text-gray-800 border-gray-400';
-
-        echo "<li class='flex items-center justify-between p-3 bg-white border rounded-lg shadow-sm'>
-                <div>
-                    <strong>$date</strong>
-                </div>
-                <span class='px-2 py-1 text-sm font-semibold border rounded $statusClass'>
-                    " . ucfirst($row['status']) . "
-                </span>
-                </li>";
-    }
-} else {
-    echo "";
-}
-
-$stmt->close();
 
 // Check if logout is requested
 if (isset($_GET['logout'])) {
@@ -73,6 +27,29 @@ if (isset($_GET['logout'])) {
     header("Location: /index.php"); // Redirect to the login page after logout
     exit;
 }
+
+// Update status if form is submitted
+if (isset($_POST['update_status'])) {
+    // Ensure the id_number and status are set before proceeding
+    if (isset($_POST['id_number']) && isset($_POST['status'])) {
+        $id_number = $_POST['id_number'];
+        $new_status = $_POST['status'];
+
+        // Prepare the query to update the status using id_number
+        $stmt = $pdo->prepare("UPDATE appointments SET status = :status WHERE id_number = :id_number");
+        $stmt->bindParam(':status', $new_status, PDO::PARAM_STR);
+        $stmt->bindParam(':id_number', $id_number, PDO::PARAM_STR);
+        
+        // Execute the query
+        $stmt->execute();
+    }
+}
+
+    // Query to get all appointments
+    $stmt = $pdo->prepare("SELECT * FROM appointments");
+    $stmt->execute();
+    $appointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 ?>
 
 <!doctype html>
@@ -257,21 +234,60 @@ if (isset($_GET['logout'])) {
             </div>
         </div>
 
-        <!-- Chart Section -->
+    <!--UPCOMING SESSIONS-->
         <div class="p-6 mt-10 bg-white rounded-lg shadow">
             <h2 class="mb-6 text-2xl font-semibold text-gray-700">Session Overview</h2>
-                <section class="col-span-1 p-5 lg:col-span-3 "> 
-                    <div class="grid grid-cols-1 gap-4 m-5 sm:grid-cols-2 lg:grid-cols-2">
-                        <!-- Reminder Card -->
-                            <div class="max-w-lg p-6 mx-auto bg-white rounded-lg shadow-md">
-                                <h2 class="mb-3 text-xl font-bold text-gray-700">Upcoming Appointments</h2>
-                                <ul id="appointments-list" class="space-y-3">
-                                    <li class="text-gray-600">Loading appointments...</li>
-                                </ul>
-                            </div>
-                    </div>
+                <div class="col-span-1 p-5 lg:col-span-3 "> 
+                    <table class="table-auto w-full">
+                        <thead class="bg-gray-800 text-white">
+                            <tr>
+                                <th class="py-3 px-4 text-left">Student Name</th>
+                                <th class="py-3 px-4 text-left">Date</th>
+                                <th class="py-3 px-4 text-left">Time</th>
+                                <th class="py-3 px-4 text-left">Status</th>
+                                <th class="py-3 px-4 text-left">Action</th>
+                            </tr>
+                        </thead>
+                                <tbody>
+                                    <?php if (!empty($appointments)): ?>
+                                        <?php foreach ($appointments as $appointment): ?>
+                                            <tr class="border-b hover:bg-gray-50">
+                                                <td class="py-3 px-4"><?= htmlspecialchars($appointment['name']) ?></td>
+                                                <td class="py-3 px-4"><?= htmlspecialchars($appointment['appointment_date']) ?></td>
+                                                <td class="py-3 px-4"><?= htmlspecialchars($appointment['appointment_time']) ?></td>
+                                                <td class="py-3 px-4">
+                                                    <?php 
+                                                        $status = htmlspecialchars($appointment['status']);
+                                                        echo $status ? $status : 'Pending'; // Default to "Pending"
+                                                    ?>
+                                                </td>
+                                                <td class="py-3 px-4">
+                                                    <!-- Status Update Form -->
+                                                    <form action="" method="POST" class="inline-block">
+                                                        <!-- Hidden field for id_number -->
+                                                        <input type="hidden" name="id_number" value="<?= $appointment['id_number'] ?>">
+                                                        <select name="status" class="p-2 border rounded">
+                                                            <option value="Pending" <?= $appointment['status'] == 'Pending' ? 'selected' : '' ?>>Pending</option>
+                                                            <option value="Scheduled" <?= $appointment['status'] == 'Scheduled' ? 'selected' : '' ?>>Scheduled</option>
+                                                            <option value="Completed" <?= $appointment['status'] == 'Completed' ? 'selected' : '' ?>>Completed</option>
+                                                            <option value="Canceled" <?= $appointment['status'] == 'Cancelled' ? 'selected' : '' ?>>Cancelled</option>
+                                                        </select>
+                                                        <button type="submit" name="update_status" class="bg-blue-500 text-white px-4 py-2 rounded ml-2">Update</button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <tr>
+                                            <td colspan="5" class="py-3 px-4 text-center text-gray-600">No appointments scheduled.</td>
+                                        </tr>
+                                    <?php endif; ?>
+                                </tbody>
+                    </table>
+                </div>
         </div>
-        <!-- Detailed Report Table -->
+
+    <!-- Detailed Report Table -->
         <div class="p-6 mt-10 bg-white rounded-lg shadow">
             <h2 class="mb-6 text-2xl font-semibold text-gray-700">Detailed Reports</h2>
             <table class="min-w-full border border-collapse border-gray-200">

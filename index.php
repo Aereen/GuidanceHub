@@ -242,15 +242,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <!-- Modal Background -->
             <div id="guidanceStaffModal" class="fixed inset-0 flex items-center justify-center hidden bg-gray-800 bg-opacity-50">
                 <!-- Modal Content -->
-                <div class="w-full max-w-lg p-6 bg-white rounded-lg shadow-lg">
+                <div class="p-6 bg-white rounded-lg shadow-lg w-3/4 h-[600px] overflow-auto mx-auto flex flex-col items-center justify-center overflow-hidden">
                     <h2 class="mb-4 text-2xl font-semibold text-center text-gray-700">Guidance Staff</h2>
-
-                    <div class="overflow-x-auto">
-                        <table class="w-full border border-collapse border-gray-300">
+                    <div class="overflow-auto max-w-full h-[400px] w-full">
+                        <table class="w-full text-center border border-collapse border-gray-300">
                             <thead>
                                 <tr class="bg-gray-200">
-                                    <th class="px-4 py-2 text-left border border-gray-300">Staff</th>
-                                    <th class="px-4 py-2 text-left border border-gray-300">Role</th>
+                                    <th class="px-4 py-2 border border-gray-300">Staff</th>
+                                    <th class="px-4 py-2 border border-gray-300">Role</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -270,7 +269,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             </tbody>
                         </table>
                     </div>
-
                     <!-- Close Button -->
                     <div class="flex justify-center mt-4">
                         <button onclick="toggleGuidanceStaffModal()" class="px-4 py-2 text-white bg-red-500 rounded-md hover:bg-red-600">
@@ -278,16 +276,50 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </button>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
-    <div class="grid items-center grid-cols-1 gap-8 my-2 md:grid-cols-3">
-        <h4>Vision</h4>
+    
+    <div class="flex flex-wrap justify-between w-3/4 p-6 m-4 mx-auto bg-white rounded-lg shadow-lg">
+        <div class="w-1/3 px-4 text-center">
+            <h2 class="text-3xl font-bold text-gray-800">Vision</h2>
+            <p class="mt-2 text-gray-600">
+                We envision the Center to be the heart of the university where every student shall be empowered in realizing their fullest educational potential as lifelong learners with good moral values who are committed to excellence.
+            </p>
+        </div>
+        
+        <div class="w-1/3 px-4 text-center">
+            <h2 class="text-3xl font-bold text-gray-800">Mission</h2>
+            <p class="mt-2 text-gray-600">
+                The Center shall develop a comprehensive program that will provide life skills enhancement and psychological support that will equip the students to be productive, well-balanced, responsible and competent members of society. The Center shall promote and strengthen the holistic development of students.
+            </p>
+        </div>
+        
+        <div class="w-1/3 px-4 text-center">
+            <h2 class="text-3xl font-bold text-gray-800">Core Values</h2>
+            <ul class="mt-4 space-y-2">
+                <li class="font-semibold text-gray-600">❤️ Love</li>
+                <li class="font-semibold text-gray-600">📚 Wisdom</li>
+                <li class="font-semibold text-gray-600">🛡️ Integrity</li>
+            </ul>
+        </div>
+    </div>
+</section>
 
-        <h4>Mission</h4>
+<!--SCHEDULING CALL TO ACTION-->
+<section class="flex items-center justify-center">
+    <div class="p-8 text-center rounded-lg shadow-lg">
+        <h2 class="mb-4 text-3xl font-semibold text-gray-800">Schedule Your Counseling Appointment</h2>
+            <p class="mb-6 text-lg text-gray-600">Taking the first step toward mental well-being is easy. Book an appointment with our counselors today.</p>
 
-        <h4>Core Values</h4>
+        <!-- Call to Action Button -->
+        <a href="/src/student/appointment.php" class="inline-block px-6 py-3 text-xl text-white transition duration-300 bg-blue-600 rounded-lg hover:bg-blue-700">Book Your Appointment</a>
 
+        <!-- Optional: Contact Details -->
+        <div class="mt-6 text-sm text-gray-500">
+            <p>If you need assistance, call us at <strong>(123) 456-7890</strong> or email <strong>support@counseling.com</strong></p>
+        </div>
     </div>
 </section>
 
