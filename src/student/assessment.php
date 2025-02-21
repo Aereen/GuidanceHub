@@ -66,34 +66,6 @@ if (isset($_GET['logout'])) {
         <script src="https://cdn.tailwindcss.com"></script>
         <link href="./output.css" rel="stylesheet">   
 
-    <script>
-    function openModal(modalId) {
-        const modal = document.getElementById(modalId);
-        modal.classList.remove('hidden');
-        modal.classList.add('bg-opacity-50');
-        modal.classList.add('opacity-100');
-
-        // Show the modal
-        document.getElementById(modalId).classList.remove("hidden");
-
-        // Disable scroll on body
-        document.body.style.overflow = "hidden";
-    }
-
-    function closeModal(modalId) {
-        const modal = document.getElementById(modalId);
-        modal.classList.add('hidden');
-        modal.classList.remove('bg-opacity-50');
-        modal.classList.remove('opacity-100');
-
-         // Hide the modal
-        document.getElementById(modalId).classList.add("hidden");
-
-        // Enable scroll on body
-        document.body.style.overflow = "auto";
-    }
-    </script>
-
 </head>
 <body class="bg-gray-100">
 <!--TOP NAVIGATION BAR-->
@@ -783,6 +755,33 @@ const notificationButton = document.getElementById('notificationButton');
             searchIcon.classList.add('fa-magnifying-glass'); // Revert to search icon
         });
     });
+
+//Assessment Modal
+    function openModal(modalId) {
+        const modal = document.getElementById(modalId);
+        modal.classList.remove('hidden');
+        modal.classList.add('bg-opacity-50');
+        modal.classList.add('opacity-100');
+
+        // Show the modal
+        document.getElementById(modalId).classList.remove("hidden");
+
+        // Disable scroll on body
+        document.body.style.overflow = "hidden";
+    }
+
+    function closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        modal.classList.add('hidden');
+        modal.classList.remove('bg-opacity-50');
+        modal.classList.remove('opacity-100');
+
+         // Hide the modal
+        document.getElementById(modalId).classList.add("hidden");
+
+        // Enable scroll on body
+        document.body.style.overflow = "auto";
+    }
 </script>
 <script src="../path/to/flowbite/dist/flowbite.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>

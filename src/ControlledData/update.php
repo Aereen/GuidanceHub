@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $section = $_POST['section'];
 
     // Prepare the SQL query to update the user's details
-    $stmt = $pdo->prepare("UPDATE user_profile SET college = ?, year = ?, section = ? WHERE id_number = ?");
+    $stmt = $pdo->prepare("UPDATE user_profiles SET college = ?, year = ?, section = ? WHERE id_number = ?");
     $stmt->execute([$college, $year, $section, $id_number]);
 
     // Update session variables to reflect the changes
@@ -58,22 +58,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body class="bg-gray-100">
 <!-- Update Profile Form -->
-<div class="max-w-2xl mt-5 mx-auto p-6 bg-white border border-gray-300 rounded-lg shadow-lg">
-    <h2 class="text-2xl font-semibold text-gray-700 text-center mb-4">Update Profile</h2>
+<div class="max-w-2xl p-6 mx-auto mt-5 bg-white border border-gray-300 rounded-lg shadow-lg">
+    <h2 class="mb-4 text-2xl font-semibold text-center text-gray-700">Update Profile</h2>
     <form method="POST" action="update.php" class="space-y-4">
         <div class="grid grid-cols-2 gap-4 p-1" >
             <!-- Name -->
             <div>
                 <label class="block text-sm font-medium text-gray-700">Full Name</label>
                 <input type="text" name="name" value="<?php echo htmlspecialchars($_SESSION['name'] ?? ''); ?>" 
-                    class="w-full p-2 mt-1 border rounded-lg bg-gray-100 cursor-not-allowed" readonly>
+                    class="w-full p-2 mt-1 bg-gray-100 border rounded-lg cursor-not-allowed" readonly>
             </div>
 
             <!-- Student ID -->
             <div>
                 <label class="block text-sm font-medium text-gray-700">Student ID</label>
                 <input type="text" name="id_number" value="<?php echo htmlspecialchars($_SESSION['id_number'] ?? ''); ?>" 
-                    class="w-full p-2 mt-1 border rounded-lg bg-gray-100 cursor-not-allowed" readonly>
+                    class="w-full p-2 mt-1 bg-gray-100 border rounded-lg cursor-not-allowed" readonly>
             </div>
         </div>
 
@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div>
                 <label class="block text-sm font-medium text-gray-700">Email</label>
                 <input type="email" name="email" value="<?php echo htmlspecialchars($_SESSION['email'] ?? ''); ?>" 
-                    class="w-full p-2 mt-1 border rounded-lg bg-gray-100 cursor-not-allowed" readonly>
+                    class="w-full p-2 mt-1 bg-gray-100 border rounded-lg cursor-not-allowed" readonly>
             </div>
 
             <!-- College -->
@@ -107,7 +107,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <!-- Submit Button -->
         <div class="flex justify-center">
-            <button type="submit" class="px-6 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition">
+            <button type="submit" class="px-6 py-2 text-white transition bg-blue-600 rounded-lg hover:bg-blue-700">
                 Save Changes
             </button>
         </div>

@@ -217,19 +217,19 @@ if (isset($_POST['update_status'])) {
             <!-- Total Students Served -->
             <div class="p-6 bg-white rounded-lg shadow">
                 <h2 class="text-2xl font-semibold text-gray-700">Students Served</h2>
-                <p class="mt-4 text-4xl font-bold text-green-500" id="students-served"></p>
+                <!-- <p class="mt-4 text-4xl font-bold text-green-500" id="students-served"></p> -->
                 <p class="mt-2 text-sm text-gray-500">in the past year</p>
             </div>
             <!-- Sessions Conducted -->
             <div class="p-6 bg-white rounded-lg shadow">
                 <h2 class="text-2xl font-semibold text-gray-700">Sessions Conducted</h2>
-                <p class="mt-4 text-4xl font-bold text-blue-500" id="sessions-conducted"></p>
+                <!-- <p class="mt-4 text-4xl font-bold text-blue-500" id="sessions-conducted"></p> -->
                 <p class="mt-2 text-sm text-gray-500">total sessions</p>
             </div>
             <!-- Active Cases -->
             <div class="p-6 bg-white rounded-lg shadow">
                 <h2 class="text-2xl font-semibold text-gray-700">Active Cases</h2>
-                <p class="mt-4 text-4xl font-bold text-red-500" id="active-cases"></p>
+                <!-- <p class="mt-4 text-4xl font-bold text-red-500" id="active-cases"></p> -->
                 <p class="mt-2 text-sm text-gray-500">currently in progress</p>
             </div>
         </div>
@@ -238,30 +238,30 @@ if (isset($_POST['update_status'])) {
         <div class="p-6 mt-10 bg-white rounded-lg shadow">
             <h2 class="mb-6 text-2xl font-semibold text-gray-700">Session Overview</h2>
                 <div class="col-span-1 p-5 lg:col-span-3 "> 
-                    <table class="table-auto w-full">
-                        <thead class="bg-gray-800 text-white">
+                    <table class="w-full table-auto">
+                        <thead class="text-white bg-gray-800">
                             <tr>
-                                <th class="py-3 px-4 text-left">Student Name</th>
-                                <th class="py-3 px-4 text-left">Date</th>
-                                <th class="py-3 px-4 text-left">Time</th>
-                                <th class="py-3 px-4 text-left">Status</th>
-                                <th class="py-3 px-4 text-left">Action</th>
+                                <th class="px-4 py-3 text-left">Student Name</th>
+                                <th class="px-4 py-3 text-left">Date</th>
+                                <th class="px-4 py-3 text-left">Time</th>
+                                <th class="px-4 py-3 text-left">Status</th>
+                                <th class="px-4 py-3 text-left">Action</th>
                             </tr>
                         </thead>
                                 <tbody>
                                     <?php if (!empty($appointments)): ?>
                                         <?php foreach ($appointments as $appointment): ?>
                                             <tr class="border-b hover:bg-gray-50">
-                                                <td class="py-3 px-4"><?= htmlspecialchars($appointment['name']) ?></td>
-                                                <td class="py-3 px-4"><?= htmlspecialchars($appointment['appointment_date']) ?></td>
-                                                <td class="py-3 px-4"><?= htmlspecialchars($appointment['appointment_time']) ?></td>
-                                                <td class="py-3 px-4">
+                                                <td class="px-4 py-3"><?= htmlspecialchars($appointment['name']) ?></td>
+                                                <td class="px-4 py-3"><?= htmlspecialchars($appointment['appointment_date']) ?></td>
+                                                <td class="px-4 py-3"><?= htmlspecialchars($appointment['appointment_time']) ?></td>
+                                                <td class="px-4 py-3">
                                                     <?php 
                                                         $status = htmlspecialchars($appointment['status']);
                                                         echo $status ? $status : 'Pending'; // Default to "Pending"
                                                     ?>
                                                 </td>
-                                                <td class="py-3 px-4">
+                                                <td class="px-4 py-3">
                                                     <!-- Status Update Form -->
                                                     <form action="" method="POST" class="inline-block">
                                                         <!-- Hidden field for id_number -->
@@ -272,14 +272,14 @@ if (isset($_POST['update_status'])) {
                                                             <option value="Completed" <?= $appointment['status'] == 'Completed' ? 'selected' : '' ?>>Completed</option>
                                                             <option value="Canceled" <?= $appointment['status'] == 'Cancelled' ? 'selected' : '' ?>>Cancelled</option>
                                                         </select>
-                                                        <button type="submit" name="update_status" class="bg-blue-500 text-white px-4 py-2 rounded ml-2">Update</button>
+                                                        <button type="submit" name="update_status" class="px-4 py-2 ml-2 text-white bg-blue-500 rounded">Update</button>
                                                     </form>
                                                 </td>
                                             </tr>
                                         <?php endforeach; ?>
                                     <?php else: ?>
                                         <tr>
-                                            <td colspan="5" class="py-3 px-4 text-center text-gray-600">No appointments scheduled.</td>
+                                            <td colspan="5" class="px-4 py-3 text-center text-gray-600">No appointments scheduled.</td>
                                         </tr>
                                     <?php endif; ?>
                                 </tbody>

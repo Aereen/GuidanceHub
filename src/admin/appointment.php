@@ -30,23 +30,24 @@ if (isset($_GET['logout'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link href="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.css"  rel="stylesheet" />
         <script src="https://kit.fontawesome.com/95c10202b4.js" crossorigin="anonymous"></script>
-        <link href="./output.css" rel="stylesheet">   
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="./output.css" rel="stylesheet">
 </head>
-<body>
+<body class="bg-gray-100">
 <!--TOP NAVIGATION BAR-->
-<nav class="fixed top-0 z-50 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
-    <div class="px-3 py-3 lg:px-5 lg:pl-3">
+<nav class="fixed top-0 z-50 w-full bg-white border-b border-gray-200">    
+<div class="px-3 py-3 lg:px-5 lg:pl-3">
         <div class="flex items-center justify-between">
-            <div class="flex items-center justify-start rtl:justify-end">
+            <div class="flex items-center justify-start">
                 <button data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" aria-controls="logo-sidebar" type="button" class="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600">
                     <span class="sr-only">Open sidebar</span>
                     <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                    <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
+                        <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
                     </svg>
                 </button>
                 <a href="" class="flex ms-2 md:me-24">
-                <img src="/src/images/UMAK-CGCS-logo.png" class="h-8 me-3" alt="GuidanceHub Logo" />
-                <span class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">GuidanceHub</span>
+                    <img src="/src/images/UMAK-CGCS-logo.png" class="h-8 me-3" alt="GuidanceHub Logo" />
+                    <span class="self-center text-xl font-semibold text-black sm:text-2xl whitespace-nowrap">GuidanceHub</span>
                 </a>
             </div>
             <div class="flex items-center justify-end">
@@ -109,26 +110,20 @@ if (isset($_GET['logout'])) {
 
 <!--SCHEDULE APPOINTMENTS-->
 <div class="p-4 mt-10 sm:ml-64">
-    <h2 class="p-3 my-2 text-4xl font-bold">Scheduled Appointments</h2>
-    <div class="p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700">
-        <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Appointments Overview</h5>
+    <h2 class="p-3 my-2 text-4xl font-bold text-gray-800">Scheduled Appointments</h2>
+    <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-md">
+        <h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900">Appointments Overview</h5>
         <div class="overflow-x-auto">
-            <table class="w-full text-xs text-left text-gray-500 dark:text-gray-400 md:text-sm lg:text-base">
-                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                    <tr>
-                        <th scope="col" class="px-4 py-2">#</th>
-                        <th scope="col" class="px-4 py-2">Full Name</th>
-                        <th scope="col" class="px-4 py-2">Student Number</th>
-                        <th scope="col" class="px-4 py-2">Contact</th>
-                        <th scope="col" class="px-4 py-2">Email</th>
-                        <th scope="col" class="px-4 py-2">College</th>
-                        <th scope="col" class="px-4 py-2">Course</th>
-                        <th scope="col" class="px-4 py-2">Year Level</th>
-                        <th scope="col" class="px-4 py-2">Section</th>
-                        <th scope="col" class="px-4 py-2">Appointment Type</th>
-                        <th scope="col" class="px-4 py-2">Date</th>
-                        <th scope="col" class="px-4 py-2">Time</th>
-                        <th scope="col" class="px-4 py-2">Actions</th>
+            <table class="w-full text-sm text-left text-gray-600 dark:text-gray-400">
+                <thead class="text-sm text-gray-900 uppercase bg-gray-100">
+                    <tr class="text-center">
+                        <th scope="col" class="px-6 py-3">#</th>
+                        <th scope="col" class="px-6 py-3">Full Name</th>
+                        <th scope="col" class="px-6 py-3">Student Number</th>
+                        <th scope="col" class="px-6 py-3">Date</th>
+                        <th scope="col" class="px-6 py-3">Time</th>
+                        <th scope="col" class="px-6 py-3">Status</th>
+                        <th scope="col" class="px-6 py-3">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -136,39 +131,31 @@ if (isset($_GET['logout'])) {
                     // Connect to the database
                     $con = mysqli_connect('localhost', 'root', '', 'guidancehub');
                     
-                    // Check connection
                     if (!$con) {
                         die("Connection failed: " . mysqli_connect_error());
                     }
 
-                    // Fetch appointments from the database
                     $sql = "SELECT * FROM appointments";
                     $result = mysqli_query($con, $sql);
 
                     if (mysqli_num_rows($result) > 0) {
                         $counter = 1;
                         while ($row = mysqli_fetch_assoc($result)) {
-                            echo "<tr class='bg-white border-b dark:bg-gray-800 dark:border-gray-700'>
-                                    <td class='px-4 py-2'>" . $counter++ . "</td>
-                                    <td class='px-4 py-2'>" . htmlspecialchars($row['full_name']) . "</td>
-                                    <td class='px-4 py-2'>" . htmlspecialchars($row['student_number']) . "</td>
-                                    <td class='px-4 py-2'>" . htmlspecialchars($row['contact_number']) . "</td>
-                                    <td class='px-4 py-2'>" . htmlspecialchars($row['email']) . "</td>
-                                    <td class='px-4 py-2'>" . htmlspecialchars($row['college']) . "</td>
-                                    <td class='px-4 py-2'>" . htmlspecialchars($row['course']) . "</td>
-                                    <td class='px-4 py-2'>" . htmlspecialchars($row['year_level']) . "</td>
-                                    <td class='px-4 py-2'>" . htmlspecialchars($row['section']) . "</td>
-                                    <td class='px-4 py-2'>" . htmlspecialchars($row['appointment_type']) . "</td>
-                                    <td class='px-4 py-2'>" . htmlspecialchars($row['appointment_date']) . "</td>
-                                    <td class='px-4 py-2'>" . htmlspecialchars($row['appointment_time']) . "</td>
-                                    <td class='px-4 py-2'>
-                                        <a href='edit_appointment.php?id=" . $row['id'] . "' class='text-blue-600 hover:underline'>Edit</a>
-                                        <a href='delete_appointment.php?id=" . $row['id'] . "' class='ml-4 text-red-600 hover:underline'>Delete</a>
+                            echo "<tr class='text-black bg-white border-b text-center dark:border-gray-700'>
+                                    <td class='px-6 py-3'>" . $counter++ . "</td>
+                                    <td class='px-6 py-3'>" . htmlspecialchars($row['name']) . "</td>
+                                    <td class='px-6 py-3'>" . htmlspecialchars($row['id_number']) . "</td>
+                                    <td class='px-6 py-3'>" . htmlspecialchars($row['appointment_date']) . "</td>
+                                    <td class='px-6 py-3'>" . htmlspecialchars($row['appointment_time']) . "</td>
+                                    <td class='px-6 py-3'>" . htmlspecialchars($row['status']) . "</td>
+                                    <td class='px-6 py-3'>
+                                        <button class='text-blue-600 hover:underline show-details-btn' onclick='showDetails(".json_encode($row).")'>Show Details</button>
+                                        <button class='ml-4 text-red-600 hover:underline delete-btn'>Delete</button>
                                     </td>
                                 </tr>";
                         }
                     } else {
-                        echo "<tr><td colspan='13' class='px-4 py-2 text-center'>No appointments found</td></tr>";
+                        echo "<tr><td colspan='6' class='px-6 py-3 text-center'>No appointments found</td></tr>";
                     }
 
                     mysqli_close($con);
@@ -179,16 +166,28 @@ if (isset($_GET['logout'])) {
     </div>
 </div>
 
-
+<!-- Pop-up Modal -->
+<div id="detailsModal" class="fixed inset-0 z-50 flex items-center justify-center hidden bg-black bg-opacity-50">
+    <div class="w-full max-w-2xl p-6 bg-white rounded-lg shadow-md">
+        <div class="flex justify-between">
+            <h3 id="modalTitle" class="text-xl font-semibold"></h3>
+            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-800">✖</button>
+        </div>
+        <div id="modalContent" class="mt-4 text-gray-700"></div>
+        <button onclick="closeModal()" class="px-4 py-2 mt-6 text-white bg-blue-500 rounded hover:bg-blue-700">
+            Close
+        </button>
+    </div>
+</div>
 
 <!--FOOTER-->
-<footer class="overflow-auto bg-white sm:ml-64 w-75 dark:bg-gray-900">
-    <div class="w-full max-w-screen-xl p-4 py-6 mx-auto lg:py-8">
+<footer class="overflow-auto bg-gray-100 sm:ml-64 w-75">
+    <div class="w-full max-w-screen-xl p-4 py-6 mx-auto lg:py-8 dark:text-gray-800">
         <div class="md:flex md:justify-between">
             <div class="mb-6 md:mb-0">
                 <a href="https://flowbite.com/" class="flex items-center">
                     <img src="/src/images/UMAK-CGCS-logo.png" class="h-8 me-3" alt="GuidanceHub Logo" />
-                    <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">GuidanceHub<span>
+                    <span class="self-center text-2xl font-semibold whitespace-nowrap">GuidanceHub<span>
                 </a>
             </div>
             <div class="grid grid-cols-2 gap-8 sm:gap-6 sm:grid-cols-3">
@@ -267,7 +266,53 @@ if (isset($_GET['logout'])) {
     </div>
 </footer>
 
+<script>
+// Show appointment details in a pop-up modal
+function showDetails(row) {
+    const modal = document.getElementById('detailsModal');
+    document.getElementById('modalTitle').innerText = `Appointment Details for ${row.name}`;
+    document.getElementById('modalContent').innerHTML = `
+        <p><strong>Student Number:</strong> ${row.id_number}</p>
+        <p><strong>Contact Number:</strong> ${row.contact}</p>
+        <p><strong>Email:</strong> ${row.email}</p>
+        <p><strong>College:</strong> ${row.college}</p>
+        <p><strong>Course:</strong> ${row.course}</p>
+        <p><strong>Year Level:</strong> ${row.year_level}</p>
+        <p><strong>Section:</strong> ${row.section}</p>
+        <p><strong>Appointment Type:</strong> ${row.appointment_type}</p>
+        <p><strong>Date:</strong> ${row.appointment_date}</p>
+        <p><strong>Time:</strong> ${row.appointment_time}</p>
+    `;
+    modal.classList.remove('hidden');
+}
 
+// Close modal
+function closeModal() {
+    document.getElementById('detailsModal').classList.add('hidden');
+}
+
+
+// Handle Delete button click
+    document.querySelectorAll('.delete-btn').forEach(button => {
+        button.addEventListener('click', function () {
+            const appointmentId = this.getAttribute('data-id');
+            if (confirm("Are you sure you want to delete this appointment?")) {
+                // Send AJAX request to delete the appointment
+                const xhr = new XMLHttpRequest();
+                xhr.open("POST", "delete_appointment.php", true);
+                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4 && xhr.status === 200) {
+                        alert('Appointment deleted!');
+                        location.reload();  // Reload the page to reflect changes
+                    }
+                };
+                xhr.send("id=" + appointmentId);
+            }
+        });
+    });
+
+</script>
 <script src="../path/to/flowbite/dist/flowbite.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
 </body>

@@ -18,7 +18,7 @@ if (isset($_POST['add'])) {
     $link = $_POST['link'];
     $category = $_POST['category'];
 
-    $sql = "INSERT INTO resources (title, description, link, category) VALUES (?, ?, ?, ?)";
+    $sql = "INSERT INTO library_resources (title, description, resource_link, category) VALUES (?, ?, ?, ?)";
     $stmt = $con->prepare($sql);
     $stmt->bind_param("ssss", $title, $description, $link, $category);
 
@@ -33,7 +33,7 @@ if (isset($_POST['add'])) {
 if (isset($_POST['delete'])) {
     $resource_id = $_POST['resource_id'];
 
-    $delete_sql = "DELETE FROM resources WHERE id = ?";
+    $delete_sql = "DELETE FROM library_resources WHERE id = ?";
     $stmt = $con->prepare($delete_sql);
     $stmt->bind_param("i", $resource_id);
 
@@ -157,8 +157,8 @@ if (isset($_GET['logout'])) {
                 <textarea id="description" name="description" placeholder="Description" required class="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
             </div>
             <div class="flex flex-col space-y-2">
-                <label for="link" class="text-gray-700">Link</label>
-                <input type="text" id="link" name="link" placeholder="Link" required class="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <label for="resource_link" class="text-gray-700">Link</label>
+                <input type="text" id="resource_link" name="resource_link" placeholder="Link" required class="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
             <div class="flex flex-col space-y-2">
                 <label for="category" class="text-gray-700">Category</label>
@@ -181,7 +181,7 @@ if (isset($_GET['logout'])) {
             </thead>
             <tbody>
                 <?php 
-                $sql = "SELECT * FROM resources";
+                $sql = "SELECT * FROM library_resources";
                 $result = mysqli_query($con, $sql);
 
                 // Check if the query was successful
@@ -192,7 +192,7 @@ if (isset($_GET['logout'])) {
                     <tr>
                         <td class="px-4 py-2 border"><?php echo htmlspecialchars($row['title']); ?></td>
                         <td class="px-4 py-2 border"><?php echo htmlspecialchars($row['description']); ?></td>
-                        <td class="px-4 py-2 border"><a href="<?php echo htmlspecialchars($row['link']); ?>" target="_blank" class="text-blue-500"><?php echo htmlspecialchars($row['link']); ?></a></td>
+                        <td class="px-4 py-2 border"><a href="<?php echo htmlspecialchars($row['resource_link']); ?>" target="_blank" class="text-blue-500"><?php echo htmlspecialchars($row['resource_link']); ?></a></td>
                         <td class="px-4 py-2 border"><?php echo htmlspecialchars($row['category']); ?></td>
                         <td class="px-4 py-2 border">
                             <form action="#" method="post" onsubmit="return confirm('Are you sure you want to delete this resource?');">

@@ -105,7 +105,7 @@ if (isset($_POST['verify_otp'])) {
                 $email = $_SESSION['email'];  // Use the email from the session
 
                 // MySQLi for this query
-                $query = "SELECT COUNT(*) FROM student_profile WHERE email = '$email'"; // Corrected query
+                $query = "SELECT COUNT(*) FROM user_profiles WHERE email = '$email'"; // Corrected query
 
                 $result = mysqli_query($con, $query);
 

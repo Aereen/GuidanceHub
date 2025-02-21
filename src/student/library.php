@@ -8,7 +8,7 @@ if (!$con) {
     die("Connection failed: " . mysqli_connect_error());
 }
 
-$sql = "SELECT * FROM library_resources ORDER BY date_added DESC";
+$sql = "SELECT * FROM library_resources ORDER BY created_at DESC";
 $result = $con->query($sql);
 
 // Initialize variables and error array
@@ -201,7 +201,6 @@ if (isset($_GET['logout'])) {
             if ($result->num_rows > 0) {
                 while ($row = $result->fetch_assoc()) {
                     echo '<div class="overflow-hidden bg-white rounded-lg shadow-lg">';
-                    echo '  <img src="https://via.placeholder.com/400x200" alt="Resource Image" class="object-cover w-full h-48">';
                     echo '  <div class="p-4">';
                     echo '      <h2 class="mb-2 text-xl font-semibold">' . $row['title'] . '</h2>';
                     echo '      <p class="mb-4 text-gray-700">' . substr($row['description'], 0, 100) . '...</p>';

@@ -19,8 +19,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $referral_date = date('Y-m-d'); // Current date
 
     // SQL query to insert referral data
-    $sql = "INSERT INTO referrals (student_id, counselor_name, referral_date, reason) 
-            VALUES ('$student_id', '$counselor_name', '$referral_date', '$reason')";
+    $sql = "INSERT INTO referrals (student_id, student_name, counselor_name, referral_date, reason) 
+            VALUES ('$student_id', '$name', '$counselor_name', '$referral_date', '$reason')";
 
     if (mysqli_query($conn, $sql)) {
         echo "<script>alert('Referral submitted successfully');</script>";
@@ -177,38 +177,50 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </div>
 
     <!-- Modal -->
-    <div id="referralModal" class="fixed inset-0 flex items-center justify-center hidden bg-gray-800 bg-opacity-50">
-        <div class="w-full max-w-md p-6 bg-white rounded-lg shadow-lg">
-            <h2 class="text-2xl font-semibold text-center text-gray-700">Referral Form</h2>
-            <form action="submit_referral.php" method="POST" class="mt-4">
-                <div class="mb-4">
-                    <label for="student_id" class="block text-sm font-medium text-gray-700">Student ID</label>
-                    <input type="text" id="student_id" name="student_id" class="w-full p-2 mt-1 border border-gray-300 rounded-md" required>
+    <div id="referralModal" class="fixed inset-0 z-50 flex items-center justify-center hidden bg-gray-800 bg-opacity-50">
+        <div class="relative flex w-full max-w-2xl p-6 bg-white rounded-lg shadow-lg">
+            <!-- Left side: Referral Form -->
+            <div class="w-1/2 pr-4">
+                <h2 class="text-2xl font-semibold text-center text-gray-700">Referral Form</h2>
+                <form action="submit_referral.php" method="POST" class="mt-4">
+                    <div class="mb-4">
+                        <label for="student_name" class="block text-sm font-medium text-gray-700">Student Name</label>
+                        <input type="text" id="student_name" name="student_name" class="w-full p-2 mt-1 border border-gray-300 rounded-md" required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="student_id" class="block text-sm font-medium text-gray-700">Student ID</label>
+                        <input type="text" id="student_id" name="student_id" class="w-full p-2 mt-1 border border-gray-300 rounded-md" required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="reason" class="block text-sm font-medium text-gray-700">Reason for Referral</label>
+                        <textarea id="reason" name="reason" rows="4" class="w-full p-2 mt-1 border border-gray-300 rounded-md" required></textarea>
+                    </div>
+                    <div class="flex justify-center">
+                        <button type="submit" class="px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600">
+                            Submit Referral
+                        </button>
+                    </div>
+                </form>
+                <div class="flex justify-center mt-4">
+                    <button onclick="toggleModal()" class="text-gray-500 hover:text-gray-700">Close</button>
                 </div>
-
-                <div class="mb-4">
-                    <label for="student_name" class="block text-sm font-medium text-gray-700">Student Name</label>
-                    <input type="text" id="student_name" name="student_name" class="w-full p-2 mt-1 border border-gray-300 rounded-md" required>
-                </div>
-
-                <div class="mb-4">
-                    <label for="reason" class="block text-sm font-medium text-gray-700">Reason for Referral</label>
-                    <textarea id="reason" name="reason" rows="4" class="w-full p-2 mt-1 border border-gray-300 rounded-md" required></textarea>
-                </div>
-
-                <!-- Submit Button -->
-                <div class="flex justify-center">
-                    <button type="submit" class="px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600">
-                        Submit Referral
-                    </button>
-                </div>
-            </form>
-
-            <!-- Close button -->
-            <div class="flex justify-center mt-4">
-                <button onclick="toggleModal()" class="text-gray-500 hover:text-gray-700">
-                    Close
-                </button>
+            </div>
+            
+            <!-- Right side: Counseling Indicators -->
+            <div class="w-1/2 pl-4 border-l border-gray-300">
+                <h3 class="text-xl font-semibold text-gray-700">Indicators for Counseling</h3>
+                <ul class="mt-2 text-sm text-gray-600 list-disc list-inside">
+                    <li>Absenteeism</li>
+                    <li>Lack of energy and enthusiasm for studies</li>
+                    <li>Abrasive/Aggressive behavior</li>
+                    <li>Sleepiness in class</li>
+                    <li>Marked changes in personal hygiene</li>
+                    <li>Low self-esteem</li>
+                    <li>Marked changes in academic performance</li>
+                    <li>Talking to self</li>
+                    <li>Suicidal attempts</li>
+                    <li>Excessive dependency on others</li>
+                </ul>
             </div>
         </div>
     </div>
@@ -240,7 +252,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </a>
 
             <!-- Modal Background -->
-            <div id="guidanceStaffModal" class="fixed inset-0 flex items-center justify-center hidden bg-gray-800 bg-opacity-50">
+            <div id="guidanceStaffModal" class="fixed inset-0 z-50 flex items-center justify-center hidden bg-gray-800 bg-opacity-50">
                 <!-- Modal Content -->
                 <div class="p-6 bg-white rounded-lg shadow-lg w-3/4 h-[600px] overflow-auto mx-auto flex flex-col items-center justify-center overflow-hidden">
                     <h2 class="mb-4 text-2xl font-semibold text-center text-gray-700">Guidance Staff</h2>
