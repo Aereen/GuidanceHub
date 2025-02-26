@@ -262,23 +262,6 @@ if (isset($_GET['logout'])) {
             </ul>
         </div>
 
-<!--SCHEDULING CALL TO ACTION-->
-<section class="flex items-center justify-center">
-    <div class="p-8 text-center rounded-lg shadow-lg">
-        <h2 class="mb-4 text-3xl font-semibold text-gray-800">Schedule Your Counseling Appointment</h2>
-            <p class="mb-6 text-lg text-gray-600">Taking the first step toward mental well-being is easy. Book an appointment with our counselors today.</p>
-
-        <!-- Call to Action Button -->
-        <a href="/src/student/appointment.php" class="inline-block px-6 py-3 text-xl text-white transition duration-300 bg-blue-600 rounded-lg hover:bg-blue-700">Book Your Appointment</a>
-
-        <!-- Optional: Contact Details -->
-        <div class="mt-6 text-sm text-gray-500">
-            <p>If you need assistance, call us at <strong>(123) 456-7890</strong> or email <strong>support@counseling.com</strong></p>
-        </div>
-    </div>
-</section>
-</main>
-
 <!-- MODALS -->
     <!-- Career Interest Assessment Modal -->
     <div id="careerInterestModal" 
@@ -546,6 +529,24 @@ if (isset($_GET['logout'])) {
             </section>
         </div>
     </div>
+
+
+<!--SCHEDULING CALL TO ACTION-->
+<section class="flex items-center justify-center">
+    <div class="p-8 text-center rounded-lg shadow-lg">
+        <h2 class="mb-4 text-3xl font-semibold text-gray-800">Schedule Your Counseling Appointment</h2>
+            <p class="mb-6 text-lg text-gray-600">Taking the first step toward mental well-being is easy. Book an appointment with our counselors today.</p>
+
+        <!-- Call to Action Button -->
+        <a href="/src/student/appointment.php" class="inline-block px-6 py-3 text-xl text-white transition duration-300 bg-blue-600 rounded-lg hover:bg-blue-700">Book Your Appointment</a>
+
+        <!-- Optional: Contact Details -->
+        <div class="mt-6 text-sm text-gray-500">
+            <p>If you need assistance, call us at <strong>(123) 456-7890</strong> or email <strong>support@counseling.com</strong></p>
+        </div>
+    </div>
+</section>
+</main>
 
 <!--FOOTER-->
 <footer class="overflow-auto sm:ml-64 w-75">

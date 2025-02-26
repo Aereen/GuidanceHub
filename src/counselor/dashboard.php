@@ -14,6 +14,32 @@ try {
     die("Could not connect to the database $dbname :" . $e->getMessage());
 }
 
+// Update status if form is submitted
+if (isset($_POST['update_status'])) {
+    // Ensure id_number and status are set before proceeding
+    if (isset($_POST['id_number']) && isset($_POST['status'])) {
+        $id_number = $_POST['id_number'];
+        $new_status = $_POST['status'];
+
+        // Prepare the query to update the status and updated_at timestamp
+        $stmt = $pdo->prepare("UPDATE appointments 
+                            SET status = :status, updated_at = CURRENT_TIMESTAMP 
+                            WHERE id_number = :id_number");
+        $stmt->bindParam(':status', $new_status, PDO::PARAM_STR);
+        $stmt->bindParam(':id_number', $id_number, PDO::PARAM_STR);
+        
+        // Execute the query
+        $stmt->execute();
+    }
+}
+
+// Query to get all appointments
+$stmt = $pdo->prepare("SELECT * FROM appointments");
+$stmt->execute();
+$appointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+
+
 // Check if the user is logged in
 if (!isset($_SESSION['id_number'])) {
     header("Location: /src/ControlledData/login.php"); //if not logged in
@@ -27,29 +53,6 @@ if (isset($_GET['logout'])) {
     header("Location: /index.php"); // Redirect to the login page after logout
     exit;
 }
-
-// Update status if form is submitted
-if (isset($_POST['update_status'])) {
-    // Ensure the id_number and status are set before proceeding
-    if (isset($_POST['id_number']) && isset($_POST['status'])) {
-        $id_number = $_POST['id_number'];
-        $new_status = $_POST['status'];
-
-        // Prepare the query to update the status using id_number
-        $stmt = $pdo->prepare("UPDATE appointments SET status = :status WHERE id_number = :id_number");
-        $stmt->bindParam(':status', $new_status, PDO::PARAM_STR);
-        $stmt->bindParam(':id_number', $id_number, PDO::PARAM_STR);
-        
-        // Execute the query
-        $stmt->execute();
-    }
-}
-
-    // Query to get all appointments
-    $stmt = $pdo->prepare("SELECT * FROM appointments");
-    $stmt->execute();
-    $appointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
 ?>
 
 <!doctype html>

@@ -2,6 +2,29 @@
 <?php
 session_start(); // Start the session
 
+$host = 'localhost';
+$dbname = 'guidancehub';
+$username = 'root';
+$password = '';
+
+try {
+    // Create PDO connection
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    // Handle connection error
+    die("Could not connect to the database $dbname :" . $e->getMessage());
+}
+
+// Query to check for an appointment
+$email = $_SESSION['email'];
+
+$stmt = $pdo->prepare("SELECT * FROM appointments WHERE email = :email AND appointment_date >= NOW()");
+$stmt->bindParam(':email', $email, PDO::PARAM_STR);
+$stmt->execute();
+
+$appointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 // Check if logout is requested
 if (isset($_GET['logout'])) {
     session_unset(); // Unset all session variables
@@ -21,11 +44,12 @@ if (isset($_GET['logout'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link href="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.css"  rel="stylesheet" />
         <script src="https://kit.fontawesome.com/95c10202b4.js" crossorigin="anonymous"></script>
+        <script src="https://cdn.tailwindcss.com"></script>
         <link href="./output.css" rel="stylesheet">   
 </head>
-<body>
+<body class="bg-gray-100">
 <!--TOP NAVIGATION BAR-->
-<nav class="fixed top-0 z-50 w-full border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700" >
+<nav class="fixed top-0 z-50 w-full bg-white border-b border-gray-200">
     <div class="px-3 py-3 lg:px-5 lg:pl-3">
         <div class="flex items-center justify-between">
             <div class="flex items-center justify-start rtl:justify-end">
@@ -37,11 +61,69 @@ if (isset($_GET['logout'])) {
                 </button>
                 <a href="" class="flex ms-2 md:me-24">
                 <img src="/src/images/UMAK-CGCS-logo.png" class="h-8 me-3" alt="GuidanceHub Logo" />
-                <span class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">GuidanceHub</span>
+                <span class="self-center text-xl font-semibold text-black sm:text-2xl whitespace-nowrap">GuidanceHub</span>
                 </a>
             </div>
-            <div class="flex items-center justify-end">
+            <div class="flex items-center justify-end gap-7 text-gray">
+                <!--Notification Bell Icon-->
+                    <div class="relative">
+                        <button id="notificationButton" class="text-gray-600 hover:text-gray-900 focus:outline-none">
+                            <i class="text-2xl fa-solid fa-bell"></i>
+                            <!-- Notification Badge -->
+                            <span id="notificationBadge" class="absolute top-0 right-0 inline-flex items-center justify-center hidden w-4 h-4 text-xs font-bold text-white bg-red-500 rounded-full">
+                                0
+                            </span>
+                        </button>
+                        <!-- Notification Dropdown -->
+                        <div id="notificationDropdown" class="absolute right-0 z-50 hidden w-64 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg">
+                            <div class="p-4 text-sm text-gray-700">
+                                <h4 class="text-lg font-bold">Notifications</h4>
+                                <ul id="notificationList" class="mt-2 space-y-2">
+                                    <li class="text-gray-500">No new notifications</li>
+                                </ul>
+                                <!-- Mark as Read Button -->
+                                <button id="markReadButton" class="hidden w-full px-4 py-2 mt-4 text-sm font-medium text-white bg-blue-500 rounded hover:bg-blue-700">
+                                    Mark All as Read
+                                </button>
+                            </div>
+                        </div>
+                    </div>
 
+                <!-- Notifaction Modal (Hidden by Default) -->
+                    <div id="notificationModal" class="fixed inset-0 flex items-center justify-center hidden bg-gray-900 bg-opacity-50">
+                        <div class="p-6 bg-white rounded-lg shadow-lg w-96">
+                            <h2 class="text-lg font-bold">Notification</h2>
+                            <p id="modalContent" class="mt-2 text-gray-700"></p>
+                            <button id="closeModal" class="px-4 py-2 mt-4 text-white bg-blue-500 rounded hover:bg-blue-700">
+                                Close
+                            </button>
+                        </div>
+                    </div>
+
+                <!-- Search Icon -->
+                <div class="relative">
+                    <button
+                        id="search-toggle"
+                        class="text-xl text-gray-700 hover:text-blue-600 focus:outline-none">
+                        <i id="search-icon" class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+
+                    <!-- Search Box (Hidden Initially) -->
+                    <div id="search-box" class="absolute right-0 p-4 mt-2 overflow-hidden transition-all duration-300 ease-in-out bg-white border border-gray-300 rounded-lg shadow-lg opacity-0 w-80 max-h-0">
+                        <form action="" method="GET" class="w-full max-w-md mx-auto">
+                            <label for="default-search" class="mb-2 text-sm font-medium sr-only">Search</label>
+                            <div class="relative">
+                                <input type="search" id="default-search" name="query"
+                                    class="block w-full p-4 text-sm text-gray-900"
+                                    placeholder="Search" />
+                                <button type="submit"
+                                    class="absolute px-4 py-2 text-sm font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 right-2 bottom-2">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -119,77 +201,57 @@ if (isset($_GET['logout'])) {
                 </div>
             </div>
 
-    <!--RECENT ACTIVITIES-->
-            <div class="p-6 mb-8 bg-white rounded-lg shadow-md">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-lg font-semibold">Recent Activities</h2>
-                </div>
-                <table class="w-full border-collapse">
-                    <thead>
-                        <tr class="bg-gray-200">
-                            <th class="px-4 py-2 text-left">Student</th>
-                            <th class="px-4 py-2 text-left">Session Date</th>
-                            <th class="px-4 py-2 text-left">Status</th>
+    <!--UPCOMING SESSIONS-->
+        <div class="p-6 mt-10 bg-white rounded-lg shadow">
+            <h2 class="mb-6 text-2xl font-semibold text-gray-700">Session Overview</h2>
+            <div class="col-span-1 p-5 lg:col-span-3">
+                <table class="w-full table-auto">
+                    <thead class="text-white bg-gray-800">
+                        <tr>
+                            <th class="px-4 py-3 text-left">ID</th>
+                            <th class="px-4 py-3 text-left">Student Name</th>
+                            <th class="px-4 py-3 text-left">Date</th>
+                            <th class="px-4 py-3 text-left">Time</th>
+                            <th class="px-4 py-3 text-left">Status</th>
+                            <th class="px-4 py-3 text-left">Last Updated</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr class="border-b">
-                            <td class="px-4 py-2">John Doe</td>
-                            <td class="px-4 py-2">2024-11-25</td>
-                            <td class="px-4 py-2 text-green-500">Completed</td>
-                        </tr>
-                        <tr class="border-b">
-                            <td class="px-4 py-2">Jane Smith</td>
-                            <td class="px-4 py-2">2024-11-27</td>
-                            <td class="px-4 py-2 text-yellow-500">Pending</td>
-                        </tr>
+                        <?php if (!empty($appointments)): ?>
+                            <?php foreach ($appointments as $appointment): ?>
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="px-4 py-3"><?= htmlspecialchars($appointment['id']) ?></td>
+                                    <td class="px-4 py-3"><?= htmlspecialchars($appointment['name']) ?></td>
+                                    <td class="px-4 py-3"><?= htmlspecialchars($appointment['appointment_date']) ?></td>
+                                    <td class="px-4 py-3"><?= htmlspecialchars($appointment['appointment_time']) ?></td>
+                                    <td class="px-4 py-3"><?= htmlspecialchars($appointment['status']) ?></td>
+                                    <td class="px-4 py-3"><?= htmlspecialchars($appointment['updated_at']) ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="5" class="px-4 py-3 text-center text-gray-600">No appointments scheduled.</td>
+                            </tr>
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>
-
-    <!--UPCOMING APPOINTMENTS-->
-            <div class="p-6 bg-white rounded-lg shadow-md">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-lg font-semibold">Upcoming Appointments</h2>
-                </div>
-                <table class="w-full">
-                    <tbody>
-                        <tr class="flex items-center py-4 space-x-4 border-b">
-                            <td class="w-16">
-                                <img src="assets/imgs/customer02.jpg" alt="User Avatar" class="w-12 h-12 rounded-full">
-                            </td>
-                            <td>
-                                <h4 class="font-semibold">David <span class="text-gray-500">Italy</span></h4>
-                                <p class="text-sm text-gray-500">2024-11-30, 2:00 PM</p>
-                            </td>
-                        </tr>
-                        <tr class="flex items-center py-4 space-x-4 border-b">
-                            <td class="w-16">
-                                <img src="assets/imgs/customer01.jpg" alt="User Avatar" class="w-12 h-12 rounded-full">
-                            </td>
-                            <td>
-                                <h4 class="font-semibold">Amit <span class="text-gray-500">India</span></h4>
-                                <p class="text-sm text-gray-500">2024-12-02, 11:00 AM</p>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+        </div>
 </div>
 
 <!--FOOTER-->
-<footer class="overflow-auto bg-white sm:ml-64 w-75 dark:bg-gray-900">
-    <div class="w-full max-w-screen-xl p-4 py-6 mx-auto lg:py-8">
+<footer class="overflow-auto bg-gray-100 sm:ml-64 w-75">
+    <div class="w-full max-w-screen-xl p-4 py-6 mx-auto lg:py-8 dark:text-gray-800">
         <div class="md:flex md:justify-between">
             <div class="mb-6 md:mb-0">
                 <a href="https://flowbite.com/" class="flex items-center">
                     <img src="/src/images/UMAK-CGCS-logo.png" class="h-8 me-3" alt="GuidanceHub Logo" />
-                    <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">GuidanceHub<span>
+                    <span class="self-center text-2xl font-semibold whitespace-nowrap">GuidanceHub<span>
                 </a>
             </div>
             <div class="grid grid-cols-2 gap-8 sm:gap-6 sm:grid-cols-3">
                 <div>
-                    <h2 class="mb-6 text-sm font-semibold text-gray-900 uppercase dark:text-white">Resources</h2>
+                    <h2 class="mb-6 text-sm font-semibold text-black uppercase">Resources</h2>
                     <ul class="font-medium text-gray-500 dark:text-gray-400">
                         <li class="mb-4">
                             <a href="https://flowbite.com/" class="hover:underline">GuidanceHub</a>
@@ -200,10 +262,10 @@ if (isset($_GET['logout'])) {
                     </ul>
                 </div>
                 <div>
-                    <h2 class="mb-6 text-sm font-semibold text-gray-900 uppercase dark:text-white">Follow us</h2>
+                    <h2 class="mb-6 text-sm font-semibold text-gray-900 uppercase">Follow us</h2>
                     <ul class="font-medium text-gray-500 dark:text-gray-400">
                         <li class="mb-4">
-                            <a href="https://github.com/themesberg/flowbite" class="hover:underline ">Github</a>
+                            <a href="https://github.com/themesberg/flowbite" class="hover:underline">Github</a>
                         </li>
                         <li>
                             <a href="https://discord.gg/4eeurUVvTy" class="hover:underline">Discord</a>
@@ -211,7 +273,7 @@ if (isset($_GET['logout'])) {
                     </ul>
                 </div>
                 <div>
-                    <h2 class="mb-6 text-sm font-semibold text-gray-900 uppercase dark:text-white">Legal</h2>
+                    <h2 class="mb-6 text-sm font-semibold text-gray-900 uppercase">Legal</h2>
                     <ul class="font-medium text-gray-500 dark:text-gray-400">
                         <li class="mb-4">
                             <a href="#" class="hover:underline">Privacy Policy</a>
@@ -223,7 +285,7 @@ if (isset($_GET['logout'])) {
                 </div>
             </div>
         </div>
-        <hr class="my-6 border-gray-200 sm:mx-auto dark:border-gray-700 lg:my-8" />
+        <hr class="my-6 border-gray-200 sm:mx-auto dark:border-gray-300 lg:my-8" />
         <div class="sm:flex sm:items-center sm:justify-between">
             <span class="text-sm text-gray-500 sm:text-center dark:text-gray-400">© 2023 <a href="https://flowbite.com/" class="hover:underline">Flowbite™</a>. All Rights Reserved.
             </span>
@@ -263,7 +325,109 @@ if (isset($_GET['logout'])) {
     </div>
 </footer>
 
+<script>
+// JavaScript to handle search box toggling and icon change
+    document.addEventListener('DOMContentLoaded', function () {
+        const searchToggle = document.getElementById('search-toggle');
+        const searchBox = document.getElementById('search-box');
+        const searchIcon = document.getElementById('search-icon');
+        const searchExit = document.getElementById('search-exit');
 
+        // Toggle the search box and icon when search icon is clicked
+        searchToggle.addEventListener('click', function () {
+            // Toggle search box visibility
+            if (searchBox.classList.contains('opacity-0')) {
+                searchBox.classList.remove('opacity-0', 'max-h-0');
+                searchBox.classList.add('opacity-100', 'max-h-screen');
+                searchIcon.classList.remove('fa-magnifying-glass');
+                searchIcon.classList.add('fa-circle-xmark');  // Change to exit icon
+            } else {
+                searchBox.classList.add('opacity-0', 'max-h-0');
+                searchBox.classList.remove('opacity-100', 'max-h-screen');
+                searchIcon.classList.remove('fa-circle-xmark'); // Revert to search icon
+                searchIcon.classList.add('fa-magnifying-glass');
+            }
+        });
+
+        // Hide search box when clicking the exit icon
+        searchExit.addEventListener('click', function () {
+            searchBox.classList.add('opacity-0', 'max-h-0');
+            searchBox.classList.remove('opacity-100', 'max-h-screen');
+            searchIcon.classList.remove('fa-circle-xmark');
+            searchIcon.classList.add('fa-magnifying-glass'); // Revert to search icon
+        });
+    });
+
+//Notifications
+const appointments = <?php echo json_encode($appointments); ?>;
+
+document.addEventListener('DOMContentLoaded', () => {
+    const notificationButton = document.getElementById('notificationButton');
+    const notificationDropdown = document.getElementById('notificationDropdown');
+    const notificationBadge = document.getElementById('notificationBadge');
+    const notificationList = document.getElementById('notificationList');
+    const markReadButton = document.getElementById('markReadButton');
+    
+    // Modal Elements
+    const notificationModal = document.getElementById('notificationModal');
+    const modalContent = document.getElementById('modalContent');
+    const closeModal = document.getElementById('closeModal');
+
+    let notifications = appointments.map(appointment => ({
+        text: `Reminder: You have an appointment on ${appointment.appointment_date} at ${appointment.appointment_time}.`,
+        read: false
+    }));
+
+    function updateNotifications() {
+        if (notifications.length > 0) {
+            notificationBadge.textContent = notifications.filter(n => !n.read).length;
+            notificationBadge.classList.remove('hidden');
+            markReadButton.classList.remove('hidden');
+
+            notificationList.innerHTML = notifications.map((notif, index) => 
+                `<li class="p-2 rounded cursor-pointer ${notif.read ? 'bg-gray-200' : 'bg-gray-100 hover:bg-gray-200'}" data-index="${index}">
+                    ${notif.text}
+                </li>`
+            ).join('');
+
+            // Add event listeners to open modal on click
+            document.querySelectorAll('#notificationList li').forEach(item => {
+                item.addEventListener('click', () => {
+                    const index = item.getAttribute('data-index');
+                    notifications[index].read = true;
+                    modalContent.textContent = notifications[index].text;
+                    notificationModal.classList.remove('hidden'); // Show modal
+                    
+                    notificationDropdown.classList.add('hidden'); // Hide notification dropdown
+                    updateNotifications();
+                });
+            });
+        } else {
+            notificationBadge.classList.add('hidden');
+            markReadButton.classList.add('hidden');
+            notificationList.innerHTML = `<li class="text-gray-500">No new notifications</li>`;
+        }
+    }
+
+    // Show or hide the dropdown
+    notificationButton.addEventListener('click', () => {
+        notificationDropdown.classList.toggle('hidden');
+    });
+
+    // Mark all notifications as read
+    markReadButton.addEventListener('click', () => {
+        notifications.forEach(n => n.read = true);
+        updateNotifications();
+    });
+
+    // Close modal event
+    closeModal.addEventListener('click', () => {
+        notificationModal.classList.add('hidden');
+    });
+
+    updateNotifications();
+});
+</script>
 <script src="../path/to/flowbite/dist/flowbite.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
 </body>

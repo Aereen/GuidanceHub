@@ -32,18 +32,10 @@ try {
     echo "Error fetching announcements: " . $e->getMessage();
 }
 
-// When logout is requested
-if (isset($_GET['logout'])) {
-    session_unset(); // Unset all session variables
-    session_destroy(); // Destroy the session
-    header("Location: /index.php"); // Redirect after logout
-    exit;
-}
-
 // Query to check for an appointment
 $email = $_SESSION['email'];
 
-$stmt = $pdo->prepare("SELECT * FROM appointments WHERE email = :email");
+$stmt = $pdo->prepare("SELECT * FROM appointments WHERE email = :email AND appointment_date >= NOW()");
 $stmt->bindParam(':email', $email, PDO::PARAM_STR);
 $stmt->execute();
 
@@ -94,6 +86,13 @@ for ($i = 0; $i < 42; $i++) {
     }
 }
 
+// When logout is requested
+if (isset($_GET['logout'])) {
+    session_unset(); // Unset all session variables
+    session_destroy(); // Destroy the session
+    header("Location: /index.php"); // Redirect after logout
+    exit;
+}
 ?>
 <!doctype html>
 <html>
@@ -183,6 +182,17 @@ for ($i = 0; $i < 42; $i++) {
                         </div>
                     </div>
 
+                <!-- Notifaction Modal (Hidden by Default) -->
+                    <div id="notificationModal" class="fixed inset-0 flex items-center justify-center hidden bg-gray-900 bg-opacity-50">
+                        <div class="p-6 bg-white rounded-lg shadow-lg w-96">
+                            <h2 class="text-lg font-bold">Notification</h2>
+                            <p id="modalContent" class="mt-2 text-gray-700"></p>
+                            <button id="closeModal" class="px-4 py-2 mt-4 text-white bg-blue-500 rounded hover:bg-blue-700">
+                                Close
+                            </button>
+                        </div>
+                    </div>
+
                 <!-- Search Icon -->
                 <div class="relative">
                     <button
@@ -268,6 +278,7 @@ for ($i = 0; $i < 42; $i++) {
         <section class="col-span-1 p-5 bg-white border-2 rounded-lg lg:col-span-3 dark:border-gray-300">   
             <h2 class="text-2xl font-bold">Activities</h2>
                 <div class="grid grid-cols-1 gap-4 m-5 sm:grid-cols-1 lg:grid-cols-1">
+
                     <!--UPCOMING SESSIONS-->
                     <div class="max-w-md p-6 mx-auto bg-white rounded-lg shadow-md">
                         <h2 class="mb-3 text-xl font-bold text-gray-700 underline">Upcoming Appointments</h2>
@@ -304,24 +315,59 @@ for ($i = 0; $i < 42; $i++) {
                 <h2 class="mb-4 text-2xl font-bold text-center text-gray-800">
                     <?php echo date('F Y'); ?>
                 </h2>
+                
+                <!-- Days of the Week -->
                 <div class="grid grid-cols-7 gap-2 font-semibold text-center text-gray-600">
                     <?php foreach ($daysOfWeek as $day): ?>
                         <div class="p-1 text-white bg-teal-500 rounded-lg"><?php echo $day; ?></div>
                     <?php endforeach; ?>
                 </div>
+
+                <!-- Calendar Days -->
                 <div class="grid grid-cols-7 gap-2 mt-2 text-center">
                     <?php foreach ($calendar as $week): ?>
                         <?php foreach ($week as $day): ?>
-                            <div class="p-2 <?php echo $day === (int)date('j') ? 'bg-teal-500 text-white' : 'bg-gray-100'; ?> rounded-lg">
+                            <?php 
+                                // Check if the date has an appointment
+                                $dateStr = $year . '-' . $month . '-' . str_pad($day, 2, '0', STR_PAD_LEFT);
+                                $appointmentFound = false;
+                                $tooltipText = "";
+
+                                foreach ($appointments as $appointment) {
+                                    if ($appointment['appointment_date'] === $dateStr) {
+                                        $appointmentFound = true;
+                                        $tooltipText = "Confirmed Appointment Scheduled<br>Pending Assessment";
+                                        break;
+                                    }
+                                }
+                            ?>
+                            
+                            <!-- Calendar Day Box -->
+                            <div 
+                                class="relative p-2 rounded-lg cursor-pointer <?php echo $appointmentFound ? 'bg-teal-500 text-white' : 'bg-gray-100'; ?>" 
+                                <?php if ($appointmentFound): ?>
+                                    onmouseover="showTooltip(this, '<?php echo $tooltipText; ?>')" 
+                                    onmouseout="hideTooltip(this)"
+                                <?php endif; ?>
+                            >
                                 <?php echo $day ?: ''; ?>
+
+                                <!-- Tooltip -->
+                                <?php if ($appointmentFound): ?>
+                                    <div class="absolute hidden p-2 mt-2 text-sm text-white transform -translate-x-1/2 bg-black rounded-lg shadow-md left-1/2 tooltip">
+                                        <?php echo $tooltipText; ?>
+                                    </div>
+                                <?php endif; ?>
                             </div>
                         <?php endforeach; ?>
                     <?php endforeach; ?>
                 </div>
             </div>
+
         </section>
 
     <aside class="col-span-1 space-y-6">
+
         <!-- PROFILE CARD -->
         <div class="w-full max-w-lg p-5 bg-white border-2 rounded-lg shadow-lg">
             <div class="flex items-center justify-between">
@@ -552,52 +598,6 @@ const messageButton = document.getElementById('messageButton');
     // Initialize unread message count
     simulateUnreadMessages();
 
-//Toggle for Notification
-const notificationButton = document.getElementById('notificationButton');
-    const notificationDropdown = document.getElementById('notificationDropdown');
-    const notificationBadge = document.getElementById('notificationBadge');
-    const notificationList = document.getElementById('notificationList');
-    const markReadButton = document.getElementById('markReadButton');
-
-    // Sample notifications array
-    let notifications = [
-        "Your appointment has been confirmed.",
-        "New message from the guidance office.",
-        "Reminder: Your appointment is tomorrow at 10:00 AM."
-    ];
-
-    // Function to display notifications
-    function updateNotifications() {
-        if (notifications.length > 0) {
-            notificationBadge.textContent = notifications.length;
-            notificationBadge.classList.remove('hidden');
-            markReadButton.classList.remove('hidden');
-
-            // Update the dropdown list
-            notificationList.innerHTML = notifications.map(
-                (notif) => `<li class="p-2 bg-gray-100 rounded hover:bg-gray-200">${notif}</li>`
-            ).join('');
-        } else {
-            notificationBadge.classList.add('hidden');
-            markReadButton.classList.add('hidden');
-            notificationList.innerHTML = `<li class="text-gray-500">No new notifications</li>`;
-        }
-    }
-
-    // Show or hide the dropdown
-    notificationButton.addEventListener('click', () => {
-        notificationDropdown.classList.toggle('hidden');
-    });
-
-    // Mark all notifications as read
-    markReadButton.addEventListener('click', () => {
-        notifications = []; // Clear notifications array
-        updateNotifications(); // Update the UI
-    });
-
-    // Initialize notifications on page load
-    updateNotifications();
-
 // JavaScript to handle search box toggling and icon change
     document.addEventListener('DOMContentLoaded', function () {
         const searchToggle = document.getElementById('search-toggle');
@@ -630,6 +630,87 @@ const notificationButton = document.getElementById('notificationButton');
         });
     });
 
+//Notifications
+const appointments = <?php echo json_encode($appointments); ?>;
+
+document.addEventListener('DOMContentLoaded', () => {
+    const notificationButton = document.getElementById('notificationButton');
+    const notificationDropdown = document.getElementById('notificationDropdown');
+    const notificationBadge = document.getElementById('notificationBadge');
+    const notificationList = document.getElementById('notificationList');
+    const markReadButton = document.getElementById('markReadButton');
+    
+    // Modal Elements
+    const notificationModal = document.getElementById('notificationModal');
+    const modalContent = document.getElementById('modalContent');
+    const closeModal = document.getElementById('closeModal');
+
+    let notifications = appointments.map(appointment => ({
+        text: `Reminder: You have an appointment on ${appointment.appointment_date} at ${appointment.appointment_time}.`,
+        read: false
+    }));
+
+    function updateNotifications() {
+        if (notifications.length > 0) {
+            notificationBadge.textContent = notifications.filter(n => !n.read).length;
+            notificationBadge.classList.remove('hidden');
+            markReadButton.classList.remove('hidden');
+
+            notificationList.innerHTML = notifications.map((notif, index) => 
+                `<li class="p-2 rounded cursor-pointer ${notif.read ? 'bg-gray-200' : 'bg-gray-100 hover:bg-gray-200'}" data-index="${index}">
+                    ${notif.text}
+                </li>`
+            ).join('');
+
+            // Add event listeners to open modal on click
+            document.querySelectorAll('#notificationList li').forEach(item => {
+                item.addEventListener('click', () => {
+                    const index = item.getAttribute('data-index');
+                    notifications[index].read = true;
+                    modalContent.textContent = notifications[index].text;
+                    notificationModal.classList.remove('hidden'); // Show modal
+                    
+                    notificationDropdown.classList.add('hidden'); // Hide notification dropdown
+                    updateNotifications();
+                });
+            });
+        } else {
+            notificationBadge.classList.add('hidden');
+            markReadButton.classList.add('hidden');
+            notificationList.innerHTML = `<li class="text-gray-500">No new notifications</li>`;
+        }
+    }
+
+    // Show or hide the dropdown
+    notificationButton.addEventListener('click', () => {
+        notificationDropdown.classList.toggle('hidden');
+    });
+
+    // Mark all notifications as read
+    markReadButton.addEventListener('click', () => {
+        notifications.forEach(n => n.read = true);
+        updateNotifications();
+    });
+
+    // Close modal event
+    closeModal.addEventListener('click', () => {
+        notificationModal.classList.add('hidden');
+    });
+
+    updateNotifications();
+});
+
+//Highlighted Appointment Schedule Calendar
+    function showTooltip(element, text) {
+        let tooltip = element.querySelector('.tooltip');
+        tooltip.innerHTML = text;
+        tooltip.classList.remove('hidden');
+    }
+
+    function hideTooltip(element) {
+        let tooltip = element.querySelector('.tooltip');
+        tooltip.classList.add('hidden');
+    }
 </script>
 <script src="../path/to/flowbite/dist/flowbite.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>

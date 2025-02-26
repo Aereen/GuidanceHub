@@ -143,89 +143,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </div>
 </section>
 
-<!--REFERRAL FORM-->
-<section id="referral" class="container px-6 mx-auto my-10">
-    <h4 class="p-3 text-2xl font-semibold text-center text-white bg-teal-500 rounded-lg">
-        REFERRAL SYSTEM
-    </h4>
-
-    <div class="grid gap-6 p-6 my-4 bg-white border-2 rounded-lg dark:border-gray-300 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-        <!-- Faculty Section -->
-        <div class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow">
-            <h3 class="text-xl font-bold text-gray-700">Faculty</h3>
-            <p class="text-gray-600">The Faculty will fill out an Online Referral Form indicating the reason why the student is being referred.</p>
-        </div>
-
-        <!-- Guidance Counselor Section -->
-        <div class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow">
-            <h3 class="text-xl font-bold text-gray-700">Guidance Counselor</h3>
-            <p class="text-gray-600">The Guidance Counselor will contact the referred student to schedule a counseling session.</p>
-        </div>
-
-        <!-- Student Section -->
-        <div class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow">
-            <h3 class="text-xl font-bold text-gray-700">Student</h3>
-            <p class="text-gray-600">The referred student will meet the guidance counselor through an online platform for an initial interview/counseling and/or psychological assessment if necessary.</p>
-        </div>
-    </div>
-
-    <!-- Button to open the modal -->
-    <div class="flex justify-center mt-6">
-        <button onclick="toggleModal()" class="px-6 py-2 text-lg font-semibold text-white bg-blue-500 rounded-md hover:bg-blue-600">
-            Referral Form
-        </button>
-    </div>
-
-    <!-- Modal -->
-    <div id="referralModal" class="fixed inset-0 z-50 flex items-center justify-center hidden bg-gray-800 bg-opacity-50">
-        <div class="relative flex w-full max-w-2xl p-6 bg-white rounded-lg shadow-lg">
-            <!-- Left side: Referral Form -->
-            <div class="w-1/2 pr-4">
-                <h2 class="text-2xl font-semibold text-center text-gray-700">Referral Form</h2>
-                <form action="submit_referral.php" method="POST" class="mt-4">
-                    <div class="mb-4">
-                        <label for="student_name" class="block text-sm font-medium text-gray-700">Student Name</label>
-                        <input type="text" id="student_name" name="student_name" class="w-full p-2 mt-1 border border-gray-300 rounded-md" required>
-                    </div>
-                    <div class="mb-4">
-                        <label for="student_id" class="block text-sm font-medium text-gray-700">Student ID</label>
-                        <input type="text" id="student_id" name="student_id" class="w-full p-2 mt-1 border border-gray-300 rounded-md" required>
-                    </div>
-                    <div class="mb-4">
-                        <label for="reason" class="block text-sm font-medium text-gray-700">Reason for Referral</label>
-                        <textarea id="reason" name="reason" rows="4" class="w-full p-2 mt-1 border border-gray-300 rounded-md" required></textarea>
-                    </div>
-                    <div class="flex justify-center">
-                        <button type="submit" class="px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600">
-                            Submit Referral
-                        </button>
-                    </div>
-                </form>
-                <div class="flex justify-center mt-4">
-                    <button onclick="toggleModal()" class="text-gray-500 hover:text-gray-700">Close</button>
-                </div>
-            </div>
-            
-            <!-- Right side: Counseling Indicators -->
-            <div class="w-1/2 pl-4 border-l border-gray-300">
-                <h3 class="text-xl font-semibold text-gray-700">Indicators for Counseling</h3>
-                <ul class="mt-2 text-sm text-gray-600 list-disc list-inside">
-                    <li>Absenteeism</li>
-                    <li>Lack of energy and enthusiasm for studies</li>
-                    <li>Abrasive/Aggressive behavior</li>
-                    <li>Sleepiness in class</li>
-                    <li>Marked changes in personal hygiene</li>
-                    <li>Low self-esteem</li>
-                    <li>Marked changes in academic performance</li>
-                    <li>Talking to self</li>
-                    <li>Suicidal attempts</li>
-                    <li>Excessive dependency on others</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</section>
-
 <!--ABOUT-->
 <section id="about" class="container px-4 mx-auto my-10">
     <div class="grid items-center grid-cols-1 gap-8 my-2 md:grid-cols-2">
@@ -320,13 +237,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 </section>
 
 <!--SCHEDULING CALL TO ACTION-->
-<section class="flex items-center justify-center">
-    <div class="p-8 text-center rounded-lg shadow-lg">
+<section class="flex items-center justify-center w-full bg-yellow-300">
+    <div class="p-8 text-center">
         <h2 class="mb-4 text-3xl font-semibold text-gray-800">Schedule Your Counseling Appointment</h2>
-            <p class="mb-6 text-lg text-gray-600">Taking the first step toward mental well-being is easy. Book an appointment with our counselors today.</p>
+        <p class="mb-6 text-lg text-gray-600">
+            Taking the first step toward mental well-being is easy. Book an appointment with our counselors today.
+        </p>
 
         <!-- Call to Action Button -->
-        <a href="/src/student/appointment.php" class="inline-block px-6 py-3 text-xl text-white transition duration-300 bg-blue-600 rounded-lg hover:bg-blue-700">Book Your Appointment</a>
+        <button onclick="redirectToAppointment()" class="inline-block px-6 py-3 text-xl text-white transition duration-300 bg-blue-600 rounded-lg hover:bg-blue-700">
+            Book Your Appointment
+        </button>
 
         <!-- Optional: Contact Details -->
         <div class="mt-6 text-sm text-gray-500">
@@ -439,11 +360,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             });
         });
 
-    //Toggle for Guidance Staff Modal
-        function toggleGuidanceStaffModal() {
+//Call to Action authentication
+function redirectToAppointment() {
+    // Simulating authentication check
+        var isAuthenticated = sessionStorage.getItem("authenticated"); // You can replace this with an actual authentication check
+
+        if (isAuthenticated) {
+            // Redirect to the appointment page if the user is authenticated
+            window.location.href = "/src/student/appointment.php";
+        } else {
+            // Redirect to login page if the user is not authenticated
+            window.location.href = "/src/ControlledData/login.php";
+        }
+    }
+
+//Toggle for Guidance Staff Modal
+    function toggleGuidanceStaffModal() {
         const modal = document.getElementById('guidanceStaffModal');
         modal.classList.toggle('hidden');
     }
-    </script>
+</script>
 </body>
 </html>

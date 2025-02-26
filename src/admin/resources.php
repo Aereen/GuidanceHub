@@ -144,8 +144,8 @@ if (isset($_GET['logout'])) {
 
 <!--CONTENT-->
 <div class="p-6 mt-10 sm:ml-64">
-        <h2 class="mb-6 text-4xl font-bold">Add Resource</h2>
-        
+    <h2 class="mb-6 text-4xl font-bold">Resources Management</h2>
+        <h3 class="mb-6 text-2xl font-bold">Library</h3>
         <!-- Form for Adding Resources -->
         <form action="#" method="post" class="space-y-4">
             <div class="flex flex-col space-y-2">
