@@ -12,22 +12,7 @@ if (!$con) {
 $sql = "SELECT id, title, content, published_at FROM announcement ORDER BY published_at DESC";
 $result = $con->query($sql);
 
-//Referral System
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $student_id = $_POST['student_id'];
-    $reason = $_POST['reason'];
-    $referral_date = date('Y-m-d'); // Current date
 
-    // SQL query to insert referral data
-    $sql = "INSERT INTO referrals (student_id, student_name, counselor_name, referral_date, reason) 
-            VALUES ('$student_id', '$name', '$counselor_name', '$referral_date', '$reason')";
-
-    if (mysqli_query($conn, $sql)) {
-        echo "<script>alert('Referral submitted successfully');</script>";
-    } else {
-        echo "Error: " . $sql . "<br>" . mysqli_error($conn);
-    }
-}
 ?>
 
 
@@ -43,8 +28,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <script src="https://kit.fontawesome.com/95c10202b4.js" crossorigin="anonymous"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 
-
-
     <style>
         body::-webkit-scrollbar {
             width: 15px; }
@@ -59,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <body class="font-sans antialiased bg-gray-100">
 
 <!--HEADER-->
-<header class="fixed top-0 left-0 z-50 w-full py-4 shadow-md" style="background-color: #1EB0A9">
+<header class="fixed top-0 left-0 z-50 w-full py-4 shadow-xl" style="background-color: #1EB0A9">
     <div class="container flex items-center justify-between px-4 mx-auto md:px-8">
         <!-- Logo -->
         <div class="flex items-center space-x-3">
@@ -78,9 +61,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <!-- Navigation Menu -->
         <nav id="menu" class="hidden md:flex">
             <ul class="flex flex-col space-y-2 text-lg font-semibold text-white md:flex-row md:space-x-10 md:space-y-0">
-                <li><a href="#home" class="hover:text-cyan-950 scroll-link">Home</a></li>
-                <li><a href="#services" class="hover:text-cyan-950 scroll-link">Services</a></li>
-                <li><a href="#about" class="hover:text-cyan-950 scroll-link">About</a></li>
+                <li><a href="index.php" class="hover:text-cyan-950">Home</a></li>
+                <li><a href="/src/ControlledData/appointment.php" class="hover:text-cyan-950">Appointment</a></li>
+                <li><a href="/src/ControlledData/referral.php" class="hover:text-cyan-950">Referral</a></li>
+                <li><a href="#about" class="hover:text-cyan-950">About</a></li>  
                 <li>
                     <a href="/src/ControlledData/login.php" 
                     class="px-4 py-2 text-white rounded-md bg-cyan-800 hover:bg-cyan-950">Login</a>
@@ -101,8 +85,68 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </div>
 </section>
 
+<main>
+
+<!--INFORMATION-->
+<section class="bg-yellow-300 h-80">
+    <div class="grid grid-cols-2 gap-4">
+        <div class="flex items-center justify-center w-full p-10 text-4xl font-bold text-center text-gray-800">GuidanceHub: Center for Guidance and Counseling Services</div>
+        <div class="p-10 text-lg font-medium text-blue-900"> An integral part of the university which commits to develop and deliver comprehensive guidance 
+            programs that will holistically empower students with good moral values and right attitudes geared toward 
+            academic excellence and remarkable achievements for the good of our society.</div>
+    </div>
+    <div class="flex justify-center mt-5">
+        <a href="https://www.umak.edu.ph/student/guidance/" class="w-48 px-3 text-lg font-medium text-center text-white border rounded-lg bg-cyan-800 border-cyan-800 justify-items-center focus:ring-6 focus:outline-none dark:focus:ring-cyan-800 hover:bg-transparent hover:text-cyan-800">
+            Learn More
+        </a>
+    </div>
+</section>
+
+<!-- SERVICES -->
+<section class="p-10">
+<h2 class="text-4xl font-bold text-center underline underline-offset-4 decoration-yellow-400">OUR SERVICES</h2>
+    <p class="p-5 text-xl text-center text-gray-600">
+        Facilitates students' personal, social, spiritual, and academic development, and career planning. <br> 
+        Promotes holistic growth through responsive guidance and counseling services aligned with the university’s vision-mission.
+    </p>
+    <div class="grid grid-cols-1 gap-8 p-5 md:grid-cols-2">
+        <!-- Service Card -->
+        <div class="relative overflow-hidden rounded-lg shadow-lg">
+            <img src="path/to/counseling-image.jpg" alt="Counseling" class="object-cover w-full h-48">
+            <div class="absolute inset-0 flex flex-col justify-end p-4 bg-black bg-opacity-50">
+                <h3 class="text-lg font-bold text-white">Counseling Appointment</h3>
+                <a href="/src/ControlledData/appointment.php" class="inline-block px-3 py-2 mt-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">Schedule Appointment</a>
+            </div>
+        </div>
+        
+        <div class="relative overflow-hidden rounded-lg shadow-lg">
+            <img src="path/to/referral-image.jpg" alt="Referral" class="object-cover w-full h-48">
+            <div class="absolute inset-0 flex flex-col justify-end p-4 bg-black bg-opacity-50">
+                <h3 class="text-lg font-bold text-white">Referral System</h3>
+                <a href="/src/ControlledData/referral.php" class="inline-block px-3 py-2 mt-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">Refer in Need</a>
+            </div>
+        </div>
+        
+        <div class="relative overflow-hidden rounded-lg shadow-lg">
+            <img src="path/to/inventory-image.jpg" alt="Inventory" class="object-cover w-full h-48">
+            <div class="absolute inset-0 flex flex-col justify-end p-4 bg-black bg-opacity-50">
+                <h3 class="text-lg font-bold text-white">Individual Inventory</h3>
+                <a href="/src/ControlledData/information.php" class="inline-block px-3 py-2 mt-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">Answer Here</a>
+            </div>
+        </div>
+
+        <div class="relative overflow-hidden rounded-lg shadow-lg">
+            <img src="path/to/assessment-image.jpg" alt="Assessment" class="object-cover w-full h-48">
+            <div class="absolute inset-0 flex flex-col justify-end p-4 bg-black bg-opacity-50">
+                <h3 class="text-lg font-bold text-white">Assessment</h3>
+                <a href="/src/ControlledData/assessment.php" class="inline-block px-3 py-2 mt-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">Assess Yourself</a>
+            </div>
+        </div>
+    </div>
+</section>
+
 <!--ARTICLES-->
-<article class="container px-4 mx-auto my-5">
+<article class="container px-4 mx-auto my-10">
     <h1 class="text-4xl font-bold text-center underline decoration-yellow-400">Publications, Updates and More!</h1>
     <div class="grid grid-cols-1 gap-6 mt-8 md:grid-cols-2 lg:grid-cols-4">
         <?php if ($result && $result->num_rows > 0): ?>
@@ -122,30 +166,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </div>
 </article>
 
-<!--SERVICES-->
-<section id="services" class="py-5">
-    <div class="container mx-auto text-center">
-        <h2 class="mb-5 text-4xl font-bold underline max-sm:text-4xl decoration-yellow-400">SERVICES</h2>
-            <div class="grid gap-8 md:grid-cols-3">
-                <div class="p-6 bg-white rounded-lg shadow-md">
-                    <p>Facilitates and helps students in the achievement of their personal, social, spiritual and academic 
-                        development as well as the acquisition of relevant knowledge and skills in career planning.</p>
-                </div>
-                <div class="p-6 bg-white rounded-lg shadow-md">
-                    <p>Promotes holistic development and helps students to become well-adjusted individuals through 
-                        responsive guidance and counseling services in line with the year level thrust and the university’s vision-mission.</p>
-                </div>
-                <div class="p-6 bg-white rounded-lg shadow-md">
-                    <p>Creates preventive/proactive guidance programs that lead to the enrichment and satisfaction of students 
-                        learning and experiences necessary for a successful and well-balanced student life.</p>
-                </div>
-            </div>
-    </div>
-</section>
-
 <!--ABOUT-->
-<section id="about" class="container px-4 mx-auto my-10">
-    <div class="grid items-center grid-cols-1 gap-8 my-2 md:grid-cols-2">
+<section id="about" class="container px-4 mx-auto my-5">
+    <div class="grid items-center grid-cols-1 gap-8 my-5 md:grid-cols-2">
             <img 
                 src="/src/images/CGCS-About.jpg" 
                 alt="GuidanceHub-AboutUs"  
@@ -160,11 +183,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </p>
                 <a 
                     href="https://www.facebook.com/UMakCGCS" 
-                    class="px-6 py-3 mx-3 text-white rounded-full bg-cyan-800 hover:bg-cyan-950">
+                    class="px-6 py-3 mx-3 text-lg font-medium text-center text-white border rounded-lg w-55 bg-cyan-800 border-cyan-800 justify-items-center focus:ring-6 focus:outline-none dark:focus:ring-cyan-800 hover:bg-transparent hover:text-cyan-800">
                     More Details
                 </a>
                 <a href="javascript:void(0);" onclick="toggleGuidanceStaffModal()" 
-            class="px-6 py-3 mx-3 text-white rounded-full bg-cyan-800 hover:bg-cyan-950">
+            class="px-6 py-3 mx-3 text-lg font-medium text-center text-white border rounded-lg w-55 bg-cyan-800 border-cyan-800 justify-items-center focus:ring-6 focus:outline-none dark:focus:ring-cyan-800 hover:bg-transparent hover:text-cyan-800">
                 GuidanceHub Staff
             </a>
 
@@ -210,23 +233,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </div>
     </div>
     
-    <div class="flex flex-wrap justify-between w-3/4 p-6 m-4 mx-auto bg-white rounded-lg shadow-lg">
+    <div class="flex justify-between w-3/4 p-6 mx-auto bg-white rounded-lg shadow-lg my-14">
         <div class="w-1/3 px-4 text-center">
-            <h2 class="text-3xl font-bold text-gray-800">Vision</h2>
-            <p class="mt-2 text-gray-600">
+            <h2 class="inline-block pb-2 text-3xl font-bold text-gray-800 border-b-4 border-yellow-400">Vision</h2>
+            <p class="mt-4 text-gray-600">
                 We envision the Center to be the heart of the university where every student shall be empowered in realizing their fullest educational potential as lifelong learners with good moral values who are committed to excellence.
             </p>
         </div>
         
         <div class="w-1/3 px-4 text-center">
-            <h2 class="text-3xl font-bold text-gray-800">Mission</h2>
-            <p class="mt-2 text-gray-600">
+            <h2 class="inline-block pb-2 text-3xl font-bold text-gray-800 border-b-4 border-yellow-400">Mission</h2>
+            <p class="mt-4 text-gray-600">
                 The Center shall develop a comprehensive program that will provide life skills enhancement and psychological support that will equip the students to be productive, well-balanced, responsible and competent members of society. The Center shall promote and strengthen the holistic development of students.
             </p>
         </div>
         
         <div class="w-1/3 px-4 text-center">
-            <h2 class="text-3xl font-bold text-gray-800">Core Values</h2>
+            <h2 class="inline-block pb-2 text-3xl font-bold text-gray-800 border-b-4 border-yellow-400">Core Values</h2>
             <ul class="mt-4 space-y-2">
                 <li class="font-semibold text-gray-600">❤️ Love</li>
                 <li class="font-semibold text-gray-600">📚 Wisdom</li>
@@ -236,28 +259,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </div>
 </section>
 
-<!--SCHEDULING CALL TO ACTION-->
-<section class="flex items-center justify-center w-full bg-yellow-300">
-    <div class="p-8 text-center">
-        <h2 class="mb-4 text-3xl font-semibold text-gray-800">Schedule Your Counseling Appointment</h2>
-        <p class="mb-6 text-lg text-gray-600">
-            Taking the first step toward mental well-being is easy. Book an appointment with our counselors today.
-        </p>
-
-        <!-- Call to Action Button -->
-        <button onclick="redirectToAppointment()" class="inline-block px-6 py-3 text-xl text-white transition duration-300 bg-blue-600 rounded-lg hover:bg-blue-700">
-            Book Your Appointment
-        </button>
-
-        <!-- Optional: Contact Details -->
-        <div class="mt-6 text-sm text-gray-500">
-            <p>If you need assistance, call us at <strong>(123) 456-7890</strong> or email <strong>support@counseling.com</strong></p>
-        </div>
+<!--CONTACT INFORMATION-->
+<section class="bg-gray-100 p-7">
+    <div class="max-w-4xl mx-auto text-center">
+        <h2 class="text-3xl font-bold text-gray-800">Contact Information</h2>
+            <p class="text-xl font-semibold text-gray-700">Prof. Ryan C. Villanueva, MAEd, RGC, LPT</p>
+            <p class="text-lg text-gray-600">Director</p>
+            <p class="mt-2 text-lg text-gray-600">
+                E-mail: <a href="mailto:gcc@umak.edu.ph" class="text-blue-600 hover:underline">gcc@umak.edu.ph</a>
+            </p>
+            <p class="mt-4 text-lg text-gray-700">
+                <strong>Office Location (Temporary):</strong> <br> 
+                8th Floor, Health and Physical Science Building
+            </p>
     </div>
 </section>
 
+
+</main>
+
 <!--FOOTER-->
-<footer class="w-full" style="background-color: #1EB0A9">
+<footer class="w-full mt-5" style="background-color: #1EB0A9">
     <div class="w-full max-w-screen-xl p-4 py-6 mx-auto lg:py-8 dark:text-gray-800">
         <div class="md:flex md:justify-between">
             <div class="mb-6 md:mb-0">
@@ -359,20 +381,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 }
             });
         });
-
-//Call to Action authentication
-function redirectToAppointment() {
-    // Simulating authentication check
-        var isAuthenticated = sessionStorage.getItem("authenticated"); // You can replace this with an actual authentication check
-
-        if (isAuthenticated) {
-            // Redirect to the appointment page if the user is authenticated
-            window.location.href = "/src/student/appointment.php";
-        } else {
-            // Redirect to login page if the user is not authenticated
-            window.location.href = "/src/ControlledData/login.php";
-        }
-    }
 
 //Toggle for Guidance Staff Modal
     function toggleGuidanceStaffModal() {

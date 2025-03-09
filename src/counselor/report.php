@@ -175,19 +175,19 @@ if (isset($_GET['logout'])) {
             <!-- Total Students Served -->
             <div class="p-6 bg-white rounded-lg shadow">
                 <h2 class="text-2xl font-semibold text-gray-700">Students Served</h2>
-                <p class="mt-4 text-4xl font-bold text-green-500" id="students-served"></p>
+                <p class="mt-4 text-4xl font-bold text-green-500"></p>
                 <p class="mt-2 text-sm text-gray-500">in the past year</p>
             </div>
             <!-- Sessions Conducted -->
             <div class="p-6 bg-white rounded-lg shadow">
                 <h2 class="text-2xl font-semibold text-gray-700">Sessions Conducted</h2>
-                <p class="mt-4 text-4xl font-bold text-blue-500" id="sessions-conducted"></p>
+                <p class="mt-4 text-4xl font-bold text-blue-500"></p>
                 <p class="mt-2 text-sm text-gray-500">total sessions</p>
             </div>
             <!-- Active Cases -->
             <div class="p-6 bg-white rounded-lg shadow">
                 <h2 class="text-2xl font-semibold text-gray-700">Active Cases</h2>
-                <p class="mt-4 text-4xl font-bold text-red-500" id="active-cases"></p>
+                <p class="mt-4 text-4xl font-bold text-red-500"></p>
                 <p class="mt-2 text-sm text-gray-500">currently in progress</p>
             </div>
         </div>
@@ -199,9 +199,10 @@ if (isset($_GET['logout'])) {
                 <canvas id="analytics-chart"></canvas>
             </div>
         </div>
+
         <!-- Detailed Report Table -->
         <div class="p-6 mt-10 bg-white rounded-lg shadow">
-            <h2 class="mb-6 text-2xl font-semibold text-gray-700">Detailed Reports</h2>
+            <h2 class="mb-6 text-2xl font-semibold text-gray-700">Session Overview</h2>
             <table class="min-w-full border border-collapse border-gray-200">
                 <thead>
                     <tr class="bg-gray-50">
@@ -211,7 +212,7 @@ if (isset($_GET['logout'])) {
                         <th class="px-4 py-2 text-sm font-semibold text-left text-gray-600 border border-gray-300">Status</th>
                     </tr>
                 </thead>
-                <tbody id="report-table">
+                <tbody>
                     <!-- JavaScript will populate this -->
                 </tbody>
             </table>
@@ -427,63 +428,6 @@ const notificationButton = document.getElementById('notificationButton');
             searchIcon.classList.add('fa-magnifying-glass'); // Revert to search icon
         });
     });
-
-// Fake Data
-        const stats = {
-            studentsServed: Math.floor(Math.random() * (200 - 100 + 1)) + 100,
-            sessionsConducted: Math.floor(Math.random() * (200 - 50 + 1)) + 50,
-            activeCases: Math.floor(Math.random() * (50 - 10 + 1)) + 10,
-        };
-
-        const reports = [
-            { name: "John Doe", issue: "Stress", status: "Resolved" },
-            { name: "Jane Smith", issue: "Anxiety", status: "Ongoing" },
-            { name: "Robert Brown", issue: "Family Issues", status: "Resolved" },
-            { name: "Emily Johnson", issue: "Bullying", status: "Ongoing" },
-        ];
-
-        // Populate Stats
-        document.getElementById("students-served").textContent = stats.studentsServed;
-        document.getElementById("sessions-conducted").textContent = stats.sessionsConducted;
-        document.getElementById("active-cases").textContent = stats.activeCases;
-
-        // Populate Report Table
-        const tableBody = document.getElementById("report-table");
-        reports.forEach((report, index) => {
-            const row = document.createElement("tr");
-            row.className = "border-t";
-
-            row.innerHTML = `
-                <td class="px-4 py-2 text-gray-600 border border-gray-300">${index + 1}</td>
-                <td class="px-4 py-2 text-gray-600 border border-gray-300">${report.name}</td>
-                <td class="px-4 py-2 text-gray-600 border border-gray-300">${report.issue}</td>
-                <td class="px-4 py-2 text-gray-600 border border-gray-300">${report.status}</td>
-            `;
-
-            tableBody.appendChild(row);
-        });
-
-        // Chart.js Implementation
-        const ctx = document.getElementById('analytics-chart').getContext('2d');
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Students Served', 'Sessions Conducted', 'Active Cases'],
-                datasets: [{
-                    data: [stats.studentsServed, stats.sessionsConducted, stats.activeCases],
-                    backgroundColor: ['#22c55e', '#3b82f6', '#ef4444'],
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    },
-                },
-            },
-        });
 </script>
 <script src="../path/to/flowbite/dist/flowbite.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>

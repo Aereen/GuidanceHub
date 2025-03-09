@@ -14,12 +14,25 @@ try {
     die("Could not connect to the database $dbname :" . $e->getMessage());
 }
 
-// Query to get all appointments
-$stmt = $pdo->prepare("SELECT * FROM appointments");
+// Search functionality
+$searchQuery = "";
+$params = [];
+if (!empty($_GET['search'])) {
+    $searchQuery = " WHERE student_name LIKE :search OR student_id LIKE :search OR referrer_name LIKE :search";
+    $params[':search'] = "%" . $_GET['search'] . "%";
+}
+
+// Fetch referrals with or without search
+$sql = "SELECT * FROM referrals" . $searchQuery; // Removed ORDER BY
+
+$stmt = $pdo->prepare($sql);
+
+foreach ($params as $key => $value) {
+    $stmt->bindValue($key, $value, PDO::PARAM_STR);
+}
+
 $stmt->execute();
-$appointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-
+$referrals = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Check if the user is logged in
 if (!isset($_SESSION['id_number'])) {
@@ -203,97 +216,57 @@ if (isset($_GET['logout'])) {
 
 <!--CONTENT HERE-->
 <section class="p-4 mt-12 sm:ml-64">
-<h2 class="p-3 text-4xl font-bold tracking-tight"><?php echo "Welcome, " . $_SESSION['name'] . "!<br>" ?></h2>
-    <div class="px-4 py-3 mx-auto max-w-7xl">
-        <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
-            <!-- Total Students Served -->
-            <div class="p-6 bg-white rounded-lg shadow">
-                <h2 class="text-2xl font-semibold text-gray-700">Students Served</h2>
-                <!-- <p class="mt-4 text-4xl font-bold text-green-500" id="students-served"></p> -->
-                <p class="mt-2 text-sm text-gray-500">in the past year</p>
-            </div>
-            <!-- Sessions Conducted -->
-            <div class="p-6 bg-white rounded-lg shadow">
-                <h2 class="text-2xl font-semibold text-gray-700">Sessions Conducted</h2>
-                <!-- <p class="mt-4 text-4xl font-bold text-blue-500" id="sessions-conducted"></p> -->
-                <p class="mt-2 text-sm text-gray-500">total sessions</p>
-            </div>
-            <!-- Active Cases -->
-            <div class="p-6 bg-white rounded-lg shadow">
-                <h2 class="text-2xl font-semibold text-gray-700">Active Cases</h2>
-                <!-- <p class="mt-4 text-4xl font-bold text-red-500" id="active-cases"></p> -->
-                <p class="mt-2 text-sm text-gray-500">currently in progress</p>
-            </div>
-        </div>
+        <div class="max-w-6xl p-6 mx-auto bg-white rounded-lg shadow-lg">
+            <h1 class="mb-4 text-2xl font-bold text-gray-800">Referrals Management</h1>
 
-    <!--UPCOMING SESSIONS-->
-        <div class="p-6 mt-10 bg-white rounded-lg shadow">
-            <h2 class="mb-3 text-2xl font-semibold text-gray-700">Appointment Overview</h2>
-                <div class="col-span-1 p-5 lg:col-span-3 "> 
-                    <table class="w-full table-auto">
-                        <thead class="text-white bg-gray-800">
-                            <tr>
-                                <th class="px-4 py-3 text-left">#</th>
-                                <th class="px-4 py-3 text-left">Student Name</th>
-                                <th class="px-4 py-3 text-left">Student Number</th>
-                                <th class="px-4 py-3 text-left">Date</th>
-                                <th class="px-4 py-3 text-left">Time</th>
-                                <th class="px-4 py-3 text-left">Type</th>
-                                <th class="px-4 py-3 text-left">Status</th>
-                            </tr>
-                        </thead>
-                                <tbody>
-                                    <?php if (!empty($appointments)): ?>
-                                        <?php foreach ($appointments as $appointment): ?>
-                                            <tr class="border-b hover:bg-gray-100">
-                                                <td class="px-4 py-3"><?= htmlspecialchars($appointment['id']) ?></td>
-                                                <td class="px-4 py-3"><?= htmlspecialchars($appointment['name']) ?></td>
-                                                <td class="px-4 py-3"><?= htmlspecialchars($appointment['id_number']) ?></td>
-                                                <td class="px-4 py-3"><?= htmlspecialchars($appointment['appointment_date']) ?></td>
-                                                <td class="px-4 py-3"><?= htmlspecialchars($appointment['appointment_time']) ?></td>
-                                                <td class="px-4 py-3"><?= htmlspecialchars($appointment['appointment_type']) ?></td>
-                                                <td class="px-4 py-3"><?= htmlspecialchars($appointment['status']) ?></td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    <?php else: ?>
-                                        <tr>
-                                            <td colspan="5" class="px-4 py-3 text-center text-gray-600">No appointments scheduled.</td>
-                                        </tr>
-                                    <?php endif; ?>
-                                </tbody>
-                    </table>
-                </div>
-            <h2 class="mb-3 text-2xl font-semibold text-gray-700">Referral Overview</h2>
-                <div class="col-span-1 p-5 lg:col-span-3 "> 
-                    <table class="w-full table-auto">
-                        <thead class="text-white bg-gray-800">
-                            <tr>
-                                <th class="px-4 py-3 text-left">#</th>
-                                <th class="px-4 py-3 text-left">Ticket ID</th>
-                                <th class="px-4 py-3 text-left">Student Name</th>
-                                <th class="px-4 py-3 text-left">Student ID</th>
-                                <th class="px-4 py-3 text-left">Reason</th>
-                                <th class="px-4 py-3 text-left">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php if (!empty($referrals)): ?>
-                                <?php foreach ($referrals as $row): ?>
-                                    <tr class="hover:bg-gray-100">
-                                        <td class="px-4 py-3"><?= htmlspecialchars($row['id']) ?></td>
-                                        <td class="px-4 py-3"><?= htmlspecialchars($row['ticket_id']) ?></td></td>
-                                        <td class="px-4 py-3"><?= htmlspecialchars($row['student_name']) ?></td>
-                                        <td class="px-4 py-3"><?= htmlspecialchars($row['student_id']) ?></td>
-                                        <td class="px-4 py-3"><?= htmlspecialchars($row['reason']) ?></td>
-                                        <td class="px-4 py-3"><?= htmlspecialchars($row['status']) ?></td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            <?php else: ?>
-                                <tr>
-                                    <td colspan="10" class="p-2 text-center text-gray-500 border">No referrals found.</td>
+            <!-- Search Bar -->
+            <form method="GET" class="flex mb-4">
+                <input type="text" name="search" placeholder="Search referrals..." class="w-1/3 p-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                <button type="submit" class="px-4 py-2 ml-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600">Search</button>
+            </form>
+
+            <!-- Referrals Table -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-gray-900">
+                    <thead class="text-sm text-gray-900 uppercase bg-gray-100">
+                        <tr class="text-center">
+                            <th class="p-2 border">Ticket ID</th>
+                            <th class="p-2 border">Student Name</th>
+                            <th class="p-2 border">Student ID</th>
+                            <th class="p-2 border">College</th>
+                            <th class="p-2 border">Program</th>
+                            <th class="p-2 border">Referrer Name</th>
+                            <th class="p-2 border">Position</th>
+                            <th class="p-2 border">Department</th>
+                            <th class="p-2 border">Reason</th>
+                            <th class="p-2 border">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (!empty($referrals)): ?>
+                            <?php foreach ($referrals as $row): ?>
+                                <tr class="hover:bg-gray-100">
+                                    <td class="p-2 text-center border"><?= htmlspecialchars($row['ticket_id']) ?></td>
+                                    <td class="p-2 border"><?= htmlspecialchars($row['student_name']) ?></td>
+                                    <td class="p-2 border"><?= htmlspecialchars($row['student_id']) ?></td>
+                                    <td class="p-2 border"><?= htmlspecialchars($row['college']) ?></td>
+                                    <td class="p-2 border"><?= htmlspecialchars($row['program']) ?></td>
+                                    <td class="p-2 border"><?= htmlspecialchars($row['referrer_name']) ?></td>
+                                    <td class="p-2 border"><?= htmlspecialchars($row['position']) ?></td>
+                                    <td class="p-2 border"><?= htmlspecialchars($row['department']) ?></td>
+                                    <td class="p-2 border"><?= htmlspecialchars($row['reason']) ?></td>
+                                    <td class="p-2 text-center border">
+                                        <a href="edit_referral.php?id=<?= $row['ticket_id'] ?>" class="text-blue-600 hover:underline">Edit</a> | 
+                                        <a href="delete_referral.php?id=<?= $row['ticket_id'] ?>" class="text-red-600 hover:underline" onclick="return confirm('Are you sure?');">Delete</a>
+                                    </td>
                                 </tr>
-                            <?php endif; ?>
-                        </tbody>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="10" class="p-2 text-center text-gray-500 border">No referrals found.</td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -508,63 +481,6 @@ const notificationButton = document.getElementById('notificationButton');
         });
     });
 
-
-// Fake Data
-        const stats = {
-            studentsServed: Math.floor(Math.random() * (200 - 100 + 1)) + 100,
-            sessionsConducted: Math.floor(Math.random() * (200 - 50 + 1)) + 50,
-            activeCases: Math.floor(Math.random() * (50 - 10 + 1)) + 10,
-        };
-
-        const reports = [
-            { name: "John Doe", issue: "Stress", status: "Resolved" },
-            { name: "Jane Smith", issue: "Anxiety", status: "Ongoing" },
-            { name: "Robert Brown", issue: "Family Issues", status: "Resolved" },
-            { name: "Emily Johnson", issue: "Bullying", status: "Ongoing" },
-        ];
-
-        // Populate Stats
-        document.getElementById("students-served").textContent = stats.studentsServed;
-        document.getElementById("sessions-conducted").textContent = stats.sessionsConducted;
-        document.getElementById("active-cases").textContent = stats.activeCases;
-
-        // Populate Report Table
-        const tableBody = document.getElementById("report-table");
-        reports.forEach((report, index) => {
-            const row = document.createElement("tr");
-            row.className = "border-t";
-
-            row.innerHTML = `
-                <td class="px-4 py-2 text-gray-600 border border-gray-300">${index + 1}</td>
-                <td class="px-4 py-2 text-gray-600 border border-gray-300">${report.name}</td>
-                <td class="px-4 py-2 text-gray-600 border border-gray-300">${report.issue}</td>
-                <td class="px-4 py-2 text-gray-600 border border-gray-300">${report.status}</td>
-            `;
-
-            tableBody.appendChild(row);
-        });
-
-        // Chart.js Implementation
-        const ctx = document.getElementById('analytics-chart').getContext('2d');
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Students Served', 'Sessions Conducted', 'Active Cases'],
-                datasets: [{
-                    data: [stats.studentsServed, stats.sessionsConducted, stats.activeCases],
-                    backgroundColor: ['#22c55e', '#3b82f6', '#ef4444'],
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    },
-                },
-            },
-        });
 </script>
 <script src="../path/to/flowbite/dist/flowbite.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
