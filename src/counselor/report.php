@@ -22,7 +22,15 @@ if (isset($_GET['logout'])) {
         <link href="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.css"  rel="stylesheet" />
         <script src="https://kit.fontawesome.com/95c10202b4.js" crossorigin="anonymous"></script>
         <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <link href="./output.css" rel="stylesheet">   
+<style>
+    #chart-container {
+        width: 250px;
+        height: 250px;
+        margin: auto;
+        }
+    </style>
 
 </head>
 <body class="bg-gray-100">
@@ -169,54 +177,483 @@ if (isset($_GET['logout'])) {
 </aside>
 
 <!--CONTENT HERE-->
-<section class="p-4 mt-10 sm:ml-64">
-<div class="px-4 py-10 mx-auto max-w-7xl">
-        <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
-            <!-- Total Students Served -->
-            <div class="p-6 bg-white rounded-lg shadow">
-                <h2 class="text-2xl font-semibold text-gray-700">Students Served</h2>
-                <p class="mt-4 text-4xl font-bold text-green-500"></p>
-                <p class="mt-2 text-sm text-gray-500">in the past year</p>
-            </div>
-            <!-- Sessions Conducted -->
-            <div class="p-6 bg-white rounded-lg shadow">
-                <h2 class="text-2xl font-semibold text-gray-700">Sessions Conducted</h2>
-                <p class="mt-4 text-4xl font-bold text-blue-500"></p>
-                <p class="mt-2 text-sm text-gray-500">total sessions</p>
-            </div>
-            <!-- Active Cases -->
-            <div class="p-6 bg-white rounded-lg shadow">
-                <h2 class="text-2xl font-semibold text-gray-700">Active Cases</h2>
-                <p class="mt-4 text-4xl font-bold text-red-500"></p>
-                <p class="mt-2 text-sm text-gray-500">currently in progress</p>
-            </div>
-        </div>
+<section class="p-4 sm:ml-64">
+    <div class="px-4 py-10 mx-auto max-w-7xl">
 
-        <!-- Chart Section -->
-        <div class="p-6 mt-10 bg-white rounded-lg shadow">
-            <h2 class="mb-6 text-2xl font-semibold text-gray-700">Session Overview</h2>
-            <div class="relative h-80">
-                <canvas id="analytics-chart"></canvas>
-            </div>
-        </div>
+        <!--APPOINTMENT CHART-->
+        <h2 class="my-5 text-4xl font-bold text-gray-700">Appointment Overview</h2>
+            <div class="p-6 bg-white rounded-lg shadow">
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <!-- APPOINTMENTS > Status -->
+                    <div>
+                        <h2 class="p-3 my-2 text-3xl font-semibold text-center text-gray-800">Status</h2>
+                        <div class="w-[400px] h-[400px] mx-auto">
+                            <canvas id="appointmentChart"></canvas>
+                        </div>
 
-        <!-- Detailed Report Table -->
-        <div class="p-6 mt-10 bg-white rounded-lg shadow">
-            <h2 class="mb-6 text-2xl font-semibold text-gray-700">Session Overview</h2>
-            <table class="min-w-full border border-collapse border-gray-200">
-                <thead>
-                    <tr class="bg-gray-50">
-                        <th class="px-4 py-2 text-sm font-semibold text-left text-gray-600 border border-gray-300">#</th>
-                        <th class="px-4 py-2 text-sm font-semibold text-left text-gray-600 border border-gray-300">Student Name</th>
-                        <th class="px-4 py-2 text-sm font-semibold text-left text-gray-600 border border-gray-300">Issue</th>
-                        <th class="px-4 py-2 text-sm font-semibold text-left text-gray-600 border border-gray-300">Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- JavaScript will populate this -->
-                </tbody>
-            </table>
-        </div>
+                        <script>
+                            // Sample appointment status data (Replace this with dynamic PHP data if needed)
+                            const appointmentData = {
+                                "Pending": 12,
+                                "Scheduled": 15,
+                                "Completed": 20,
+                                "Cancelled": 5
+                            };
+
+                            const ctx1 = document.getElementById('appointmentChart').getContext('2d');
+                            new Chart(ctx1, {
+                                type: 'pie',
+                                data: {
+                                    labels: Object.keys(appointmentData),
+                                    datasets: [{
+                                        data: Object.values(appointmentData),
+                                        backgroundColor: [
+                                            '#FF6384', '#36A2EB', '#4BC0C0', '#FFCE56'
+                                        ]
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    plugins: {
+                                        legend: {
+                                            position: 'bottom'
+                                        }
+                                    }
+                                }
+                            });
+                        </script>
+                    </div>
+
+                    <!-- APPOINTMENTS > College -->
+                    <div>
+                        <h2 class="p-3 my-2 text-3xl font-semibold text-center text-gray-800">College/Institute</h2>
+                        <div class="w-[400px] h-[400px] mx-auto">
+                            <canvas id="collegeChart"></canvas>
+                        </div>
+
+                        <script>
+                            // Sample college distribution data (Replace this with dynamic PHP data if needed)
+                            const collegeData = {
+                                "CBFS": 30,
+                                "CCIS": 45,
+                                "CCSE": 25,
+                                "CGPP": 10,
+                                "CHK": 15,
+                                "CITE": 35,
+                                "CTM": 20,
+                                "CTHM": 18,
+                                "IOA": 12,
+                                "IAD": 22,
+                                "IIHS": 17,
+                                "ION": 14,
+                                "IOP": 11,
+                                "IOPsy": 19,
+                                "ISDNB": 9,
+                                "HSU": 27,
+                                "SOL": 8
+                            };
+
+                            const ctx2 = document.getElementById('collegeChart').getContext('2d');
+                            new Chart(ctx2, {
+                                type: 'pie',
+                                data: {
+                                    labels: Object.keys(collegeData),
+                                    datasets: [{
+                                        data: Object.values(collegeData),
+                                        backgroundColor: [
+                                            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+                                            '#FF9F40', '#D4A017', '#C71585', '#008B8B', '#4682B4',
+                                            '#DC143C', '#20B2AA', '#8A2BE2', '#7FFF00', '#D2691E',
+                                            '#32CD32', '#FF4500'
+                                        ]
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    plugins: {
+                                        legend: {
+                                            position: 'bottom'
+                                        }
+                                    }
+                                }
+                            });
+                        </script>
+                    </div>
+                </div>
+
+                    <!--APPOINTMENTS > Feelings-->
+                        <div>
+                            <h2 class="p-3 my-2 text-3xl font-semibold text-center text-gray-800">Feelings</h2>
+                                <div class="w-[500px] h-[400px] mx-auto">
+                                    <canvas id="feelingsChart"></canvas>
+                                </div>
+
+                                <script>
+                                    // Sample feelings data (Replace this with dynamic PHP data if needed)
+                                    const feelingsData = {
+                                        "Excited": 10,
+                                        "Happy": 15,
+                                        "Sad": 8,
+                                        "Scared": 5,
+                                        "Angry": 4,
+                                        "Confused": 6,
+                                        "Burned Out": 7,
+                                        "Calm": 12,
+                                        "Struggling": 9,
+                                        "Hopeful": 11,
+                                        "Need a hug": 5,
+                                        "Stuck and Unsure": 6,
+                                        "Numb": 3
+                                    };
+
+                                    const ctx3 = document.getElementById('feelingsChart').getContext('2d');
+                                    new Chart(ctx3, {
+                                        type: 'bar',
+                                        data: {
+                                            labels: Object.keys(feelingsData),
+                                            datasets: [{
+                                                label: 'Number of Responses',
+                                                data: Object.values(feelingsData),
+                                                backgroundColor: '#36A2EB'
+                                            }]
+                                        },
+                                        options: {
+                                            responsive: true,
+                                            maintainAspectRatio: false,
+                                            scales: {
+                                                y: {
+                                                    beginAtZero: true
+                                                }
+                                            },
+                                            plugins: {
+                                                legend: {
+                                                    display: false
+                                                }
+                                            }
+                                        }
+                                    });
+                                </script>
+                        </div>
+            </div>
+
+        <!--REFERRAL CHART-->
+        <h2 class="my-10 mt-5 text-4xl font-bold text-gray-700">Referral Overview</h2>
+            <div class="p-6 bg-white rounded-lg shadow">
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <!-- APPOINTMENTS > Status -->
+                    <div>
+                        <h2 class="p-3 my-2 text-3xl font-semibold text-center text-gray-800">Status</h2>
+                        <div class="w-[400px] h-[400px] mx-auto">
+                            <canvas id="appointmentChart"></canvas>
+                        </div>
+
+                        <script>
+                            // Sample appointment status data (Replace this with dynamic PHP data if needed)
+                            const appointmentData = {
+                                "Pending": 12,
+                                "Scheduled": 15,
+                                "Completed": 20,
+                                "Cancelled": 5
+                            };
+
+                            const ctx1 = document.getElementById('appointmentChart').getContext('2d');
+                            new Chart(ctx1, {
+                                type: 'pie',
+                                data: {
+                                    labels: Object.keys(appointmentData),
+                                    datasets: [{
+                                        data: Object.values(appointmentData),
+                                        backgroundColor: [
+                                            '#FF6384', '#36A2EB', '#4BC0C0', '#FFCE56'
+                                        ]
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    plugins: {
+                                        legend: {
+                                            position: 'bottom'
+                                        }
+                                    }
+                                }
+                            });
+                        </script>
+                    </div>
+
+                    <!-- APPOINTMENTS > College -->
+                    <div>
+                        <h2 class="p-3 my-2 text-3xl font-semibold text-center text-gray-800">College/Institute</h2>
+                        <div class="w-[400px] h-[400px] mx-auto">
+                            <canvas id="collegeChart"></canvas>
+                        </div>
+
+                        <script>
+                            // Sample college distribution data (Replace this with dynamic PHP data if needed)
+                            const collegeData = {
+                                "CBFS": 30,
+                                "CCIS": 45,
+                                "CCSE": 25,
+                                "CGPP": 10,
+                                "CHK": 15,
+                                "CITE": 35,
+                                "CTM": 20,
+                                "CTHM": 18,
+                                "IOA": 12,
+                                "IAD": 22,
+                                "IIHS": 17,
+                                "ION": 14,
+                                "IOP": 11,
+                                "IOPsy": 19,
+                                "ISDNB": 9,
+                                "HSU": 27,
+                                "SOL": 8
+                            };
+
+                            const ctx2 = document.getElementById('collegeChart').getContext('2d');
+                            new Chart(ctx2, {
+                                type: 'pie',
+                                data: {
+                                    labels: Object.keys(collegeData),
+                                    datasets: [{
+                                        data: Object.values(collegeData),
+                                        backgroundColor: [
+                                            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+                                            '#FF9F40', '#D4A017', '#C71585', '#008B8B', '#4682B4',
+                                            '#DC143C', '#20B2AA', '#8A2BE2', '#7FFF00', '#D2691E',
+                                            '#32CD32', '#FF4500'
+                                        ]
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    plugins: {
+                                        legend: {
+                                            position: 'bottom'
+                                        }
+                                    }
+                                }
+                            });
+                        </script>
+                    </div>
+                </div>
+
+                    <!--APPOINTMENTS > Feelings-->
+                        <div>
+                            <h2 class="p-3 my-2 text-3xl font-semibold text-center text-gray-800">Feelings</h2>
+                                <div class="w-[500px] h-[400px] mx-auto">
+                                    <canvas id="feelingsChart"></canvas>
+                                </div>
+
+                                <script>
+                                    // Sample feelings data (Replace this with dynamic PHP data if needed)
+                                    const feelingsData = {
+                                        "Excited": 10,
+                                        "Happy": 15,
+                                        "Sad": 8,
+                                        "Scared": 5,
+                                        "Angry": 4,
+                                        "Confused": 6,
+                                        "Burned Out": 7,
+                                        "Calm": 12,
+                                        "Struggling": 9,
+                                        "Hopeful": 11,
+                                        "Need a hug": 5,
+                                        "Stuck and Unsure": 6,
+                                        "Numb": 3
+                                    };
+
+                                    const ctx3 = document.getElementById('feelingsChart').getContext('2d');
+                                    new Chart(ctx3, {
+                                        type: 'bar',
+                                        data: {
+                                            labels: Object.keys(feelingsData),
+                                            datasets: [{
+                                                label: 'Number of Responses',
+                                                data: Object.values(feelingsData),
+                                                backgroundColor: '#36A2EB'
+                                            }]
+                                        },
+                                        options: {
+                                            responsive: true,
+                                            maintainAspectRatio: false,
+                                            scales: {
+                                                y: {
+                                                    beginAtZero: true
+                                                }
+                                            },
+                                            plugins: {
+                                                legend: {
+                                                    display: false
+                                                }
+                                            }
+                                        }
+                                    });
+                                </script>
+                        </div>
+            </div>
+
+        <!--ASSESSMENT CHART-->
+        <h2 class="my-10 mt-5 text-4xl font-bold text-gray-700">Assessment Overview</h2>
+            <div class="p-6 bg-white rounded-lg shadow">
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <!-- APPOINTMENTS > Status -->
+                    <div>
+                        <h2 class="p-3 my-2 text-3xl font-semibold text-center text-gray-800">Status</h2>
+                        <div class="w-[400px] h-[400px] mx-auto">
+                            <canvas id="appointmentChart"></canvas>
+                        </div>
+
+                        <script>
+                            // Sample appointment status data (Replace this with dynamic PHP data if needed)
+                            const appointmentData = {
+                                "Pending": 12,
+                                "Scheduled": 15,
+                                "Completed": 20,
+                                "Cancelled": 5
+                            };
+
+                            const ctx1 = document.getElementById('appointmentChart').getContext('2d');
+                            new Chart(ctx1, {
+                                type: 'pie',
+                                data: {
+                                    labels: Object.keys(appointmentData),
+                                    datasets: [{
+                                        data: Object.values(appointmentData),
+                                        backgroundColor: [
+                                            '#FF6384', '#36A2EB', '#4BC0C0', '#FFCE56'
+                                        ]
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    plugins: {
+                                        legend: {
+                                            position: 'bottom'
+                                        }
+                                    }
+                                }
+                            });
+                        </script>
+                    </div>
+
+                    <!-- APPOINTMENTS > College -->
+                    <div>
+                        <h2 class="p-3 my-2 text-3xl font-semibold text-center text-gray-800">College/Institute</h2>
+                        <div class="w-[400px] h-[400px] mx-auto">
+                            <canvas id="collegeChart"></canvas>
+                        </div>
+
+                        <script>
+                            // Sample college distribution data (Replace this with dynamic PHP data if needed)
+                            const collegeData = {
+                                "CBFS": 30,
+                                "CCIS": 45,
+                                "CCSE": 25,
+                                "CGPP": 10,
+                                "CHK": 15,
+                                "CITE": 35,
+                                "CTM": 20,
+                                "CTHM": 18,
+                                "IOA": 12,
+                                "IAD": 22,
+                                "IIHS": 17,
+                                "ION": 14,
+                                "IOP": 11,
+                                "IOPsy": 19,
+                                "ISDNB": 9,
+                                "HSU": 27,
+                                "SOL": 8
+                            };
+
+                            const ctx2 = document.getElementById('collegeChart').getContext('2d');
+                            new Chart(ctx2, {
+                                type: 'pie',
+                                data: {
+                                    labels: Object.keys(collegeData),
+                                    datasets: [{
+                                        data: Object.values(collegeData),
+                                        backgroundColor: [
+                                            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+                                            '#FF9F40', '#D4A017', '#C71585', '#008B8B', '#4682B4',
+                                            '#DC143C', '#20B2AA', '#8A2BE2', '#7FFF00', '#D2691E',
+                                            '#32CD32', '#FF4500'
+                                        ]
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    plugins: {
+                                        legend: {
+                                            position: 'bottom'
+                                        }
+                                    }
+                                }
+                            });
+                        </script>
+                    </div>
+                </div>
+
+                    <!--APPOINTMENTS > Feelings-->
+                        <div>
+                            <h2 class="p-3 my-2 text-3xl font-semibold text-center text-gray-800">Feelings</h2>
+                                <div class="w-[500px] h-[400px] mx-auto">
+                                    <canvas id="feelingsChart"></canvas>
+                                </div>
+
+                                <script>
+                                    // Sample feelings data (Replace this with dynamic PHP data if needed)
+                                    const feelingsData = {
+                                        "Excited": 10,
+                                        "Happy": 15,
+                                        "Sad": 8,
+                                        "Scared": 5,
+                                        "Angry": 4,
+                                        "Confused": 6,
+                                        "Burned Out": 7,
+                                        "Calm": 12,
+                                        "Struggling": 9,
+                                        "Hopeful": 11,
+                                        "Need a hug": 5,
+                                        "Stuck and Unsure": 6,
+                                        "Numb": 3
+                                    };
+
+                                    const ctx3 = document.getElementById('feelingsChart').getContext('2d');
+                                    new Chart(ctx3, {
+                                        type: 'bar',
+                                        data: {
+                                            labels: Object.keys(feelingsData),
+                                            datasets: [{
+                                                label: 'Number of Responses',
+                                                data: Object.values(feelingsData),
+                                                backgroundColor: '#36A2EB'
+                                            }]
+                                        },
+                                        options: {
+                                            responsive: true,
+                                            maintainAspectRatio: false,
+                                            scales: {
+                                                y: {
+                                                    beginAtZero: true
+                                                }
+                                            },
+                                            plugins: {
+                                                legend: {
+                                                    display: false
+                                                }
+                                            }
+                                        }
+                                    });
+                                </script>
+                        </div>
+            </div>
+
     </div>
 </section>
 
@@ -314,7 +751,7 @@ const messageButton = document.getElementById('messageButton');
     const chatContent = document.getElementById('chatContent');
     const chatInput = document.getElementById('chatInput');
 
-    // Show chat modal when message icon is clicked
+    // Show chat odal when message icon is clicked
     messageButton.addEventListener('click', () => {
         chatModal.classList.toggle('hidden');
     });

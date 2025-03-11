@@ -128,12 +128,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <!--HEADER-->
 <header class="fixed top-0 left-0 z-50 w-full py-4 shadow-xl" style="background-color: #1EB0A9">
-    <div class="container flex items-center justify-between px-4 mx-auto md:px-8">
+    <div class="container-fluid flex items-center justify-between px-4 mx-auto md:px-8">
         <!-- Logo -->
         <div class="flex items-center space-x-3">
-            <img src="/src/images/UMAK-logo.png" alt="UMAK Logo" class="w-10 h-auto md:w-14"> <!--CHANGE INTO UMAK LOGO-->
-            <img src="/src/images/UMAK-CGCS-logo.png" alt="CGCS Logo" class="w-10 h-auto md:w-14">
-            <span class="font-semibold tracking-wide text-white md:text-2xl">GuidanceHub</span>
+            <img src="/src/images/UMAK-logo.png" alt="UMAK Logo" class="w-10 h-auto mx-5 md:w-14">
+            <span class="font-semibold tracking-wide text-white md:text-2xl">University of Makati</span>
         </div>
 
         <!-- Hamburger Icon -->
@@ -149,7 +148,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <li><a href="/index.php" class="hover:text-cyan-950">Home</a></li>
                 <li><a href="/src/ControlledData/appointment.php" class="hover:text-cyan-950">Appointment</a></li>
                 <li><a href="/src/ControlledData/referral.php" class="hover:text-cyan-950">Referral</a></li>
-                <li><a href="/src/ControlledData/information.php" class="hover:text-cyan-950">Inventory Form</a></li>  
+                <li><a href="#about" class="hover:text-cyan-950">About</a></li>  
                 <li>
                     <a href="/src/ControlledData/login.php" 
                     class="px-4 py-2 text-white rounded-md bg-cyan-800 hover:bg-cyan-950">Login</a>

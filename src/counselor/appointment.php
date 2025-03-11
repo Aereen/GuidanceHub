@@ -15,19 +15,19 @@ try {
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
-        if (!empty($_POST['id_number']) && !empty($_POST['status'])) {
-            $id_number = filter_var($_POST['id_number'], FILTER_SANITIZE_STRING);
+        if (!empty($_POST['email']) && !empty($_POST['status'])) {
+            $email = filter_var($_POST['email'], FILTER_SANITIZE_STRING);
             $new_status = filter_var($_POST['status'], FILTER_SANITIZE_STRING);
 
             $stmt = $pdo->prepare("UPDATE appointments 
                                     SET status = :status, updated_at = CURRENT_TIMESTAMP 
-                                    WHERE id_number = :id_number");
+                                    WHERE email = :email");
             $stmt->bindParam(':status', $new_status, PDO::PARAM_STR);
-            $stmt->bindParam(':id_number', $id_number, PDO::PARAM_STR);
+            $stmt->bindParam(':email', $email, PDO::PARAM_STR);
             
             if ($stmt->execute()) {
                 // Redirect to refresh the page and reflect changes
-                header("Location: ".$_SERVER['appointment.php']);
+                header("Location: " . $_SERVER['PHP_SELF']);
                 exit();
             } else {
                 echo "<p class='text-red-600'>Error updating status.</p>";
@@ -206,6 +206,14 @@ if (isset($_GET['logout'])) {
 <div class="p-4 mt-10 sm:ml-64">
     <h2 class="p-3 my-2 text-4xl font-bold text-gray-800">Scheduled Appointments</h2>
     <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-md">
+        <!-- Search Bar -->
+            <div class="flex justify-end">
+                <form method="GET" class="flex mb-4">
+                    <input type="text" name="search" placeholder="Search referrals..." class="w-40 p-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                    <button type="submit" class="px-4 py-2 ml-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600">Search</button>
+                </form> 
+            </div>
+
         <div class="overflow-x-auto">
             <table class="w-full text-sm text-left text-gray-600 dark:text-gray-400">
                 <thead class="text-sm text-gray-900 uppercase bg-gray-100">
@@ -213,7 +221,7 @@ if (isset($_GET['logout'])) {
                         <th scope="col" class="px-6 py-3">#</th>
                         <th scope="col" class="px-6 py-3">Ticket ID</th>
                         <th scope="col" class="px-6 py-3">Full Name</th>
-                        <th scope="col" class="px-6 py-3">Student Number</th>
+                        <th scope="col" class="px-6 py-3">Email</th>
                         <th scope="col" class="px-6 py-3">Date</th>
                         <th scope="col" class="px-6 py-3">Time</th>
                         <th scope="col" class="px-6 py-3">Status</th>
@@ -235,18 +243,20 @@ if (isset($_GET['logout'])) {
                     if (mysqli_num_rows($result) > 0) {
                         $counter = 1;
                         while ($row = mysqli_fetch_assoc($result)) {
-                            // Ensure status is defined and default to "Pending"
+                            // Ensure status is defined, defaulting to "Pending"
                             $status = !empty($row['status']) ? htmlspecialchars($row['status']) : 'Pending';
 
                             echo "<tr class='text-center text-black bg-white border-b dark:border-gray-700'>
                                     <td class='px-6 py-3'>" . $counter++ . "</td>
-                                    <td class='px-6 py-3'>" . htmlspecialchars($row['name']) . "</td>
                                     <td class='px-6 py-3'>" . htmlspecialchars($row['ticket_id']) . "</td>
-                                    <td class='px-6 py-3'>" . htmlspecialchars($row['id_number']) . "</td>
+                                    <td class='px-6 py-3'>" . htmlspecialchars($row['name']) . "</td>
+                                    <td class='px-6 py-3'>" . htmlspecialchars($row['email']) . "</td>
+                                    <td class='px-6 py-3'>" . htmlspecialchars($row['first_date']) . "</td>
+                                    <td class='px-6 py-3'>" . htmlspecialchars($row['first_time']) . "</td>
                                     <td class='px-6 py-3'>
                                         <!-- Status Update Form -->
                                         <form action='' method='POST' class='inline-block'>
-                                            <input type='hidden' name='id_number' value='" . htmlspecialchars($row['id_number']) . "'>
+                                            <input type='hidden' name='email' value='" . htmlspecialchars($row['email']) . "'>
                                             <select name='status' class='p-2 border rounded'>
                                                 <option value='Pending' " . ($status == 'Pending' ? 'selected' : '') . ">Pending</option>
                                                 <option value='Scheduled' " . ($status == 'Scheduled' ? 'selected' : '') . ">Scheduled</option>
@@ -259,14 +269,14 @@ if (isset($_GET['logout'])) {
                                     <td class='px-6 py-3'>
                                         <button class='text-blue-600 hover:underline show-details-btn' onclick='showDetails(" . json_encode($row) . ")'>Show Details</button>
                                         <form action='' method='POST' class='inline-block'>
-                                            <input type='hidden' name='id_number' value='" . htmlspecialchars($row['id_number']) . "'>
+                                            <input type='hidden' name='email' value='" . htmlspecialchars($row['email']) . "'>
                                             <button type='submit' name='archive' class='ml-4 text-yellow-600 hover:underline archive-btn'>Archive</button>
                                         </form>
                                     </td>
                                 </tr>";
                         }
                     } else {
-                        echo "<tr><td colspan='6' class='px-6 py-3 text-center'>No appointments found</td></tr>";
+                        echo "<tr><td colspan='8' class='px-6 py-3 text-center'>No appointments found</td></tr>";
                     }
 
                     mysqli_close($con);
@@ -514,8 +524,8 @@ function showDetails(row) {
         <p><strong>Feelings:</strong> ${row.feelings}</p>
         <p><strong>In Need of Counseling:</strong> ${row.need_counselor}</p>
         <p><strong>Counseling Type:</strong> ${row.counseling_type}</p>
-        <p><strong>First Date & Time:</strong> ${row.appointment_date}</p>
-        <p><strong>Second Data & Time:</strong> ${row.appointment_time}</p>
+        <p><strong>First Date & Time:</strong> ${row.first_date} ${row.first_time}</p>
+        <p><strong>Second Data & Time:</strong> ${row.second_date} ${row.second_time}</p>
     `;
     modal.classList.remove('hidden');
 }

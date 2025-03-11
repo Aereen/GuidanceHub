@@ -49,7 +49,7 @@ if (isset($_POST['login_user'])) {
                 $mail->Host       = 'smtp.gmail.com';
                 $mail->SMTPAuth   = true;
                 $mail->Username   = 'guidancehub01@gmail.com';
-                $mail->Password   = 'zjrtujjwbznuzbzv';
+                $mail->Password   = 'mkqn ecje evor lgdj'; //Gmail App Password
                 $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
                 $mail->Port       = 465;
 

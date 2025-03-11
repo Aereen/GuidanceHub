@@ -8,22 +8,28 @@ $username = 'root';
 $password = '';
 
 try {
-    // Create PDO connection
     $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
-    // Handle connection error
     die("Could not connect to the database $dbname :" . $e->getMessage());
 }
 
-// Query to check for an appointment
-$email = $_SESSION['email'];
-
-$stmt = $pdo->prepare("SELECT * FROM appointments WHERE email = :email AND appointment_date >= NOW()");
-$stmt->bindParam(':email', $email, PDO::PARAM_STR);
+// Query to get all appointments
+$stmt = $pdo->prepare("SELECT * FROM appointments");
 $stmt->execute();
-
 $appointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Query to get all referrals
+$query = "SELECT * FROM assessments ORDER BY schedule_date ASC, schedule_time ASC";
+                            $stmt = $pdo->prepare($query);
+                            $stmt->execute();
+                            $assessments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Check if the user is logged in
+if (!isset($_SESSION['id_number'])) {
+    header("Location: /src/ControlledData/login.php"); //if not logged in
+    exit;
+}
 
 // Check if logout is requested
 if (isset($_GET['logout'])) {
@@ -46,25 +52,59 @@ if (isset($_GET['logout'])) {
         <script src="https://kit.fontawesome.com/95c10202b4.js" crossorigin="anonymous"></script>
         <script src="https://cdn.tailwindcss.com"></script>
         <link href="./output.css" rel="stylesheet">   
+
 </head>
 <body class="bg-gray-100">
-<!--TOP NAVIGATION BAR-->
+
+<!-- TOP NAVIGATION BAR -->
 <nav class="fixed top-0 z-50 w-full bg-white border-b border-gray-200">
-    <div class="px-3 py-3 lg:px-5 lg:pl-3">
-        <div class="flex items-center justify-between">
-            <div class="flex items-center justify-start rtl:justify-end">
+    <div class="flex px-3 py-3 lg:px-5 lg:pl-3">
+        <div class="flex items-center justify-between w-full max-w-7xl">
+            <div class="flex items-center justify-start">
                 <button data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" aria-controls="logo-sidebar" type="button" class="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600">
                     <span class="sr-only">Open sidebar</span>
                     <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                    <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
+                        <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
                     </svg>
                 </button>
                 <a href="" class="flex ms-2 md:me-24">
-                <img src="/src/images/UMAK-CGCS-logo.png" class="h-8 me-3" alt="GuidanceHub Logo" />
-                <span class="self-center text-xl font-semibold text-black sm:text-2xl whitespace-nowrap">GuidanceHub</span>
+                    <img src="/src/images/UMAK-CGCS-logo.png" class="h-8 me-3" alt="GuidanceHub Logo" />
+                    <span class="self-center text-xl font-semibold text-black sm:text-2xl whitespace-nowrap">GuidanceHub</span>
                 </a>
             </div>
             <div class="flex items-center justify-end gap-7 text-gray">
+                <!--Message Icon-->
+                    <div class="relative">
+                        <button id="messageButton" class="text-gray-600 hover:text-gray-900 focus:outline-none">
+                            <i class="text-2xl fa-solid fa-message"></i>
+                            <!-- Unread Message Badge -->
+                            <span id="messageBadge" class="absolute top-0 right-0 inline-flex items-center justify-center hidden w-4 h-4 text-xs font-bold text-white bg-red-500 rounded-full">
+                                3
+                            </span>
+                        </button>
+                        <!-- Message Chat Modal -->
+                        <div id="chatModal" class="fixed inset-0 z-50 flex items-center justify-center hidden bg-black bg-opacity-50">
+                            <div class="w-full max-w-lg p-6 bg-white rounded-lg shadow-md">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="text-xl font-semibold">Chat with Support</h3>
+                                    <button onclick="closeChatModal()" class="text-gray-500 hover:text-gray-800">✖</button>
+                                </div>
+                                <div id="chatContent" class="h-64 mb-4 overflow-y-auto text-sm text-gray-700">
+                                    <div class="mb-2">
+                                        <p class="p-2 bg-gray-100 rounded">Hello! How can I assist you today?</p>
+                                    </div>
+                                    <div class="mb-2">
+                                        <p class="p-2 text-blue-800 bg-blue-100 rounded">I need help with my appointment.</p>
+                                    </div>
+                                </div>
+                                <div class="flex">
+                                    <input id="chatInput" type="text" class="w-full p-2 border border-gray-300 rounded-l-md" placeholder="Type your message...">
+                                    <button onclick="sendMessage()" class="px-4 py-2 text-white bg-blue-500 rounded-r-md hover:bg-blue-700">Send</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 <!--Notification Bell Icon-->
                     <div class="relative">
                         <button id="notificationButton" class="text-gray-600 hover:text-gray-900 focus:outline-none">
@@ -86,17 +126,6 @@ if (isset($_GET['logout'])) {
                                     Mark All as Read
                                 </button>
                             </div>
-                        </div>
-                    </div>
-
-                <!-- Notifaction Modal (Hidden by Default) -->
-                    <div id="notificationModal" class="fixed inset-0 flex items-center justify-center hidden bg-gray-900 bg-opacity-50">
-                        <div class="p-6 bg-white rounded-lg shadow-lg w-96">
-                            <h2 class="text-lg font-bold">Notification</h2>
-                            <p id="modalContent" class="mt-2 text-gray-700"></p>
-                            <button id="closeModal" class="px-4 py-2 mt-4 text-white bg-blue-500 rounded hover:bg-blue-700">
-                                Close
-                            </button>
                         </div>
                     </div>
 
@@ -129,50 +158,47 @@ if (isset($_GET['logout'])) {
     </div>
 </nav>
 
-<!--SIDE NAVIGATION MENU-->
-<aside id="logo-sidebar" class="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform -translate-x-full bg-white border-r border-gray-200 sm:translate-x-0" aria-label="Sidebar">
-    <div class="h-full px-3 pb-4 overflow-y-auto bg-white">
-        <ul class="space-y-2 font-medium">
+<!-- SIDE NAVIGATION MENU -->
+<aside id="logo-sidebar" class="fixed z-40 w-64 h-screen pt-20 transition-transform -translate-x-full bg-white border-r dark:border-gray-300 sm:translate-x-0" aria-label="Sidebar">
+    <div class="h-full px-3 pb-4 overflow-y-auto bg-white border-gray-300">
+        <ul class="m-3 space-y-2 font-medium">
             <li>
-                <a href="dahboard.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100"">
-                <i class="w-5 h-5 text-gray-500 fa-solid fa-house"></i>
+                <a href="dashboard.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                <svg class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 21">
+                    <i class="fa-solid fa-house"></i>
+                </svg>
                 <span class="ms-3">Dashboard</span>
                 </a>
             </li>
             <li>
-                <a href="appointment.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100"">
-                <i class="w-5 h-5 text-gray-500 fa-solid fa-calendar-check"></i>
-                <span class="ms-3">Appointments</span>
-                </a>
-            </li>
-            <li> <!--IN THIS FILE SECTION THE ADMIN WILL SEE THE INPUTS OF EACH ASSESSMENT-->
-                <a href="assessment.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100"">
-                <i class="w-5 h-5 text-gray-500 fa-solid fa-book-open"></i>
-                <span class="ms-3">Assessments</span>
+                <a href="appointment.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 18">
+                    <i class="fa-solid fa-calendar-check"></i>
+                </svg>
+                <span class="flex-1 ms-3 whitespace-nowrap">Appointment</span>
                 </a>
             </li>
             <li>
-                <a href="resources.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100"">
-                <i class="w-5 h-5 text-gray-500 fa-solid fa-calendar-check"></i>
-                <span class="ms-3">Resources</span>
+                <a href="referral.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 18">
+                    <i class="fa-solid fa-chart-pie"></i>
+                </svg>
+                <span class="flex-1 ms-3 whitespace-nowrap">Referral</span>
                 </a>
             </li>
             <li>
-                <a href="report.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100"">
-                <i class="w-5 h-5 text-gray-500 fa-solid fa-chart-pie"></i>
-                <span class="ms-3">Reports</span>
+                <a href="report.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 18">
+                    <i class="fa-solid fa-chart-pie"></i>
+                </svg>
+                <span class="flex-1 ms-3 whitespace-nowrap">Report & Analytic</span>
                 </a>
             </li>
-        <!--<li>
-                <a href="audit.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100"">
-                <i class="w-5 h-5 text-gray-500 fa-solid fa-chart-bar"></i>
-                <span class="ms-3">Audit Logs</span>
-                </a>
-            </li> 
-        -->
             <li>
-                <a href="?logout=true" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100"">
-                    <i class="w-5 h-5 text-gray-500 fa-solid fa-right-from-bracket"></i>
+                <a href="?logout=true" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                    <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 16">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/> <i class="fa-solid fa-right-from-bracket"></i>
+                    </svg>
                     <span class="flex-1 ms-3 whitespace-nowrap">Log Out</span>
                 </a>
             </li>
@@ -180,64 +206,142 @@ if (isset($_GET['logout'])) {
     </div>
 </aside>
 
-<!--CONTENT-->
-<div class="p-4 mt-10 sm:ml-64">
-    <!--ANALYTICS-->
-            <div class="grid grid-cols-1 gap-6 mb-6 md:grid-cols-3">
-                <!-- Total Students -->
-                <div class="p-6 text-center bg-white rounded-lg shadow-md">
-                    <div class="text-3xl font-semibold text-gray-800">350</div>
-                    <div class="text-gray-500">Total Students</div>
-                </div>
-                <!-- Scheduled Sessions -->
-                <div class="p-6 text-center bg-white rounded-lg shadow-md">
-                    <div class="text-3xl font-semibold text-gray-800">25</div>
-                    <div class="text-gray-500">Scheduled Sessions</div>
-                </div>
-                <!-- Completed Sessions -->
-                <div class="p-6 text-center bg-white rounded-lg shadow-md">
-                    <div class="text-3xl font-semibold text-gray-800">150</div>
-                    <div class="text-gray-500">Completed Sessions</div>
-                </div>
+<!--CONTENT HERE-->
+<section class="p-4 mt-12 sm:ml-64">
+<h2 class="p-3 text-4xl font-bold tracking-tight"><?php echo "Welcome, " . $_SESSION['name'] . "!<br>" ?></h2>
+    <div class="px-4 py-3 mx-auto max-w-7xl">
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+            <!-- Total Students Served -->
+            <div class="p-6 bg-white rounded-lg shadow">
+                <h2 class="text-2xl font-semibold text-gray-700">Students Served</h2>
+                <!-- <p class="mt-4 text-4xl font-bold text-green-500" id="students-served"></p> -->
+                <p class="mt-2 text-sm text-gray-500">in the past year</p>
             </div>
+            <!-- Sessions Conducted -->
+            <div class="p-6 bg-white rounded-lg shadow">
+                <h2 class="text-2xl font-semibold text-gray-700">Sessions Conducted</h2>
+                <!-- <p class="mt-4 text-4xl font-bold text-blue-500" id="sessions-conducted"></p> -->
+                <p class="mt-2 text-sm text-gray-500">total sessions</p>
+            </div>
+            <!-- Active Cases -->
+            <div class="p-6 bg-white rounded-lg shadow">
+                <h2 class="text-2xl font-semibold text-gray-700">Active Cases</h2>
+                <!-- <p class="mt-4 text-4xl font-bold text-red-500" id="active-cases"></p> -->
+                <p class="mt-2 text-sm text-gray-500">currently in progress</p>
+            </div>
+        </div>
 
     <!--UPCOMING SESSIONS-->
         <div class="p-6 mt-10 bg-white rounded-lg shadow">
-            <h2 class="mb-6 text-2xl font-semibold text-gray-700">Session Overview</h2>
-            <div class="col-span-1 p-5 lg:col-span-3">
-                <table class="w-full table-auto">
-                    <thead class="text-white bg-gray-800">
-                        <tr>
-                            <th class="px-4 py-3 text-left">ID</th>
-                            <th class="px-4 py-3 text-left">Student Name</th>
-                            <th class="px-4 py-3 text-left">Date</th>
-                            <th class="px-4 py-3 text-left">Time</th>
-                            <th class="px-4 py-3 text-left">Status</th>
-                            <th class="px-4 py-3 text-left">Last Updated</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if (!empty($appointments)): ?>
-                            <?php foreach ($appointments as $appointment): ?>
-                                <tr class="border-b hover:bg-gray-50">
-                                    <td class="px-4 py-3"><?= htmlspecialchars($appointment['id']) ?></td>
-                                    <td class="px-4 py-3"><?= htmlspecialchars($appointment['name']) ?></td>
-                                    <td class="px-4 py-3"><?= htmlspecialchars($appointment['appointment_date']) ?></td>
-                                    <td class="px-4 py-3"><?= htmlspecialchars($appointment['appointment_time']) ?></td>
-                                    <td class="px-4 py-3"><?= htmlspecialchars($appointment['status']) ?></td>
-                                    <td class="px-4 py-3"><?= htmlspecialchars($appointment['updated_at']) ?></td>
-                                </tr>
-                            <?php endforeach; ?>
-                        <?php else: ?>
+            <!--APPOINTMENTS-->
+            <h2 class="mb-3 text-2xl font-semibold text-gray-700">Appointment Overview</h2>
+                <div class="col-span-1 p-5 lg:col-span-3"> 
+                    <table class="w-full border border-collapse border-gray-300 table-auto">
+                        <thead class="text-white bg-gray-800">
                             <tr>
-                                <td colspan="5" class="px-4 py-3 text-center text-gray-600">No appointments scheduled.</td>
+                                <th class="px-4 py-3 text-left">#</th>
+                                <th class="px-4 py-3 text-left">Ticket ID</th>
+                                <th class="px-4 py-3 text-left">Student Name</th>
+                                <th class="px-4 py-3 text-left">First <br> Date & Time</th>
+                                <th class="px-4 py-3 text-left">Second <br> Date &Time</th>
+                                <th class="px-4 py-3 text-left">Type</th>
+                                <th class="px-4 py-3 text-left">Status</th>
                             </tr>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            <?php if (!empty($appointments)): ?>
+                                <?php foreach ($appointments as $appointment): ?>
+                                    <tr class="border-b hover:bg-gray-100">
+                                        <td class="px-4 py-3"><?= htmlspecialchars($appointment['id']) ?></td>
+                                        <td class="px-4 py-3"><?= htmlspecialchars($appointment['ticket_id']) ?></td>
+                                        <td class="px-4 py-3"><?= htmlspecialchars($appointment['name']) ?></td>
+                                        <td class="px-4 py-3"><?= htmlspecialchars($appointment['first_date']) . ' ' . htmlspecialchars($appointment['first_time']) ?></td>
+                                        <td class="px-4 py-3"><?= htmlspecialchars($appointment['second_date']) . ' ' . htmlspecialchars($appointment['second_time']) ?></td>
+                                        <td class="px-4 py-3"><?= htmlspecialchars($appointment['counseling_type']) ?></td>
+                                        <td class="px-4 py-3"><?= htmlspecialchars($appointment['status']) ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="8" class="px-4 py-3 text-center text-gray-600">No appointments scheduled.</td>
+                                </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+
+            <!--REFERRALS-->
+            <h2 class="mb-3 text-2xl font-semibold text-gray-700">Referral Overview</h2>
+                <div class="col-span-1 p-5 lg:col-span-3 "> 
+                    <table class="w-full table-auto">
+                        <thead class="text-white bg-gray-800">
+                            <tr>
+                                <th class="px-4 py-3 text-left">#</th>
+                                <th class="px-4 py-3 text-left">Ticket ID</th>
+                                <th class="px-4 py-3 text-left">Student Name</th>
+                                <th class="px-4 py-3 text-left">Student ID</th>
+                                <th class="px-4 py-3 text-left">Reason</th>
+                                <th class="px-4 py-3 text-left">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (!empty($referrals)): ?>
+                                <?php foreach ($referrals as $row): ?>
+                                    <tr class="hover:bg-gray-100">
+                                        <td class="px-4 py-3"><?= htmlspecialchars($row['id']) ?></td>
+                                        <td class="px-4 py-3"><?= htmlspecialchars($row['ticket_id']) ?></td></td>
+                                        <td class="px-4 py-3"><?= htmlspecialchars($row['name']) ?></td>
+                                        <td class="px-4 py-3"><?= htmlspecialchars($row['reason']) ?></td>
+                                        <td class="px-4 py-3"><?= htmlspecialchars($row['status']) ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="10" class="p-2 text-center text-gray-500 border">No referrals found.</td>
+                                </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+
+            <!--ASSESSMENTS-->
+            <h2 class="mb-3 text-2xl font-semibold text-gray-700">Assessments Overview</h2>
+                <div class="col-span-1 p-5 lg:col-span-3 "> 
+                    <table class="w-full border border-collapse border-gray-300 table-auto">
+                        <thead class="text-white bg-gray-800">
+                            <tr>
+                                <th class="px-4 py-3 border border-gray-300">#</th>
+                                <th class="px-4 py-3 border border-gray-300">Student Name</th>
+                                <th class="px-4 py-3 border border-gray-300">Email</th>
+                                <th class="px-4 py-3 border border-gray-300">Test Type</th>
+                                <th class="px-4 py-3 border border-gray-300">Date</th>
+                                <th class="px-4 py-3 border border-gray-300">Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            if (!empty($assessments)) {
+                                foreach ($assessments as $index => $row) {
+                                    echo "<tr class='hover:bg-gray-100'>";
+                                    echo "<td class='px-4 py-3 border border-gray-300'>" . ($index + 1) . "</td>";
+                                    echo "<td class='px-4 py-3 border border-gray-300'>" . htmlspecialchars($row['student_name']) . "</td>";
+                                    echo "<td class='px-4 py-3 border border-gray-300'>" . htmlspecialchars($row['student_email']) . "</td>";
+                                    echo "<td class='px-4 py-3 border border-gray-300'>" . htmlspecialchars($row['test_type']) . "</td>";
+                                    echo "<td class='px-4 py-3 border border-gray-300'>" . htmlspecialchars($row['schedule_date']) . "</td>";
+                                    echo "<td class='px-4 py-3 border border-gray-300'>" . htmlspecialchars($row['schedule_time']) . "</td>";
+                                    echo "</tr>";
+                                }
+                            } else {
+                                echo "<tr><td colspan='6' class='p-2 text-center text-gray-500 border border-gray-300'>No assessments found.</td></tr>";
+                            }
+                            ?>
+                        </tbody>
+                    </table>
+                </div>
+
             </div>
         </div>
-</div>
+</section>
 
 <!--FOOTER-->
 <footer class="overflow-auto bg-gray-100 sm:ml-64 w-75">
@@ -326,6 +430,96 @@ if (isset($_GET['logout'])) {
 </footer>
 
 <script>
+//Toggle for Message
+const messageButton = document.getElementById('messageButton');
+    const chatModal = document.getElementById('chatModal');
+    const messageBadge = document.getElementById('messageBadge');
+    const chatContent = document.getElementById('chatContent');
+    const chatInput = document.getElementById('chatInput');
+
+    // Show chat modal when message icon is clicked
+    messageButton.addEventListener('click', () => {
+        chatModal.classList.toggle('hidden');
+    });
+
+    // Close the chat modal
+    function closeChatModal() {
+        chatModal.classList.add('hidden');
+    }
+
+    // Send a new message
+    function sendMessage() {
+        const messageText = chatInput.value.trim();
+        if (messageText) {
+            const newMessage = document.createElement('div');
+            newMessage.classList.add('mb-2');
+            newMessage.innerHTML = `<p class="p-2 text-blue-800 bg-blue-100 rounded">${messageText}</p>`;
+            chatContent.appendChild(newMessage);
+            chatInput.value = ''; // Clear input after sending
+            chatContent.scrollTop = chatContent.scrollHeight; // Scroll to the latest message
+        }
+    }
+
+    // Simulate unread messages (this would be dynamic in a real app)
+    function simulateUnreadMessages() {
+        const unreadMessages = 3; // Example count of unread messages
+        if (unreadMessages > 0) {
+            messageBadge.textContent = unreadMessages;
+            messageBadge.classList.remove('hidden');
+        } else {
+            messageBadge.classList.add('hidden');
+        }
+    }
+
+    // Initialize unread message count
+    simulateUnreadMessages();
+
+//Toggle for Notification
+const notificationButton = document.getElementById('notificationButton');
+    const notificationDropdown = document.getElementById('notificationDropdown');
+    const notificationBadge = document.getElementById('notificationBadge');
+    const notificationList = document.getElementById('notificationList');
+    const markReadButton = document.getElementById('markReadButton');
+
+    // Sample notifications array
+    let notifications = [
+        "Your appointment has been confirmed.",
+        "New message from the guidance office.",
+        "Reminder: Your appointment is tomorrow at 10:00 AM."
+    ];
+
+    // Function to display notifications
+    function updateNotifications() {
+        if (notifications.length > 0) {
+            notificationBadge.textContent = notifications.length;
+            notificationBadge.classList.remove('hidden');
+            markReadButton.classList.remove('hidden');
+
+            // Update the dropdown list
+            notificationList.innerHTML = notifications.map(
+                (notif) => `<li class="p-2 bg-gray-100 rounded hover:bg-gray-200">${notif}</li>`
+            ).join('');
+        } else {
+            notificationBadge.classList.add('hidden');
+            markReadButton.classList.add('hidden');
+            notificationList.innerHTML = `<li class="text-gray-500">No new notifications</li>`;
+        }
+    }
+
+    // Show or hide the dropdown
+    notificationButton.addEventListener('click', () => {
+        notificationDropdown.classList.toggle('hidden');
+    });
+
+    // Mark all notifications as read
+    markReadButton.addEventListener('click', () => {
+        notifications = []; // Clear notifications array
+        updateNotifications(); // Update the UI
+    });
+
+    // Initialize notifications on page load
+    updateNotifications();
+
 // JavaScript to handle search box toggling and icon change
     document.addEventListener('DOMContentLoaded', function () {
         const searchToggle = document.getElementById('search-toggle');
@@ -358,75 +552,63 @@ if (isset($_GET['logout'])) {
         });
     });
 
-//Notifications
-const appointments = <?php echo json_encode($appointments); ?>;
 
-document.addEventListener('DOMContentLoaded', () => {
-    const notificationButton = document.getElementById('notificationButton');
-    const notificationDropdown = document.getElementById('notificationDropdown');
-    const notificationBadge = document.getElementById('notificationBadge');
-    const notificationList = document.getElementById('notificationList');
-    const markReadButton = document.getElementById('markReadButton');
-    
-    // Modal Elements
-    const notificationModal = document.getElementById('notificationModal');
-    const modalContent = document.getElementById('modalContent');
-    const closeModal = document.getElementById('closeModal');
+// Fake Data
+        const stats = {
+            studentsServed: Math.floor(Math.random() * (200 - 100 + 1)) + 100,
+            sessionsConducted: Math.floor(Math.random() * (200 - 50 + 1)) + 50,
+            activeCases: Math.floor(Math.random() * (50 - 10 + 1)) + 10,
+        };
 
-    let notifications = appointments.map(appointment => ({
-        text: `Reminder: You have an appointment on ${appointment.appointment_date} at ${appointment.appointment_time}.`,
-        read: false
-    }));
+        const reports = [
+            { name: "John Doe", issue: "Stress", status: "Resolved" },
+            { name: "Jane Smith", issue: "Anxiety", status: "Ongoing" },
+            { name: "Robert Brown", issue: "Family Issues", status: "Resolved" },
+            { name: "Emily Johnson", issue: "Bullying", status: "Ongoing" },
+        ];
 
-    function updateNotifications() {
-        if (notifications.length > 0) {
-            notificationBadge.textContent = notifications.filter(n => !n.read).length;
-            notificationBadge.classList.remove('hidden');
-            markReadButton.classList.remove('hidden');
+        // Populate Stats
+        document.getElementById("students-served").textContent = stats.studentsServed;
+        document.getElementById("sessions-conducted").textContent = stats.sessionsConducted;
+        document.getElementById("active-cases").textContent = stats.activeCases;
 
-            notificationList.innerHTML = notifications.map((notif, index) => 
-                `<li class="p-2 rounded cursor-pointer ${notif.read ? 'bg-gray-200' : 'bg-gray-100 hover:bg-gray-200'}" data-index="${index}">
-                    ${notif.text}
-                </li>`
-            ).join('');
+        // Populate Report Table
+        const tableBody = document.getElementById("report-table");
+        reports.forEach((report, index) => {
+            const row = document.createElement("tr");
+            row.className = "border-t";
 
-            // Add event listeners to open modal on click
-            document.querySelectorAll('#notificationList li').forEach(item => {
-                item.addEventListener('click', () => {
-                    const index = item.getAttribute('data-index');
-                    notifications[index].read = true;
-                    modalContent.textContent = notifications[index].text;
-                    notificationModal.classList.remove('hidden'); // Show modal
-                    
-                    notificationDropdown.classList.add('hidden'); // Hide notification dropdown
-                    updateNotifications();
-                });
-            });
-        } else {
-            notificationBadge.classList.add('hidden');
-            markReadButton.classList.add('hidden');
-            notificationList.innerHTML = `<li class="text-gray-500">No new notifications</li>`;
-        }
-    }
+            row.innerHTML = `
+                <td class="px-4 py-2 text-gray-600 border border-gray-300">${index + 1}</td>
+                <td class="px-4 py-2 text-gray-600 border border-gray-300">${report.name}</td>
+                <td class="px-4 py-2 text-gray-600 border border-gray-300">${report.issue}</td>
+                <td class="px-4 py-2 text-gray-600 border border-gray-300">${report.status}</td>
+            `;
 
-    // Show or hide the dropdown
-    notificationButton.addEventListener('click', () => {
-        notificationDropdown.classList.toggle('hidden');
-    });
+            tableBody.appendChild(row);
+        });
 
-    // Mark all notifications as read
-    markReadButton.addEventListener('click', () => {
-        notifications.forEach(n => n.read = true);
-        updateNotifications();
-    });
-
-    // Close modal event
-    closeModal.addEventListener('click', () => {
-        notificationModal.classList.add('hidden');
-    });
-
-    updateNotifications();
-});
+        // Chart.js Implementation
+        const ctx = document.getElementById('analytics-chart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Students Served', 'Sessions Conducted', 'Active Cases'],
+                datasets: [{
+                    data: [stats.studentsServed, stats.sessionsConducted, stats.activeCases],
+                    backgroundColor: ['#22c55e', '#3b82f6', '#ef4444'],
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                },
+            },
+        });
 </script>
 <script src="../path/to/flowbite/dist/flowbite.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>

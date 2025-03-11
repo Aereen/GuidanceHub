@@ -216,14 +216,16 @@ if (isset($_GET['logout'])) {
 
 <!--CONTENT HERE-->
 <section class="p-4 mt-12 sm:ml-64">
+    <h2 class="p-3 my-2 text-4xl font-bold text-gray-800">Referrals Management</h2>
         <div class="max-w-6xl p-6 mx-auto bg-white rounded-lg shadow-lg">
-            <h1 class="mb-4 text-2xl font-bold text-gray-800">Referrals Management</h1>
 
             <!-- Search Bar -->
-            <form method="GET" class="flex mb-4">
-                <input type="text" name="search" placeholder="Search referrals..." class="w-1/3 p-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
-                <button type="submit" class="px-4 py-2 ml-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600">Search</button>
-            </form>
+            <div class="flex justify-end">
+                <form method="GET" class="flex mb-4">
+                    <input type="text" name="search" placeholder="Search referrals..." class="w-40 p-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                    <button type="submit" class="px-4 py-2 ml-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600">Search</button>
+                </form> 
+            </div>
 
             <!-- Referrals Table -->
             <div class="overflow-x-auto">

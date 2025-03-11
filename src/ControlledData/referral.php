@@ -70,7 +70,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $mail->Host       = 'smtp.gmail.com';
                 $mail->SMTPAuth   = true;
                 $mail->Username   = 'guidancehub01@gmail.com';
-                $mail->Password   = 'zjrtujjwbznuzbzv';
+                $mail->Password   = 'mkqn ecje evor lgdj'; //Gmail App Password
                 $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
                 $mail->Port       = 465;
 
@@ -134,12 +134,11 @@ $con->close();
 
 <!--HEADER-->
 <header class="fixed top-0 left-0 z-50 w-full py-4 shadow-xl" style="background-color: #1EB0A9">
-    <div class="container flex items-center justify-between px-4 mx-auto md:px-8">
+    <div class="flex items-center justify-between px-4 mx-auto container-fluid md:px-8">
         <!-- Logo -->
         <div class="flex items-center space-x-3">
-            <img src="/src/images/UMAK-logo.png" alt="UMAK Logo" class="w-10 h-auto md:w-14"> <!--CHANGE INTO UMAK LOGO-->
-            <img src="/src/images/UMAK-CGCS-logo.png" alt="CGCS Logo" class="w-10 h-auto md:w-14">
-            <span class="font-semibold tracking-wide text-white md:text-2xl">GuidanceHub</span>
+            <img src="/src/images/UMAK-logo.png" alt="UMAK Logo" class="w-10 h-auto mx-5 md:w-14">
+            <span class="font-semibold tracking-wide text-white md:text-2xl">University of Makati</span>
         </div>
 
         <!-- Hamburger Icon -->
@@ -155,7 +154,7 @@ $con->close();
                 <li><a href="/index.php" class="hover:text-cyan-950">Home</a></li>
                 <li><a href="/src/ControlledData/appointment.php" class="hover:text-cyan-950">Appointment</a></li>
                 <li><a href="/src/ControlledData/referral.php" class="hover:text-cyan-950">Referral</a></li>
-                <li><a href="/src/ControlledData/information.php" class="hover:text-cyan-950">Inventory Form</a></li>  
+                <li><a href="#about" class="hover:text-cyan-950">About</a></li>  
                 <li>
                     <a href="/src/ControlledData/login.php" 
                     class="px-4 py-2 text-white rounded-md bg-cyan-800 hover:bg-cyan-950">Login</a>
@@ -180,11 +179,11 @@ $con->close();
     <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-lg">
         <form action="referral.php" method="POST" class="mt-4">
 
-            <!-- Referrer Form Tab -->
+            <!--Referrer Form Tab-->
             <div id="tab1" class="tab-content">
                 <div class="grid grid-cols-2 gap-4 mb-4">
                     <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700">Referrer Name</label>
+                        <label class="block text-sm font-medium text-gray-700">Referrer Name (First Name-MI-Last Name)</label>
                         <input type="text" name="referrer_name" class="w-full p-2 mt-1 border border-gray-300 rounded-md" required>
                     </div>
                     <div class="mb-4">
@@ -208,13 +207,16 @@ $con->close();
                         <input type="text" name="contact_number" class="w-full p-2 mt-1 border border-gray-300 rounded-md" required>
                     </div>
                 </div>
+                    <div class="flex justify-end mt-6">
+                        <button class="px-4 py-2 text-gray-700 bg-gray-200 rounded-md" onclick="openTab(event, 'tab2')">Next</button>
+                    </div>
             </div>
 
             <!-- Student Information Tab -->
             <div id="tab2" class="hidden tab-content">
                 <div class="grid grid-cols-2 gap-4 mb-4">
                     <div>
-                        <label for="student_name" class="block text-sm font-medium text-gray-700">Student Name</label>
+                        <label for="student_name" class="block text-sm font-medium text-gray-700">Student Name (First Name-MI-Last Name)</label>
                         <input type="text" id="student_name" name="student_name" class="w-full p-2 mt-1 border border-gray-300 rounded-md" required>
                     </div>
                     <div>
@@ -255,11 +257,12 @@ $con->close();
                     </label>
                 </div>
                 <!-- Submit Button -->
-                    <div class="flex justify-center mt-4">
-                        <button type="submit" class="px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600">
+                    <div class="flex justify-between mt-4">
+                        <button class="px-4 py-2 text-gray-700 bg-gray-200 rounded-md" onclick="openTab(event, 'tab1')">Back</button>
+                        <button type="submit" class="px-6 py-3 text-white bg-blue-500 rounded-md hover:bg-blue-600">
                             Submit Referral
                         </button>
-                    </div>
+                </div>
             </div>
         </form>
     </div>

@@ -228,41 +228,44 @@ if (isset($_GET['logout'])) {
 
     <!--UPCOMING SESSIONS-->
         <div class="p-6 mt-10 bg-white rounded-lg shadow">
+            <!--APPOINTMENTS-->
             <h2 class="mb-3 text-2xl font-semibold text-gray-700">Appointment Overview</h2>
-                <div class="col-span-1 p-5 lg:col-span-3 "> 
-                    <table class="w-full table-auto">
+                <div class="col-span-1 p-5 lg:col-span-3"> 
+                    <table class="w-full border border-collapse border-gray-300 table-auto">
                         <thead class="text-white bg-gray-800">
                             <tr>
                                 <th class="px-4 py-3 text-left">#</th>
+                                <th class="px-4 py-3 text-left">Ticket ID</th>
                                 <th class="px-4 py-3 text-left">Student Name</th>
-                                <th class="px-4 py-3 text-left">Student Number</th>
-                                <th class="px-4 py-3 text-left">Date</th>
-                                <th class="px-4 py-3 text-left">Time</th>
+                                <th class="px-4 py-3 text-left">First <br> Date & Time</th>
+                                <th class="px-4 py-3 text-left">Second <br> Date &Time</th>
                                 <th class="px-4 py-3 text-left">Type</th>
                                 <th class="px-4 py-3 text-left">Status</th>
                             </tr>
                         </thead>
-                                <tbody>
-                                    <?php if (!empty($appointments)): ?>
-                                        <?php foreach ($appointments as $appointment): ?>
-                                            <tr class="border-b hover:bg-gray-100">
-                                                <td class="px-4 py-3"><?= htmlspecialchars($appointment['id']) ?></td>
-                                                <td class="px-4 py-3"><?= htmlspecialchars($appointment['name']) ?></td>
-                                                <td class="px-4 py-3"><?= htmlspecialchars($appointment['id_number']) ?></td>
-                                                <td class="px-4 py-3"><?= htmlspecialchars($appointment['appointment_date']) ?></td>
-                                                <td class="px-4 py-3"><?= htmlspecialchars($appointment['appointment_time']) ?></td>
-                                                <td class="px-4 py-3"><?= htmlspecialchars($appointment['appointment_type']) ?></td>
-                                                <td class="px-4 py-3"><?= htmlspecialchars($appointment['status']) ?></td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    <?php else: ?>
-                                        <tr>
-                                            <td colspan="5" class="px-4 py-3 text-center text-gray-600">No appointments scheduled.</td>
-                                        </tr>
-                                    <?php endif; ?>
-                                </tbody>
+                        <tbody>
+                            <?php if (!empty($appointments)): ?>
+                                <?php foreach ($appointments as $appointment): ?>
+                                    <tr class="border-b hover:bg-gray-100">
+                                        <td class="px-4 py-3"><?= htmlspecialchars($appointment['id']) ?></td>
+                                        <td class="px-4 py-3"><?= htmlspecialchars($appointment['ticket_id']) ?></td>
+                                        <td class="px-4 py-3"><?= htmlspecialchars($appointment['name']) ?></td>
+                                        <td class="px-4 py-3"><?= htmlspecialchars($appointment['first_date']) . ' ' . htmlspecialchars($appointment['first_time']) ?></td>
+                                        <td class="px-4 py-3"><?= htmlspecialchars($appointment['second_date']) . ' ' . htmlspecialchars($appointment['second_time']) ?></td>
+                                        <td class="px-4 py-3"><?= htmlspecialchars($appointment['counseling_type']) ?></td>
+                                        <td class="px-4 py-3"><?= htmlspecialchars($appointment['status']) ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="8" class="px-4 py-3 text-center text-gray-600">No appointments scheduled.</td>
+                                </tr>
+                            <?php endif; ?>
+                        </tbody>
                     </table>
                 </div>
+
+            <!--REFERRALS-->
             <h2 class="mb-3 text-2xl font-semibold text-gray-700">Referral Overview</h2>
                 <div class="col-span-1 p-5 lg:col-span-3 "> 
                     <table class="w-full table-auto">
@@ -282,8 +285,7 @@ if (isset($_GET['logout'])) {
                                     <tr class="hover:bg-gray-100">
                                         <td class="px-4 py-3"><?= htmlspecialchars($row['id']) ?></td>
                                         <td class="px-4 py-3"><?= htmlspecialchars($row['ticket_id']) ?></td></td>
-                                        <td class="px-4 py-3"><?= htmlspecialchars($row['student_name']) ?></td>
-                                        <td class="px-4 py-3"><?= htmlspecialchars($row['student_id']) ?></td>
+                                        <td class="px-4 py-3"><?= htmlspecialchars($row['name']) ?></td>
                                         <td class="px-4 py-3"><?= htmlspecialchars($row['reason']) ?></td>
                                         <td class="px-4 py-3"><?= htmlspecialchars($row['status']) ?></td>
                                     </tr>

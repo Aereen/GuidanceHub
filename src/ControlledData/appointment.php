@@ -78,7 +78,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $mail->Host       = 'smtp.gmail.com';
                 $mail->SMTPAuth   = true;
                 $mail->Username   = 'guidancehub01@gmail.com';
-                $mail->Password   = 'zjrtujjwbznuzbzv'; // Use an app password, not your actual password
+                $mail->Password   = 'mkqn ecje evor lgdj'; //Gmail App Password
                 $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
                 $mail->Port       = 465;
 
@@ -119,9 +119,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 ?>
 
-?>
-
-
 
 <!doctype html>
 <html>
@@ -140,12 +137,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <!--HEADER-->
 <header class="fixed top-0 left-0 z-50 w-full py-4 shadow-xl" style="background-color: #1EB0A9">
-    <div class="container flex items-center justify-between px-4 mx-auto md:px-8">
+    <div class="flex items-center justify-between px-4 mx-auto container-fluid md:px-8">
         <!-- Logo -->
         <div class="flex items-center space-x-3">
-            <img src="/src/images/UMAK-logo.png" alt="UMAK Logo" class="w-10 h-auto md:w-14"> <!--CHANGE INTO UMAK LOGO-->
-            <img src="/src/images/UMAK-CGCS-logo.png" alt="CGCS Logo" class="w-10 h-auto md:w-14">
-            <span class="font-semibold tracking-wide text-white md:text-2xl">GuidanceHub</span>
+            <img src="/src/images/UMAK-logo.png" alt="UMAK Logo" class="w-10 h-auto mx-5 md:w-14">
+            <span class="font-semibold tracking-wide text-white md:text-2xl">University of Makati</span>
         </div>
 
         <!-- Hamburger Icon -->
@@ -161,7 +157,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <li><a href="/index.php" class="hover:text-cyan-950">Home</a></li>
                 <li><a href="/src/ControlledData/appointment.php" class="hover:text-cyan-950">Appointment</a></li>
                 <li><a href="/src/ControlledData/referral.php" class="hover:text-cyan-950">Referral</a></li>
-                <li><a href="/src/ControlledData/information.php" class="hover:text-cyan-950">Inventory Form</a></li>  
+                <li><a href="#about" class="hover:text-cyan-950">About</a></li>  
                 <li>
                     <a href="/src/ControlledData/login.php" 
                     class="px-4 py-2 text-white rounded-md bg-cyan-800 hover:bg-cyan-950">Login</a>
@@ -188,9 +184,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <!-- Student Information Form Tab -->
             <div id="tab1" class="tab-content">
                 <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-                    <!-- Full Name -->
+                    <!-- Name -->
                     <div>
-                        <label for="name" class="block text-sm font-medium text-gray-700">Name (First Name-MI-Last Name)</label>
+                        <label for="name" class="block font-medium text-gray-700 text-md">Name (First Name-MI-Last Name)</label>
                         <input type="text" id="name" name="name" required
                             class="w-full p-2 mt-1 border border-gray-300 rounded-md focus:ring-teal-500 focus:border-teal-500"
                             placeholder="juan P. Dela Cruz">
@@ -198,13 +194,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                     <!-- Contact Number & Email -->
                     <div>
-                        <label for="contact" class="block text-sm font-medium text-gray-700">Active Contact Number</label>
+                        <label for="contact" class="block font-medium text-gray-700 text-md">Active Contact Number</label>
                         <input type="text" id="contact" name="contact" required
                             class="w-full p-2 mt-1 border border-gray-300 rounded-md focus:ring-teal-500 focus:border-teal-500"
                             placeholder="09XX XXX XXXX">
                     </div>
                     <div>
-                        <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                        <label for="email" class="block font-medium text-gray-700 text-md">UMak Email Address</label>
                         <input type="email" id="email" name="email" required
                             class="w-full p-2 mt-1 border border-gray-300 rounded-md focus:ring-teal-500 focus:border-teal-500"
                             placeholder="@umak.edu.ph">
@@ -212,7 +208,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                     <!-- College Selection -->
                     <div>
-                        <label for="college" class="block text-sm font-medium text-gray-700">College/Institute</label>
+                        <label for="college" class="block font-medium text-gray-700 text-md">College/Institute</label>
                         <select id="college" name="college" required
                             class="w-full p-2 mt-1 border border-gray-300 rounded-md focus:ring-teal-500 focus:border-teal-500">
                             <option value="" disabled selected>Select College</option>
@@ -238,7 +234,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                     <!-- Year Level and Section -->
                     <div>
-                        <label for="year_level" class="block text-sm font-medium text-gray-700">Year Level</label>
+                        <label for="year_level" class="block font-medium text-gray-700 text-md">Year Level</label>
                         <select id="year_level" name="year_level" required
                             class="w-full p-2 mt-1 border border-gray-300 rounded-md focus:ring-teal-500 focus:border-teal-500">
                             <option value="" disabled selected>Select Year</option>
@@ -250,20 +246,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         </select>
                     </div>
                     <div>
-                        <label for="section" class="block text-sm font-medium text-gray-700">Section</label>
+                        <label for="section" class="block font-medium text-gray-700 text-md">Section</label>
                         <input type="text" id="section" name="section" required
                             class="w-full p-2 mt-1 border border-gray-300 rounded-md focus:ring-teal-500 focus:border-teal-500"
                             placeholder="AINS">
                     </div>
                 </div>
+                    <div class="flex justify-end mt-6">
+                        <button class="px-4 py-2 text-gray-700 bg-gray-200 rounded-md" onclick="openTab(event, 'tab2')">Next</button>
+                    </div>
             </div>
 
             <!-- Appointment Details Tab -->
             <div id="tab2" class="hidden tab-content">
                 <div class="grid grid-cols-1 gap-6">
+                
                 <!-- Feelings Checkboxes -->
                 <div>
-                    <label id="feelings-label" class="block text-sm font-medium text-gray-700">
+                    <label id="feelings-label" class="block font-medium text-gray-700 text-md">
                         How are you (or how are you feeling) right now? Please check all that apply *
                     </label>
                     <div id="feelings-group" class="grid grid-cols-2 gap-2 mt-2 md:grid-cols-3" aria-labelledby="feelings-label">
@@ -308,14 +308,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         </label>
                     </div>
 
-                    <input type="text" name="feelings_other" placeholder="Other..." class="w-full p-2 mt-2 border rounded-md">
-                </div>
+                        <input type="text" name="feelings_other" placeholder="Other..." class="w-full p-2 mt-2 border rounded-md">
+                    </div>
 
                 <!-- Need to Talk to Counselor & Counseling Type in Same Row -->
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <!-- Need to Talk to Counselor -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Do you want/need to talk to a Guidance Counselor? *</label>
+                        <label class="block font-medium text-gray-700 text-md">Do you want/need to talk to a Guidance Counselor? *</label>
                         <select name="need_counselor" required class="w-full p-2 mt-1 border border-gray-300 rounded-md">
                             <option value="" disabled selected>Select an option</option>
                             <option value="Absolutely">Absolutely</option>
@@ -326,7 +326,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                     <!-- Counseling Type -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">What type of counseling session do you prefer? *</label>
+                        <label class="block font-medium text-gray-700 text-md">What type of counseling session do you prefer? *</label>
                         <select name="counseling_type" required class="w-full p-2 mt-1 border border-gray-300 rounded-md">
                             <option value="" disabled selected>Select a type</option>
                             <option value="Virtual">Virtual (Online) Counseling</option>
@@ -339,7 +339,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <!-- First Available Schedule -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Please indicate your first available schedule for a counseling session *</label>
+                        <label class="block font-medium text-gray-700 text-md">Please indicate your first available schedule for a counseling session *</label>
                         <div class="grid grid-cols-2 gap-4 mt-1">
                             <input type="date" name="first_date" required class="w-full p-2 border border-gray-300 rounded-md">
                             <input type="time" name="first_time" required min="08:00" max="17:00" class="w-full p-2 border border-gray-300 rounded-md">
@@ -348,7 +348,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                     <!-- Second Available Schedule -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Please indicate your second available schedule for a counseling session *</label>
+                        <label class="block font-medium text-gray-700 text-md">Please indicate your second available schedule for a counseling session *</label>
                         <div class="grid grid-cols-2 gap-4 mt-1">
                             <input type="date" name="second_date" required class="w-full p-2 border border-gray-300 rounded-md">
                             <input type="time" name="second_time" required min="08:00" max="17:00" class="w-full p-2 border border-gray-300 rounded-md">
@@ -356,13 +356,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     </div>
                 </div>
 
+                <div class="flex items-center">
+                    <input type="checkbox" id="terms" name="terms" required>
+                    <label for="terms" class="ml-2 text-sm text-gray-700">
+                        I agree to the <a href="#" class="text-blue-500 underline">Data Privacy Policy</a> and
+                        <a href="#" class="text-blue-500 underline">Terms and Conditions</a>.
+                    </label>
+                </div>
+
                 <!-- Submit Button -->
-                <div class="flex justify-center mt-4">
+                <div class="flex justify-between mt-4">
+                    <button class="px-4 py-2 text-gray-700 bg-gray-200 rounded-md" onclick="openTab(event, 'tab1')">Back</button>
                     <button type="submit" class="px-6 py-3 text-white bg-blue-500 rounded-md hover:bg-blue-600">
                         Submit
                     </button>
                 </div>
-            </div>
             </div>
         </form>
     </div>
