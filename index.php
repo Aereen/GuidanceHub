@@ -42,7 +42,7 @@ $result = $con->query($sql);
 
 <!--HEADER-->
 <header class="fixed top-0 left-0 z-50 w-full py-4 shadow-xl" style="background-color: #1EB0A9">
-    <div class="container-fluid flex items-center justify-between px-4 mx-auto md:px-8">
+    <div class="flex items-center justify-between px-4 mx-auto container-fluid md:px-8">
         <!-- Logo -->
         <div class="flex items-center space-x-3">
             <a href="https://www.umak.edu.ph/" class="flex items-center space-x-3">
@@ -89,9 +89,9 @@ $result = $con->query($sql);
 
 <!--INFORMATION-->
 <section class="h-auto bg-yellow-300">
-    <div class="grid grid-cols-1 md:grid-cols-2 justify-items-center gap-1">
+    <div class="grid grid-cols-1 gap-1 md:grid-cols-2 justify-items-center">
         <div>
-            <img src="/src/images/UMAK-CGCS-logo.png" alt="CGCS Logo" class="w-50 h-50 my-3">
+            <img src="/src/images/UMAK-CGCS-logo.png" alt="CGCS Logo" class="my-3 w-50 h-50">
         </div>
         <div class="p-4 m-3 mx-auto place-content-center">
             <div class="flex items-center justify-center w-full text-4xl font-bold text-center text-gray-800">GuidanceHub: Center for Guidance and Counseling Services</div>
@@ -108,50 +108,49 @@ $result = $con->query($sql);
 </section>
 
 <!-- SERVICES -->
-<section class="p-10">
+<section class="px-10 pt-5 mt-8">
 <h2 class="text-4xl font-bold text-center underline underline-offset-4 decoration-yellow-400">OUR SERVICES</h2>
     <p class="p-5 text-xl text-center text-gray-600">
         Facilitates students' personal, social, spiritual, and academic development, and career planning. <br> 
         Promotes holistic growth through responsive guidance and counseling services aligned with the university’s vision-mission.
     </p>
-    <div class="grid grid-cols-1 gap-8 p-5 md:grid-cols-2">
-        <!-- Service Card -->
-        <div class="relative overflow-hidden rounded-lg shadow-lg">
-            <img src="path/to/counseling-image.jpg" alt="Counseling" class="object-cover w-full h-48">
-            <div class="absolute inset-0 flex flex-col justify-end p-4 bg-black bg-opacity-50">
-                <h3 class="text-xl font-bold text-white">Counseling Appointment</h3>
-                <a href="/src/ControlledData/appointment.php" class="inline-block px-3 py-2 mt-2 font-medium text-white bg-blue-600 rounded-lg text-md hover:bg-blue-700">Schedule Appointment</a>
+        <div class="grid grid-cols-1 gap-8 p-5 md:grid-cols-2">
+            <div class="relative overflow-hidden rounded-lg shadow-lg">
+                <img src="path/to/counseling-image.jpg" alt="Counseling" class="object-cover w-full h-48">
+                <div class="absolute inset-0 flex flex-col justify-end p-4 bg-black bg-opacity-50">
+                    <h3 class="text-xl font-bold text-white">Counseling Appointment</h3>
+                    <a href="/src/ControlledData/appointment.php" class="inline-block px-3 py-2 mt-2 font-medium text-white bg-blue-600 rounded-lg text-md hover:bg-blue-700">Schedule Appointment</a>
+                </div>
             </div>
-        </div>
-        
-        <div class="relative overflow-hidden rounded-lg shadow-lg">
-            <img src="path/to/referral-image.jpg" alt="Referral" class="object-cover w-full h-48">
-            <div class="absolute inset-0 flex flex-col justify-end p-4 bg-black bg-opacity-50">
-                <h3 class="text-xl font-bold text-white">Referral System</h3>
-                <a href="/src/ControlledData/referral.php" class="inline-block px-3 py-2 mt-2 font-medium text-white bg-blue-600 rounded-lg text-md hover:bg-blue-700">Refer in Need</a>
+            
+            <div class="relative overflow-hidden rounded-lg shadow-lg">
+                <img src="path/to/referral-image.jpg" alt="Referral" class="object-cover w-full h-48">
+                <div class="absolute inset-0 flex flex-col justify-end p-4 bg-black bg-opacity-50">
+                    <h3 class="text-xl font-bold text-white">Referral System</h3>
+                    <a href="/src/ControlledData/referral.php" class="inline-block px-3 py-2 mt-2 font-medium text-white bg-blue-600 rounded-lg text-md hover:bg-blue-700">Refer in Need</a>
+                </div>
             </div>
-        </div>
-        
-        <div class="relative overflow-hidden rounded-lg shadow-lg">
-            <img src="path/to/inventory-image.jpg" alt="Inventory" class="object-cover w-full h-48">
-            <div class="absolute inset-0 flex flex-col justify-end p-4 bg-black bg-opacity-50">
-                <h3 class="text-xl font-bold text-white">Individual Inventory</h3>
-                <a href="/src/ControlledData/information.php" class="inline-block px-3 py-2 mt-2 font-medium text-white bg-blue-600 rounded-lg text-md hover:bg-blue-700">Answer Here</a>
+            
+            <div class="relative overflow-hidden rounded-lg shadow-lg">
+                <img src="path/to/inventory-image.jpg" alt="Inventory" class="object-cover w-full h-48">
+                <div class="absolute inset-0 flex flex-col justify-end p-4 bg-black bg-opacity-50">
+                    <h3 class="text-xl font-bold text-white">Individual Inventory</h3>
+                    <a href="/src/ControlledData/information.php" class="inline-block px-3 py-2 mt-2 font-medium text-white bg-blue-600 rounded-lg text-md hover:bg-blue-700">Answer Here</a>
+                </div>
             </div>
-        </div>
 
-        <div class="relative overflow-hidden rounded-lg shadow-lg">
-            <img src="path/to/assessment-image.jpg" alt="Assessment" class="object-cover w-full h-48">
-            <div class="absolute inset-0 flex flex-col justify-end p-4 bg-black bg-opacity-50">
-                <h3 class="text-xl font-bold text-white">Assessment</h3>
-                <a href="/src/ControlledData/assessment.php" class="inline-block px-3 py-2 mt-2 font-medium text-white bg-blue-600 rounded-lg text-md hover:bg-blue-700">Assess Yourself</a>
+            <div class="relative overflow-hidden rounded-lg shadow-lg">
+                <img src="path/to/assessment-image.jpg" alt="Assessment" class="object-cover w-full h-48">
+                <div class="absolute inset-0 flex flex-col justify-end p-4 bg-black bg-opacity-50">
+                    <h3 class="text-xl font-bold text-white">Assessment</h3>
+                    <a href="/src/ControlledData/assessment.php" class="inline-block px-3 py-2 mt-2 font-medium text-white bg-blue-600 rounded-lg text-md hover:bg-blue-700">Assess Yourself</a>
+                </div>
             </div>
         </div>
-    </div>
 </section>
 
 <!--ARTICLES-->
-<article class="container px-4 mx-auto my-10">
+<article class="container px-4 mx-auto my-8">
     <h1 class="text-4xl font-bold text-center underline decoration-yellow-400">Publications, Updates and More!</h1>
     <div class="grid grid-cols-1 gap-6 mt-8 md:grid-cols-2 lg:grid-cols-4">
         <?php if ($result && $result->num_rows > 0): ?>
@@ -172,8 +171,8 @@ $result = $con->query($sql);
 </article>
 
 <!--ABOUT-->
-<section id="about" class="container px-4 mx-auto my-5">
-    <div class="grid items-center grid-cols-1 gap-8 my-5 md:grid-cols-2">
+<section id="about" class="container px-4 mx-auto">
+    <div class="grid items-center grid-cols-1 gap-8 my-3 md:grid-cols-2">
             <img 
                 src="/src/images/CGCS-About.jpg" 
                 alt="GuidanceHub-AboutUs"  
@@ -186,15 +185,17 @@ $result = $con->query($sql);
                     Our team of professional counselors is here to support your journey through personal growth, mental health, 
                     academic success, and career development.
                 </p>
-                <a 
-                    href="https://www.facebook.com/UMakCGCS" 
-                    class="px-6 py-3 mx-3 text-lg font-medium text-center text-white border rounded-lg w-55 bg-cyan-800 border-cyan-800 justify-items-center focus:ring-6 focus:outline-none dark:focus:ring-cyan-800 hover:bg-transparent hover:text-cyan-800">
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="https://www.facebook.com/UMakCGCS" 
+                    class="w-full px-6 py-3 text-lg font-medium text-center text-white border rounded-lg bg-cyan-800 border-cyan-800 focus:ring-4 focus:outline-none dark:focus:ring-cyan-800 hover:bg-transparent hover:text-cyan-800 sm:w-auto">
                     More Details
                 </a>
                 <a href="javascript:void(0);" onclick="toggleGuidanceStaffModal()" 
-            class="px-6 py-3 mx-3 text-lg font-medium text-center text-white border rounded-lg w-55 bg-cyan-800 border-cyan-800 justify-items-center focus:ring-6 focus:outline-none dark:focus:ring-cyan-800 hover:bg-transparent hover:text-cyan-800">
-                GuidanceHub Staff
-            </a>
+                    class="w-full px-6 py-3 text-lg font-medium text-center text-white border rounded-lg bg-cyan-800 border-cyan-800 focus:ring-4 focus:outline-none dark:focus:ring-cyan-800 hover:bg-transparent hover:text-cyan-800 sm:w-auto">
+                    GuidanceHub Staff
+                </a>
+            </div>
+
 
             <!-- Modal Background -->
             <div id="guidanceStaffModal" class="fixed inset-0 z-50 flex items-center justify-center hidden bg-gray-800 bg-opacity-50">
@@ -238,30 +239,42 @@ $result = $con->query($sql);
         </div>
     </div>
     
-    <div class="flex justify-between w-3/4 p-6 mx-auto bg-white rounded-lg shadow-lg my-14">
-        <div class="w-1/3 px-4 text-center">
-            <h2 class="inline-block pb-2 text-3xl font-bold text-gray-800 border-b-4 border-yellow-400">Vision</h2>
-            <p class="mt-4 text-gray-600">
-                We envision the Center to be the heart of the university where every student shall be empowered in realizing their fullest educational potential as lifelong learners with good moral values who are committed to excellence.
-            </p>
-        </div>
-        
-        <div class="w-1/3 px-4 text-center">
-            <h2 class="inline-block pb-2 text-3xl font-bold text-gray-800 border-b-4 border-yellow-400">Mission</h2>
-            <p class="mt-4 text-gray-600">
-                The Center shall develop a comprehensive program that will provide life skills enhancement and psychological support that will equip the students to be productive, well-balanced, responsible and competent members of society. The Center shall promote and strengthen the holistic development of students.
-            </p>
-        </div>
-        
-        <div class="w-1/3 px-4 text-center">
-            <h2 class="inline-block pb-2 text-3xl font-bold text-gray-800 border-b-4 border-yellow-400">Core Values</h2>
-            <ul class="mt-4 space-y-2">
-                <li class="font-semibold text-gray-600">❤️ Love</li>
-                <li class="font-semibold text-gray-600">📚 Wisdom</li>
-                <li class="font-semibold text-gray-600">🛡️ Integrity</li>
-            </ul>
-        </div>
+    <!-- MISSION, VISION, CORE VALUES -->
+    <div class="max-w-4xl px-6 py-12 mx-auto my-10">
+        <ol class="relative border-gray-200 border-s dark:border-gray-700">
+            
+            <!-- Vision -->
+            <li class="mb-10 ms-4">
+                <div class="absolute w-3 h-3 bg-yellow-400 rounded-full mt-1.5 -start-1.5 border border-white"></div>
+                <h1 class="text-4xl font-semibold text-gray-900">Vision</h1>
+                <p class="mt-2 text-xl text-gray-600">
+                    We envision the Center to be the heart of the university where every student shall be empowered in realizing their fullest educational potential as lifelong learners with good moral values who are committed to excellence.
+                </p>
+            </li>
+
+            <!-- Mission -->
+            <li class="mb-10 ms-4">
+                <div class="absolute w-3 h-3 bg-yellow-400 rounded-full mt-1.5 -start-1.5 border border-white"></div>
+                <h1 class="text-4xl font-semibold text-gray-900">Mission</h1>
+                <p class="mt-2 text-xl text-gray-600">
+                    The Center shall develop a comprehensive program that will provide life skills enhancement and psychological support that will equip the students to be productive, well-balanced, responsible, and competent members of society.
+                </p>
+            </li>
+
+            <!-- Core Values -->
+            <li class="ms-4">
+                <div class="absolute w-3 h-3 bg-yellow-400 rounded-full mt-1.5 -start-1.5 border border-white"></div>
+                <h1 class="text-4xl font-semibold text-gray-900">Core Values</h1>
+                <ul class="mt-2 text-xlspace-y-2">
+                    <li class="text-gray-600">❤️ Love</li>
+                    <li class="text-gray-600">📚 Wisdom</li>
+                    <li class="text-gray-600">🛡️ Integrity</li>
+                </ul>
+            </li>
+
+        </ol>
     </div>
+
 </section>
 
 <!--CONTACT INFORMATION-->
@@ -279,7 +292,6 @@ $result = $con->query($sql);
             </p>
     </div>
 </section>
-
 
 </main>
 

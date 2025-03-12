@@ -1,6 +1,23 @@
-<?php include('E:/GuidanceHub/src/ControlledData/server.php'); ?>
-<?php
+<?php 
 session_start(); // Start the session
+include('E:/GuidanceHub/src/ControlledData/server.php'); 
+
+$host = 'localhost';
+$dbname = 'guidancehub';
+$username = 'root';
+$password = '';
+
+try {
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    die("Could not connect to the database $dbname :" . $e->getMessage());
+}
+
+// Query to get all audit logs
+$stmt = $pdo->prepare("SELECT * FROM admin_audit_logs");
+$stmt->execute();
+$audit = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Check if logout is requested
 if (isset($_GET['logout'])) {
@@ -15,13 +32,13 @@ if (isset($_GET['logout'])) {
 <html>
 <head>
 <title> Admin | GuidanceHub </title>
-    <link rel="icon" type="images/x-icon" href="/src/images/UMAK-CGCS-logo.png" />
+    <link rel="icon" type="image/x-icon" href="/src/images/UMAK-CGCS-logo.png" />
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link href="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.css"  rel="stylesheet" />
-        <script src="https://kit.fontawesome.com/95c10202b4.js" crossorigin="anonymous"></script>
-        <link href="./output.css" rel="stylesheet">   
+    <link href="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.css" rel="stylesheet" />
+    <script src="https://kit.fontawesome.com/95c10202b4.js" crossorigin="anonymous"></script>
+    <link href="./output.css" rel="stylesheet">   
 </head>
 <body>
 <!--TOP NAVIGATION BAR-->
@@ -47,50 +64,55 @@ if (isset($_GET['logout'])) {
     </div>
 </nav>
 
-<!--SIDE NAVIGATION MENU-->
-<aside id="logo-sidebar" class="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform -translate-x-full bg-white border-r border-gray-200 sm:translate-x-0" aria-label="Sidebar">
-    <div class="h-full px-3 pb-4 overflow-y-auto bg-white">
-        <ul class="space-y-2 font-medium">
+<!-- SIDE NAVIGATION MENU -->
+<aside id="logo-sidebar" class="fixed z-40 w-64 h-screen pt-20 transition-transform -translate-x-full bg-white border-r dark:border-gray-300 sm:translate-x-0" aria-label="Sidebar">
+    <div class="h-full px-3 pb-4 overflow-y-auto bg-white border-gray-300">
+        <ul class="m-3 space-y-2 font-medium">
             <li>
-                <a href="index.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100"">
-                <i class="w-5 h-5 text-gray-500 fa-solid fa-house"></i>
+                <a href="dashboard.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                <svg class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 21">
+                    <i class="fa-solid fa-house"></i>
+                </svg>
                 <span class="ms-3">Dashboard</span>
                 </a>
             </li>
             <li>
-                <a href="appointment.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100"">
-                <i class="w-5 h-5 text-gray-500 fa-solid fa-calendar-check"></i>
-                <span class="ms-3">Appointments</span>
-                </a>
-            </li>
-            <li> <!--IN THIS FILE SECTION THE ADMIN WILL SEE THE INPUTS OF EACH ASSESSMENT-->
-                <a href="assessment.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100"">
-                <i class="w-5 h-5 text-gray-500 fa-solid fa-book-open"></i>
-                <span class="ms-3">Assessments</span>
+                <a href="report.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 18">
+                    <i class="fa-solid fa-calendar-check"></i>
+                </svg>
+                <span class="flex-1 ms-3 whitespace-nowrap">Report</span>
                 </a>
             </li>
             <li>
-                <a href="resources.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100"">
-                <i class="w-5 h-5 text-gray-500 fa-solid fa-calendar-check"></i>
-                <span class="ms-3">Resources</span>
+                <a href="analytics.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 18">
+                    <i class="fa-solid fa-chart-pie"></i>
+                </svg>
+                <span class="flex-1 ms-3 whitespace-nowrap">Analytic</span>
                 </a>
             </li>
             <li>
-                <a href="report.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100"">
-                <i class="w-5 h-5 text-gray-500 fa-solid fa-chart-pie"></i>
-                <span class="ms-3">Reports</span>
+                <a href="resources.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 18">
+                    <i class="fa-solid fa-chart-pie"></i>
+                </svg>
+                <span class="flex-1 ms-3 whitespace-nowrap">Resources</span>
                 </a>
             </li>
-        <!--<li>
-                <a href="audit.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100"">
-                <i class="w-5 h-5 text-gray-500 fa-solid fa-chart-bar"></i>
-                <span class="ms-3">Audit Logs</span>
-                </a>
-            </li> 
-        -->
             <li>
-                <a href="?logout=true" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100"">
-                    <i class="w-5 h-5 text-gray-500 fa-solid fa-right-from-bracket"></i>
+                <a href="audit.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 18">
+                    <i class="fa-solid fa-chart-pie"></i>
+                </svg>
+                <span class="flex-1 ms-3 whitespace-nowrap">Audit Log</span>
+                </a>
+            </li>
+            <li>
+                <a href="?logout=true" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                    <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 16">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/> <i class="fa-solid fa-right-from-bracket"></i>
+                    </svg>
                     <span class="flex-1 ms-3 whitespace-nowrap">Log Out</span>
                 </a>
             </li>
@@ -98,10 +120,34 @@ if (isset($_GET['logout'])) {
     </div>
 </aside>
 
-<!--CONTENT-->
-<div class="p-4 mt-10 sm:ml-64">
-<h2 class="p-3 my-2 text-4xl font-bold">Audit Logs</h2>
-
+<!-- CONTENT -->
+<div class="max-w-4xl p-6 mx-auto mt-10 bg-white rounded-lg shadow-md">
+    <h2 class="mb-4 text-2xl font-semibold">Admin Audit Logs</h2>
+    <table class="w-full border border-collapse border-gray-300">
+        <thead>
+            <tr class="bg-gray-200">
+                <th class="px-4 py-2 border border-gray-300">Name</th>
+                <th class="px-4 py-2 border border-gray-300">Position</th>
+                <th class="px-4 py-2 border border-gray-300">Status</th>
+                <th class="px-4 py-2 border border-gray-300">Timestamp</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($audit as $log): ?>
+                <tr class="text-center bg-white border-b border-gray-300">
+                    <td class="px-4 py-2"><?= htmlspecialchars($log['employee_name']) ?></td>
+                    <td class="px-4 py-2"><?= htmlspecialchars($log['role']) ?></td>
+                    <td class="px-4 py-2">
+                        <span class="px-2 py-1 text-sm font-semibold text-white 
+                                <?= $log['status'] === 'Active' ? 'bg-green-500' : 'bg-red-500' ?>">
+                            <?= htmlspecialchars($log['status']) ?>
+                        </span>
+                    </td>
+                    <td class="px-4 py-2"><?= htmlspecialchars($log['timestamp']) ?></td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
 </div>
 
 <!--FOOTER-->

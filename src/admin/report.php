@@ -1,6 +1,15 @@
 <?php include('E:/GuidanceHub/src/ControlledData/server.php'); ?>
 <?php
-session_start(); // Start the session
+// Connect to the database
+$con = mysqli_connect('localhost', 'root', '', 'guidancehub');
+
+// Check connection
+if (!$con) {
+    die("Connection failed: " . mysqli_connect_error());
+}
+
+// Initialize variables and error array
+$errors = array();// Start the session
 
 // Check if logout is requested
 if (isset($_GET['logout'])) {
@@ -14,210 +23,204 @@ if (isset($_GET['logout'])) {
 <!doctype html>
 <html>
 <head>
-<title> GuidanceHub </title>
+<title> Admin | GuidanceHub </title>
     <link rel="icon" type="images/x-icon" href="/src/images/UMAK-CGCS-logo.png" />
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link href="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.css"  rel="stylesheet" />
         <script src="https://kit.fontawesome.com/95c10202b4.js" crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="https://cdn.tailwindcss.com"></script>
-        <link href="./output.css" rel="stylesheet">   
-
+        <link href="./output.css" rel="stylesheet">
 </head>
-<body>
-<!-- TOP NAVIGATION BAR -->
-<nav class="fixed top-0 z-50 w-full border-b border-gray-200">
-    <div class="px-3 py-2 lg:px-5 lg:pl-3">
+<body class="bg-gray-100">
+
+<!--TOP NAVIGATION BAR-->
+<nav class="fixed top-0 z-50 w-full bg-white border-b border-gray-200">    
+    <div class="px-3 py-3 lg:px-5 lg:pl-3">
         <div class="flex items-center justify-between">
             <div class="flex items-center justify-start">
-                <button data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" aria-controls="logo-sidebar" type="button" class="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200">
+                <button data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" aria-controls="logo-sidebar" type="button" class="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600">
                     <span class="sr-only">Open sidebar</span>
-                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                        <path fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z" clip-rule="evenodd"></path>
+                    <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
                     </svg>
                 </button>
-                <a href="" class="flex items-center ms-2 md:me-24">
-                    <img src="/src/images/UMAK-CGCS-logo.png" class="h-12 me-3" alt="GuidanceHub Logo" />
-                    <span class="self-center text-xl font-semibold text-gray-900 sm:text-2xl whitespace-nowrap">GuidanceHub</span>
+                <a href="" class="flex ms-2 md:me-24">
+                    <img src="/src/images/UMAK-CGCS-logo.png" class="h-8 me-3" alt="GuidanceHub Logo" />
+                    <span class="self-center text-xl font-semibold text-black sm:text-2xl whitespace-nowrap">GuidanceHub</span>
                 </a>
+            </div>
+            <div class="flex items-center justify-end">
+
             </div>
         </div>
     </div>
 </nav>
 
 <!-- SIDE NAVIGATION MENU -->
-<aside id="logo-sidebar" class="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform -translate-x-full bg-white border-r border-gray-200 sm:translate-x-0" aria-label="Sidebar">
-    <div class="h-full px-3 pb-4 overflow-y-auto bg-white">
-        <ul class="space-y-2 font-medium">
+<aside id="logo-sidebar" class="fixed z-40 w-64 h-screen pt-20 transition-transform -translate-x-full bg-white border-r dark:border-gray-300 sm:translate-x-0" aria-label="Sidebar">
+    <div class="h-full px-3 pb-4 overflow-y-auto bg-white border-gray-300">
+        <ul class="m-3 space-y-2 font-medium">
             <li>
-                <a href="dashboard.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100"">
-                <i class="w-5 h-5 text-gray-500 fa-solid fa-house"></i>
+                <a href="dashboard.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                <svg class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 21">
+                    <i class="fa-solid fa-house"></i>
+                </svg>
                 <span class="ms-3">Dashboard</span>
                 </a>
             </li>
             <li>
-                <a href="appointment.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100"">
-                <i class="w-5 h-5 text-gray-500 fa-solid fa-calendar-check"></i>
-                <span class="ms-3">Appointments</span>
-                </a>
-            </li>
-            <li> <!--IN THIS FILE SECTION THE ADMIN WILL SEE THE INPUTS OF EACH ASSESSMENT-->
-                <a href="assessment.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100"">
-                <i class="w-5 h-5 text-gray-500 fa-solid fa-book-open"></i>
-                <span class="ms-3">Assessments</span>
+                <a href="report.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 18">
+                    <i class="fa-solid fa-calendar-check"></i>
+                </svg>
+                <span class="flex-1 ms-3 whitespace-nowrap">Report</span>
                 </a>
             </li>
             <li>
-                <a href="resources.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100"">
-                <i class="w-5 h-5 text-gray-500 fa-solid fa-calendar-check"></i>
-                <span class="ms-3">Resources</span>
+                <a href="analytics.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 18">
+                    <i class="fa-solid fa-chart-pie"></i>
+                </svg>
+                <span class="flex-1 ms-3 whitespace-nowrap">Analytic</span>
                 </a>
             </li>
             <li>
-                <a href="report.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100"">
-                <i class="w-5 h-5 text-gray-500 fa-solid fa-chart-pie"></i>
-                <span class="ms-3">Reports</span>
+                <a href="resources.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 18">
+                    <i class="fa-solid fa-chart-pie"></i>
+                </svg>
+                <span class="flex-1 ms-3 whitespace-nowrap">Resources</span>
                 </a>
             </li>
-        <!--<li>
-                <a href="audit.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100"">
-                <i class="w-5 h-5 text-gray-500 fa-solid fa-chart-bar"></i>
-                <span class="ms-3">Audit Logs</span>
-                </a>
-            </li> 
-        -->
             <li>
-                <a href="?logout=true" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100"">
-                    <i class="w-5 h-5 text-gray-500 fa-solid fa-right-from-bracket"></i>
+                <a href="audit.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 18">
+                    <i class="fa-solid fa-chart-pie"></i>
+                </svg>
+                <span class="flex-1 ms-3 whitespace-nowrap">Audit Log</span>
+                </a>
+            </li>
+            <li>
+                <a href="?logout=true" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                    <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 16">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/> <i class="fa-solid fa-right-from-bracket"></i>
+                    </svg>
                     <span class="flex-1 ms-3 whitespace-nowrap">Log Out</span>
                 </a>
             </li>
         </ul>
     </div>
-</aside>\
-
-
+</aside>
 
 <!--CONTENT HERE-->
-<section class="p-4 mt-10 sm:ml-64">
-<div class="px-4 py-10 mx-auto max-w-7xl">
-        <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
-            <!-- Total Students Served -->
-            <div class="p-6 bg-white rounded-lg shadow">
-                <h2 class="text-2xl font-semibold text-gray-700">Students Served</h2>
-                <p class="mt-4 text-4xl font-bold text-green-500" id="students-served"></p>
-                <p class="mt-2 text-sm text-gray-500">in the past year</p>
+<div class="p-4 mt-10 sm:ml-64">
+    <h2 class="p-3 my-2 text-4xl font-bold text-gray-800">Scheduled Appointments</h2>
+    <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-md">
+        <!-- Search Bar -->
+            <div class="flex justify-end">
+                <form method="GET" class="flex mb-4">
+                    <input type="text" name="search" placeholder="Search referrals..." class="w-40 p-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                    <button type="submit" class="px-4 py-2 ml-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600">Search</button>
+                </form> 
             </div>
-            <!-- Sessions Conducted -->
-            <div class="p-6 bg-white rounded-lg shadow">
-                <h2 class="text-2xl font-semibold text-gray-700">Sessions Conducted</h2>
-                <p class="mt-4 text-4xl font-bold text-blue-500" id="sessions-conducted"></p>
-                <p class="mt-2 text-sm text-gray-500">total sessions</p>
-            </div>
-            <!-- Active Cases -->
-            <div class="p-6 bg-white rounded-lg shadow">
-                <h2 class="text-2xl font-semibold text-gray-700">Active Cases</h2>
-                <p class="mt-4 text-4xl font-bold text-red-500" id="active-cases"></p>
-                <p class="mt-2 text-sm text-gray-500">currently in progress</p>
-            </div>
-        </div>
 
-        <!-- Chart Section -->
-        <div class="p-6 mt-10 bg-white rounded-lg shadow">
-            <h2 class="mb-6 text-2xl font-semibold text-gray-700">Session Overview</h2>
-            <div class="relative h-80">
-                <canvas id="analytics-chart"></canvas>
-            </div>
-        </div>
-        <!-- Detailed Report Table -->
-        <div class="p-6 mt-10 bg-white rounded-lg shadow">
-            <h2 class="mb-6 text-2xl font-semibold text-gray-700">Detailed Reports</h2>
-            <table class="min-w-full border border-collapse border-gray-200">
-                <thead>
-                    <tr class="bg-gray-50">
-                        <th class="px-4 py-2 text-sm font-semibold text-left text-gray-600 border border-gray-300">#</th>
-                        <th class="px-4 py-2 text-sm font-semibold text-left text-gray-600 border border-gray-300">Student Name</th>
-                        <th class="px-4 py-2 text-sm font-semibold text-left text-gray-600 border border-gray-300">Issue</th>
-                        <th class="px-4 py-2 text-sm font-semibold text-left text-gray-600 border border-gray-300">Status</th>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left text-gray-600 dark:text-gray-400">
+                <thead class="text-sm text-gray-900 uppercase bg-gray-100">
+                    <tr class="text-center">
+                        <th scope="col" class="px-6 py-3">#</th>
+                        <th scope="col" class="px-6 py-3">Ticket ID</th>
+                        <th scope="col" class="px-6 py-3">Full Name</th>
+                        <th scope="col" class="px-6 py-3">Email</th>
+                        <th scope="col" class="px-6 py-3">Date</th>
+                        <th scope="col" class="px-6 py-3">Time</th>
+                        <th scope="col" class="px-6 py-3">Status</th>
+                        <th scope="col" class="px-6 py-3">Actions</th>
                     </tr>
                 </thead>
-                <tbody id="report-table">
-                    <!-- JavaScript will populate this -->
+                <tbody>
+                    <?php
+                    // Connect to the database
+                    $con = mysqli_connect('localhost', 'root', '', 'guidancehub');
+                    
+                    if (!$con) {
+                        die("Connection failed: " . mysqli_connect_error());
+                    }
+
+                    $sql = "SELECT * FROM appointments";
+                    $result = mysqli_query($con, $sql);
+
+                    if (mysqli_num_rows($result) > 0) {
+                        $counter = 1;
+                        while ($row = mysqli_fetch_assoc($result)) {
+                            // Ensure status is defined, defaulting to "Pending"
+                            $status = !empty($row['status']) ? htmlspecialchars($row['status']) : 'Pending';
+
+                            echo "<tr class='text-center text-black bg-white border-b dark:border-gray-700'>
+                                    <td class='px-6 py-3'>" . $counter++ . "</td>
+                                    <td class='px-6 py-3'>" . htmlspecialchars($row['ticket_id']) . "</td>
+                                    <td class='px-6 py-3'>" . htmlspecialchars($row['name']) . "</td>
+                                    <td class='px-6 py-3'>" . htmlspecialchars($row['email']) . "</td>
+                                    <td class='px-6 py-3'>" . htmlspecialchars($row['first_date']) . "</td>
+                                    <td class='px-6 py-3'>" . htmlspecialchars($row['first_time']) . "</td>
+                                    <td class='px-6 py-3'>
+                                        <!-- Status Update Form -->
+                                        <form action='' method='POST' class='inline-block'>
+                                            <input type='hidden' name='email' value='" . htmlspecialchars($row['email']) . "'>
+                                            <select name='status' class='p-2 border rounded'>
+                                                <option value='Pending' " . ($status == 'Pending' ? 'selected' : '') . ">Pending</option>
+                                                <option value='Scheduled' " . ($status == 'Scheduled' ? 'selected' : '') . ">Scheduled</option>
+                                                <option value='Completed' " . ($status == 'Completed' ? 'selected' : '') . ">Completed</option>
+                                                <option value='Cancelled' " . ($status == 'Cancelled' ? 'selected' : '') . ">Cancelled</option>
+                                            </select>
+                                            <button type='submit' name='update_status' class='px-4 py-2 ml-2 text-white bg-blue-500 rounded'>Update</button>
+                                        </form>
+                                    </td>
+                                    <td class='px-6 py-3'>
+                                        <button class='text-blue-600 hover:underline show-details-btn' onclick='showDetails(" . json_encode($row) . ")'>Show Details</button>
+                                        <form action='' method='POST' class='inline-block'>
+                                            <input type='hidden' name='email' value='" . htmlspecialchars($row['email']) . "'>
+                                            <button type='submit' name='archive' class='ml-4 text-yellow-600 hover:underline archive-btn'>Archive</button>
+                                        </form>
+                                    </td>
+                                </tr>";
+                        }
+                    } else {
+                        echo "<tr><td colspan='8' class='px-6 py-3 text-center'>No appointments found</td></tr>";
+                    }
+
+                    mysqli_close($con);
+                    ?>
                 </tbody>
             </table>
         </div>
     </div>
+</div>
 
-    <script>
-        // Fake Data
-        const stats = {
-            studentsServed: Math.floor(Math.random() * (200 - 100 + 1)) + 100,
-            sessionsConducted: Math.floor(Math.random() * (200 - 50 + 1)) + 50,
-            activeCases: Math.floor(Math.random() * (50 - 10 + 1)) + 10,
-        };
-
-        const reports = [
-            { name: "John Doe", issue: "Stress", status: "Resolved" },
-            { name: "Jane Smith", issue: "Anxiety", status: "Ongoing" },
-            { name: "Robert Brown", issue: "Family Issues", status: "Resolved" },
-            { name: "Emily Johnson", issue: "Bullying", status: "Ongoing" },
-        ];
-
-        // Populate Stats
-        document.getElementById("students-served").textContent = stats.studentsServed;
-        document.getElementById("sessions-conducted").textContent = stats.sessionsConducted;
-        document.getElementById("active-cases").textContent = stats.activeCases;
-
-        // Populate Report Table
-        const tableBody = document.getElementById("report-table");
-        reports.forEach((report, index) => {
-            const row = document.createElement("tr");
-            row.className = "border-t";
-
-            row.innerHTML = `
-                <td class="px-4 py-2 text-gray-600 border border-gray-300">${index + 1}</td>
-                <td class="px-4 py-2 text-gray-600 border border-gray-300">${report.name}</td>
-                <td class="px-4 py-2 text-gray-600 border border-gray-300">${report.issue}</td>
-                <td class="px-4 py-2 text-gray-600 border border-gray-300">${report.status}</td>
-            `;
-
-            tableBody.appendChild(row);
-        });
-
-        // Chart.js Implementation
-        const ctx = document.getElementById('analytics-chart').getContext('2d');
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Students Served', 'Sessions Conducted', 'Active Cases'],
-                datasets: [{
-                    data: [stats.studentsServed, stats.sessionsConducted, stats.activeCases],
-                    backgroundColor: ['#22c55e', '#3b82f6', '#ef4444'],
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    },
-                },
-            },
-        });
-        </script>
-</section>
+<!-- Pop-up Modal -->
+<div id="detailsModal" class="fixed inset-0 z-50 flex items-center justify-center hidden bg-black bg-opacity-50">
+    <div class="w-full max-w-2xl p-6 bg-white rounded-lg shadow-md">
+        <div class="flex justify-between">
+            <h3 id="modalTitle" class="text-xl font-semibold"></h3>
+            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-800">✖</button>
+        </div>
+        <div id="modalContent" class="mt-4 text-gray-700"></div>
+        <button onclick="closeModal()" class="px-4 py-2 mt-6 text-white bg-blue-500 rounded hover:bg-blue-700">
+            Close
+        </button>
+    </div>
+</div>
 
 <!--FOOTER-->
-<footer class="overflow-auto bg-white sm:ml-64 w-75 dark:bg-gray-900">
-    <div class="w-full max-w-screen-xl p-4 py-6 mx-auto lg:py-8">
+<footer class="overflow-auto bg-gray-100 sm:ml-64 w-75">
+    <div class="w-full max-w-screen-xl p-4 py-6 mx-auto lg:py-8 dark:text-gray-800">
         <div class="md:flex md:justify-between">
             <div class="mb-6 md:mb-0">
                 <a href="https://flowbite.com/" class="flex items-center">
                     <img src="/src/images/UMAK-CGCS-logo.png" class="h-8 me-3" alt="GuidanceHub Logo" />
-                    <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">GuidanceHub<span>
+                    <span class="self-center text-2xl font-semibold whitespace-nowrap">GuidanceHub<span>
                 </a>
             </div>
             <div class="grid grid-cols-2 gap-8 sm:gap-6 sm:grid-cols-3">
@@ -296,7 +299,53 @@ if (isset($_GET['logout'])) {
     </div>
 </footer>
 
+<script>
+// Show appointment details in a pop-up modal
+function showDetails(row) {
+    const modal = document.getElementById('detailsModal');
+    document.getElementById('modalTitle').innerText = `Appointment Details for ${row.name}`;
+    document.getElementById('modalContent').innerHTML = `
+        <p><strong>Student Number:</strong> ${row.id_number}</p>
+        <p><strong>Contact Number:</strong> ${row.contact}</p>
+        <p><strong>Email:</strong> ${row.email}</p>
+        <p><strong>College:</strong> ${row.college}</p>
+        <p><strong>Course:</strong> ${row.course}</p>
+        <p><strong>Year Level:</strong> ${row.year_level}</p>
+        <p><strong>Section:</strong> ${row.section}</p>
+        <p><strong>Appointment Type:</strong> ${row.appointment_type}</p>
+        <p><strong>Date:</strong> ${row.appointment_date}</p>
+        <p><strong>Time:</strong> ${row.appointment_time}</p>
+    `;
+    modal.classList.remove('hidden');
+}
 
+// Close modal
+function closeModal() {
+    document.getElementById('detailsModal').classList.add('hidden');
+}
+
+
+// Handle Delete button click
+    document.querySelectorAll('.delete-btn').forEach(button => {
+        button.addEventListener('click', function () {
+            const appointmentId = this.getAttribute('data-id');
+            if (confirm("Are you sure you want to delete this appointment?")) {
+                // Send AJAX request to delete the appointment
+                const xhr = new XMLHttpRequest();
+                xhr.open("POST", "delete_appointment.php", true);
+                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4 && xhr.status === 200) {
+                        alert('Appointment deleted!');
+                        location.reload();  // Reload the page to reflect changes
+                    }
+                };
+                xhr.send("id=" + appointmentId);
+            }
+        });
+    });
+
+</script>
 <script src="../path/to/flowbite/dist/flowbite.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
 </body>

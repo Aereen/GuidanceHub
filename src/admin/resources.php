@@ -68,6 +68,7 @@ if (isset($_GET['logout'])) {
         <link href="./output.css" rel="stylesheet">   
 </head>
 <body>
+
 <!--TOP NAVIGATION BAR-->
 <nav class="fixed top-0 z-50 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
     <div class="px-3 py-3 lg:px-5 lg:pl-3">
@@ -91,50 +92,55 @@ if (isset($_GET['logout'])) {
     </div>
 </nav>
 
-<!--SIDE NAVIGATION MENU-->
-<aside id="logo-sidebar" class="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform -translate-x-full bg-white border-r border-gray-200 sm:translate-x-0" aria-label="Sidebar">
-    <div class="h-full px-3 pb-4 overflow-y-auto bg-white">
-        <ul class="space-y-2 font-medium">
+<!-- SIDE NAVIGATION MENU -->
+<aside id="logo-sidebar" class="fixed z-40 w-64 h-screen pt-20 transition-transform -translate-x-full bg-white border-r dark:border-gray-300 sm:translate-x-0" aria-label="Sidebar">
+    <div class="h-full px-3 pb-4 overflow-y-auto bg-white border-gray-300">
+        <ul class="m-3 space-y-2 font-medium">
             <li>
-                <a href="dashboard.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100"">
-                <i class="w-5 h-5 text-gray-500 fa-solid fa-house"></i>
+                <a href="dashboard.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                <svg class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 21">
+                    <i class="fa-solid fa-house"></i>
+                </svg>
                 <span class="ms-3">Dashboard</span>
                 </a>
             </li>
             <li>
-                <a href="appointment.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100"">
-                <i class="w-5 h-5 text-gray-500 fa-solid fa-calendar-check"></i>
-                <span class="ms-3">Appointments</span>
-                </a>
-            </li>
-            <li> <!--IN THIS FILE SECTION THE ADMIN WILL SEE THE INPUTS OF EACH ASSESSMENT-->
-                <a href="assessment.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100"">
-                <i class="w-5 h-5 text-gray-500 fa-solid fa-book-open"></i>
-                <span class="ms-3">Assessments</span>
+                <a href="report.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 18">
+                    <i class="fa-solid fa-calendar-check"></i>
+                </svg>
+                <span class="flex-1 ms-3 whitespace-nowrap">Report</span>
                 </a>
             </li>
             <li>
-                <a href="resources.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100"">
-                <i class="w-5 h-5 text-gray-500 fa-solid fa-calendar-check"></i>
-                <span class="ms-3">Resources</span>
+                <a href="analytics.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 18">
+                    <i class="fa-solid fa-chart-pie"></i>
+                </svg>
+                <span class="flex-1 ms-3 whitespace-nowrap">Analytic</span>
                 </a>
             </li>
             <li>
-                <a href="report.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100"">
-                <i class="w-5 h-5 text-gray-500 fa-solid fa-chart-pie"></i>
-                <span class="ms-3">Reports</span>
+                <a href="resources.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 18">
+                    <i class="fa-solid fa-chart-pie"></i>
+                </svg>
+                <span class="flex-1 ms-3 whitespace-nowrap">Resources</span>
                 </a>
             </li>
-        <!--<li>
-                <a href="audit.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100"">
-                <i class="w-5 h-5 text-gray-500 fa-solid fa-chart-bar"></i>
-                <span class="ms-3">Audit Logs</span>
-                </a>
-            </li> 
-        -->
             <li>
-                <a href="?logout=true" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100"">
-                    <i class="w-5 h-5 text-gray-500 fa-solid fa-right-from-bracket"></i>
+                <a href="audit.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 18">
+                    <i class="fa-solid fa-chart-pie"></i>
+                </svg>
+                <span class="flex-1 ms-3 whitespace-nowrap">Audit Log</span>
+                </a>
+            </li>
+            <li>
+                <a href="?logout=true" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                    <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 16">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/> <i class="fa-solid fa-right-from-bracket"></i>
+                    </svg>
                     <span class="flex-1 ms-3 whitespace-nowrap">Log Out</span>
                 </a>
             </li>
@@ -143,68 +149,132 @@ if (isset($_GET['logout'])) {
 </aside>
 
 <!--CONTENT-->
-<div class="p-6 mt-10 sm:ml-64">
+<main class="p-6 mt-10 sm:ml-64">
     <h2 class="mb-6 text-4xl font-bold">Resources Management</h2>
-        <h3 class="mb-6 text-2xl font-bold">Library</h3>
-        <!-- Form for Adding Resources -->
-        <form action="#" method="post" class="space-y-4">
-            <div class="flex flex-col space-y-2">
-                <label for="title" class="text-gray-700">Title</label>
-                <input type="text" id="title" name="title" placeholder="Title" required class="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-            <div class="flex flex-col space-y-2">
-                <label for="description" class="text-gray-700">Description</label>
-                <textarea id="description" name="description" placeholder="Description" required class="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-            </div>
-            <div class="flex flex-col space-y-2">
-                <label for="resource_link" class="text-gray-700">Link</label>
-                <input type="text" id="resource_link" name="resource_link" placeholder="Link" required class="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-            <div class="flex flex-col space-y-2">
-                <label for="category" class="text-gray-700">Category</label>
-                <input type="text" id="category" name="category" placeholder="Category" class="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-            <button type="submit" name="add" class="w-full py-3 text-white transition bg-blue-500 rounded-md hover:bg-blue-600">Add Resource</button>
-        </form>
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
 
-        <!-- Display Resources and Delete Option -->
-        <h2 class="mt-10 text-2xl font-semibold">Existing Resources</h2>
-        <table class="min-w-full bg-white border border-gray-300">
-            <thead>
-                <tr>
-                    <th class="px-4 py-2 border">Title</th>
-                    <th class="px-4 py-2 border">Description</th>
-                    <th class="px-4 py-2 border">Link</th>
-                    <th class="px-4 py-2 border">Category</th>
-                    <th class="px-4 py-2 border">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php 
-                $sql = "SELECT * FROM library_resources";
-                $result = mysqli_query($con, $sql);
+        <!--ADDING RESOURCES-->
+            <div>
+            <h3 class="mb-6 text-2xl font-bold">Library</h3>
+                <form action="#" method="post" class="space-y-4">
+                    <div class="flex flex-col space-y-2">
+                        <label for="title" class="text-gray-700">Title</label>
+                        <input type="text" id="title" name="title" placeholder="Title" required class="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="flex flex-col space-y-2">
+                        <label for="description" class="text-gray-700">Description</label>                            <textarea id="description" name="description" placeholder="Description" required class="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                    </div>
+                    <div class="flex flex-col space-y-2">
+                        <label for="resource_link" class="text-gray-700">Link</label>
+                        <input type="text" id="resource_link" name="resource_link" placeholder="Link" required class="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="flex flex-col space-y-2">
+                            <label for="category" class="text-gray-700">Category</label>                                <input type="text" id="category" name="category" placeholder="Category" class="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                            <button type="submit" name="add" class="w-full py-3 text-white transition bg-blue-500 rounded-md hover:bg-blue-600">Add Resource</button>
+                    </form>
+            </div>
 
-                // Check if the query was successful
-                if (!$result) {
-                    die("Query failed: " . mysqli_error($con));
-                }
-                while ($row = mysqli_fetch_assoc($result)) { ?>
-                    <tr>
-                        <td class="px-4 py-2 border"><?php echo htmlspecialchars($row['title']); ?></td>
-                        <td class="px-4 py-2 border"><?php echo htmlspecialchars($row['description']); ?></td>
-                        <td class="px-4 py-2 border"><a href="<?php echo htmlspecialchars($row['resource_link']); ?>" target="_blank" class="text-blue-500"><?php echo htmlspecialchars($row['resource_link']); ?></a></td>
-                        <td class="px-4 py-2 border"><?php echo htmlspecialchars($row['category']); ?></td>
-                        <td class="px-4 py-2 border">
-                            <form action="#" method="post" onsubmit="return confirm('Are you sure you want to delete this resource?');">
-                                <input type="hidden" name="resource_id" value="<?php echo $row['id']; ?>">
-                                <button type="submit" name="delete" class="text-red-500 hover:text-red-700">Delete</button>
-                            </form>
-                        </td>
-                    </tr>
-                <?php } ?>
-            </tbody>
-        </table>
-    </div>
+        <!--DISPLAY RESOURCES-->
+            <div>
+            <h2 class="mt-10 text-2xl font-semibold">Existing Resources</h2>
+                <table class="min-w-full bg-white border border-gray-300">
+                    <thead>
+                        <tr>
+                            <th class="px-4 py-2 border">Title</th>
+                            <th class="px-4 py-2 border">Description</th>
+                            <th class="px-4 py-2 border">Link</th>
+                            <th class="px-4 py-2 border">Category</th>
+                            <th class="px-4 py-2 border">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php 
+                        $sql = "SELECT * FROM library_resources";
+                        $result = mysqli_query($con, $sql);
+
+                        // Check if the query was successful
+                        if (!$result) {
+                            die("Query failed: " . mysqli_error($con));
+                        }
+                        while ($row = mysqli_fetch_assoc($result)) { ?>
+                            <tr>
+                                <td class="px-4 py-2 border"><?php echo htmlspecialchars($row['title']); ?></td>                                    <td class="px-4 py-2 border"><?php echo htmlspecialchars($row['description']); ?></td>
+                                <td class="px-4 py-2 border"><a href="<?php echo htmlspecialchars($row['resource_link']); ?>" target="_blank" class="text-blue-500"><?php echo htmlspecialchars($row['resource_link']); ?></a></td>
+                                <td class="px-4 py-2 border"><?php echo htmlspecialchars($row['category']); ?></td>
+                                <td class="px-4 py-2 border">
+                                    <form action="#" method="post" onsubmit="return confirm('Are you sure you want to delete this resource?');">
+                                        <input type="hidden" name="resource_id" value="<?php echo $row['id']; ?>">
+                                        <button type="submit" name="delete" class="text-red-500 hover:text-red-700">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <?php } ?>
+                    </tbody>
+                </table>
+            </div>
+
+        <!--ADDING ANNOUNCEMENTS-->
+            <div>
+            <h3 class="mb-6 text-2xl font-bold">Library</h3>
+                <form action="#" method="post" class="space-y-4">
+                    <div class="flex flex-col space-y-2">
+                        <label for="title" class="text-gray-700">Title</label>
+                        <input type="text" id="title" name="title" placeholder="Title" required class="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="flex flex-col space-y-2">
+                        <label for="description" class="text-gray-700">Description</label>                            <textarea id="description" name="description" placeholder="Description" required class="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                    </div>
+                    <div class="flex flex-col space-y-2">
+                        <label for="resource_link" class="text-gray-700">Link</label>
+                        <input type="text" id="resource_link" name="resource_link" placeholder="Link" required class="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="flex flex-col space-y-2">
+                            <label for="category" class="text-gray-700">Category</label>                                <input type="text" id="category" name="category" placeholder="Category" class="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                            <button type="submit" name="add" class="w-full py-3 text-white transition bg-blue-500 rounded-md hover:bg-blue-600">Add Resource</button>
+                    </form>
+            </div>
+
+        <!--DISPLAY ANNOUNCEMENTS-->
+            <div>
+            <h2 class="mt-10 text-2xl font-semibold">Existing Resources</h2>
+                <table class="min-w-full bg-white border border-gray-300">
+                    <thead>
+                        <tr>
+                            <th class="px-4 py-2 border">Title</th>
+                            <th class="px-4 py-2 border">Description</th>
+                            <th class="px-4 py-2 border">Link</th>
+                            <th class="px-4 py-2 border">Category</th>
+                            <th class="px-4 py-2 border">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php 
+                        $sql = "SELECT * FROM library_resources";
+                        $result = mysqli_query($con, $sql);
+
+                        // Check if the query was successful
+                        if (!$result) {
+                            die("Query failed: " . mysqli_error($con));
+                        }
+                        while ($row = mysqli_fetch_assoc($result)) { ?>
+                            <tr>
+                                <td class="px-4 py-2 border"><?php echo htmlspecialchars($row['title']); ?></td>                                    <td class="px-4 py-2 border"><?php echo htmlspecialchars($row['description']); ?></td>
+                                <td class="px-4 py-2 border"><a href="<?php echo htmlspecialchars($row['resource_link']); ?>" target="_blank" class="text-blue-500"><?php echo htmlspecialchars($row['resource_link']); ?></a></td>
+                                <td class="px-4 py-2 border"><?php echo htmlspecialchars($row['category']); ?></td>
+                                <td class="px-4 py-2 border">
+                                    <form action="#" method="post" onsubmit="return confirm('Are you sure you want to delete this resource?');">
+                                        <input type="hidden" name="resource_id" value="<?php echo $row['id']; ?>">
+                                        <button type="submit" name="delete" class="text-red-500 hover:text-red-700">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <?php } ?>
+                    </tbody>
+                </table>
+            </div>
+</div>
 
 
 <!--FOOTER-->
