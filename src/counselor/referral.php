@@ -34,11 +34,6 @@ foreach ($params as $key => $value) {
 $stmt->execute();
 $referrals = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Check if the user is logged in
-if (!isset($_SESSION['id_number'])) {
-    header("Location: /src/ControlledData/login.php"); //if not logged in
-    exit;
-}
 
 // Check if logout is requested
 if (isset($_GET['logout'])) {

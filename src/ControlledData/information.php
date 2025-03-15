@@ -35,11 +35,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Prepare SQL statement
         $stmt = $pdo->prepare("
             INSERT INTO student_profile
-            (student_number, student_name, student_email, student_contact, college, year_level, section, student_birthdate, student_age, student_gender, civil_status, address, birthrank, religion, 
+            (student_number, student_name, student_email, student_contact, college_dept, year_level, section, student_birthdate, student_age, student_gender, civil_status, address, birthrank, religion, 
             elementary, elementary_year, junior_high, junior_year, senior_high, senior_year, college, college_year, 
             national_exam, board_exam, spouse_name, date_marriage, place_marriage, spouse_occupation, spouse_employer, spouse_contact, num_children) 
             VALUES 
-            (:student_number, :student_name, :student_email, :student_contact, :student_birthdate, :student_age, :student_gender, :civil_status, :address, :birthrank, :religion, 
+            (:student_number, :student_name, :student_email, :student_contact, :college_dept, :year_level, :student_birthdate, :student_age, :student_gender, :civil_status, :address, :birthrank, :religion, 
             :elementary, :elementary_year, :junior_high, :junior_year, :senior_high, :senior_year, :college, :college_year, 
             :national_exam, :board_exam, :spouse_name, :date_marriage, :place_marriage, :spouse_occupation, :spouse_employer, :spouse_contact, :num_children)
         ");
@@ -49,7 +49,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             ':student_number' => $_POST['student_number'],
             ':student_name' => $_POST['student_name'],
             ':student_email' => $_POST['student_email'],
-            ':college' => $_POST['college_dept'] ?? NULL,
+            ':college_dept' => $_POST['college_dept'] ?? NULL,
             ':year_level' => $_POST['year_level'] ?? NULL,
             ':section' => $_POST['section'] ?? NULL,
             ':student_contact' => $_POST['student_contact'] ?? NULL,
@@ -115,20 +115,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body class="bg-gray-100">
 
 <!--Toast Notification for Data Insertion-->
-<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
-    <div id="toastMessage" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+<div class="bottom-0 p-3 position-fixed end-0" style="z-index: 11">
+    <div id="toastMessage" class="text-white border-0 toast align-items-center bg-success" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="d-flex">
             <div class="toast-body">
                 Data inserted successfully!
             </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            <button type="button" class="m-auto btn-close btn-close-white me-2" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
     </div>
 </div>
 
 <!--HEADER-->
 <header class="fixed top-0 left-0 z-50 w-full py-4 shadow-xl" style="background-color: #1EB0A9">
-    <div class="container-fluid flex items-center justify-between px-4 mx-auto md:px-8">
+    <div class="flex items-center justify-between px-4 mx-auto container-fluid md:px-8">
         <!-- Logo -->
         <div class="flex items-center space-x-3">
             <img src="/src/images/UMAK-logo.png" alt="UMAK Logo" class="w-10 h-auto mx-5 md:w-14">
@@ -160,8 +160,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <!--CONTENT-->
 <main class="mt-20">
-<h2 class="text-2xl font-bold text-center mb-6">Individual Inventory</h2>
-    <div class="w-5/6 p-6 my-4 mx-auto bg-white rounded-lg shadow-lg">
+<h2 class="mb-6 text-2xl font-bold text-center">Individual Inventory</h2>
+    <div class="w-5/6 p-6 mx-auto my-4 bg-white rounded-lg shadow-lg">
         <form action="information.php" method="POST">
         <!-- Personal Information Table -->
         <table class="w-full mb-6 border border-collapse border-gray-300">
@@ -224,13 +224,61 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     </td>
                     <td class="px-4 py-2 border border-gray-300">Religion</td>
                     <td class="px-4 py-2 border border-gray-300" colspan="3">
-                        <select name="religion" class="w-full p-2 border rounded">
-                            <option>Select Option</option>
+                        <select name="religion" id="religion" class="w-full p-2 border rounded" onchange="toggleSpecifyInput()">
+                            <option value="">Select Option</option>
                             <option value="catholic">Roman Catholic</option>
                             <option value="muslim">Muslim</option>
                             <option value="iglesia">Iglesia ni Cristo</option>
                             <option value="atheist">Atheist</option>
+                            <option value="others">Others</option>
                         </select>
+
+                        <!-- "Please Specify" Input Field (Hidden by Default) -->
+                        <input type="text" name="religion_specify" id="religion_specify" 
+                            class="hidden w-full p-2 mt-2 border rounded" 
+                            placeholder="Please specify your religion">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="px-4 py-2 border border-gray-300">
+                    <label for="college_dept" class="block font-medium text-gray-700 text-md">College/Institute</label>
+                        <td class="px-4 py-2 border border-gray-300">
+                            <select id="college_dept" name="college" required
+                                class="p-2 mt-1 border border-gray-300 rounded-md focus:ring-teal-500 focus:border-teal-500">
+                                <option value="" disabled selected>Select College</option>
+                                <option value="CBFS">College of Business and Financial Science</option>
+                                <option value="CCIS">College of Computing and Information Sciences</option>
+                                <option value="CCSE">College of Construction Sciences and Engineering</option>
+                                <option value="CGPP">College of Governance and Public Policy</option>
+                                <option value="CHK">College of Human Kinetics</option>
+                                <option value="CITE">College of Innovative Teacher Education</option>
+                                <option value="CTM">College of Technology Management</option>
+                                <option value="CTHM">College of Tourism and Hospitality Management</option>
+                                <option value="IOA">Institute of Accountancy</option>
+                                <option value="IAD">Institute of Arts and Design</option>
+                                <option value="IIHS">Institute of Imaging Health Sciences</option>
+                                <option value="ION">Institute of Nursing</option>
+                                <option value="IOP">Institute of Pharmacy</option>
+                                <option value="IOPsy">Institute of Psychology</option>
+                                <option value="ISDNB">Institute of Social Development and Nation Building</option>
+                                <option value="HSU">Higher School ng UMak</option>
+                                <option value="SOL">School of Law</option>
+                            </select>
+                        </td>
+                    </td>
+                    <td class="px-4 py-2 border border-gray-300">
+                    <label for="year_level" class="block font-medium text-gray-700 text-md">Year Level</label>
+                        <td class="px-4 py-2 border border-gray-300"> 
+                            <select id="year_level" name="year_level" required
+                                class="w-full p-2 mt-1 border border-gray-300 rounded-md focus:ring-teal-500 focus:border-teal-500">
+                                <option value="" disabled selected>Select Year</option>
+                                <option value="1st Year">1st Year</option>
+                                <option value="2nd Year">2nd Year</option>
+                                <option value="3rd Year">3rd Year</option>
+                                <option value="4th Year">4th Year</option>
+                                <option value="5th Year">5th Year</option>
+                            </select>
+                        </td>
                     </td>
                 </tr>
             </tbody>
@@ -365,8 +413,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="flex items-center mt-4">
             <input type="checkbox" id="terms" name="terms" required>
                 <label for="terms" class="ml-2 text-sm text-gray-700">
-                    I agree to the <a href="#" class="text-blue-500 underline">Data Privacy Policy</a> and
-                    <a href="#" class="text-blue-500 underline">Terms and Conditions</a>.
+                    I agree to the <a href="policy.php" class="text-blue-500 underline">Data Privacy Policy</a> and
+                    <a href="terms.php" class="text-blue-500 underline">Terms and Conditions</a>.
                 </label>
         </div>
 
@@ -428,8 +476,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </footer>
 
 <script>
-    function calculateAge() {
-        const birthdate = document.getElementById('birthdate').value;
+function calculateAge() {
+    const birthdate = document.getElementById('birthdate').value;
         if (birthdate) {
             const today = new Date();
             const birthDate = new Date(birthdate);
@@ -441,6 +489,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
 
             document.getElementById('age').value = age;
+        }
+}
+
+function toggleSpecifyInput() {
+        var religionSelect = document.getElementById("religion");
+        var specifyInput = document.getElementById("religion_specify");
+
+        if (religionSelect.value === "others") {
+            specifyInput.classList.remove("hidden"); // Show input field
+            specifyInput.setAttribute("required", "true"); // Make it required
+        } else {
+            specifyInput.classList.add("hidden"); // Hide input field
+            specifyInput.removeAttribute("required"); // Remove required attribute
+            specifyInput.value = ""; // Clear input value
         }
     }
 </script>

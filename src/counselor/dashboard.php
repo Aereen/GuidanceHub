@@ -2,6 +2,12 @@
 <?php
 session_start(); // Start the session
 
+// Check if the user is logged in, redirect to login page if not
+if (!isset($_SESSION['email'])) {
+    header("Location: /src/ControlledData/login.php"); // If not logged in, redirect to login
+    exit;
+}
+
 $host = 'localhost';
 $dbname = 'guidancehub';
 $username = 'root';
@@ -19,13 +25,6 @@ $stmt = $pdo->prepare("SELECT * FROM appointments");
 $stmt->execute();
 $appointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-
-
-// Check if the user is logged in
-if (!isset($_SESSION['id_number'])) {
-    header("Location: /src/ControlledData/login.php"); //if not logged in
-    exit;
-}
 
 // Check if logout is requested
 if (isset($_GET['logout'])) {
@@ -238,7 +237,7 @@ if (isset($_GET['logout'])) {
                                 <th class="px-4 py-3 text-left">Ticket ID</th>
                                 <th class="px-4 py-3 text-left">Student Name</th>
                                 <th class="px-4 py-3 text-left">First <br> Date & Time</th>
-                                <th class="px-4 py-3 text-left">Second <br> Date &Time</th>
+                                <th class="px-4 py-3 text-left">Second <br> Date & Time</th>
                                 <th class="px-4 py-3 text-left">Type</th>
                                 <th class="px-4 py-3 text-left">Status</th>
                             </tr>

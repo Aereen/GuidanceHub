@@ -25,12 +25,6 @@ $query = "SELECT * FROM assessments ORDER BY schedule_date ASC, schedule_time AS
                             $stmt->execute();
                             $assessments = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Check if the user is logged in
-if (!isset($_SESSION['id_number'])) {
-    header("Location: /src/ControlledData/login.php"); //if not logged in
-    exit;
-}
-
 // Check if logout is requested
 if (isset($_GET['logout'])) {
     session_unset(); // Unset all session variables

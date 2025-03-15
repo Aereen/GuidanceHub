@@ -24,7 +24,7 @@ function generateTicketID($con) {
     $result = $con->query($query);
     $row = $result->fetch_assoc();
     $count = $row['total'] + 1;
-    
+
     return "RF-" . $dateCode . "-" . str_pad($count, 3, '0', STR_PAD_LEFT);
 }
 
@@ -237,7 +237,7 @@ $con->close();
                         <button onclick="openModal()" class="mx-2 text-xl text-black rounded">
                             <i class="fa-solid fa-circle-question"></i>
                         </button>
-                            <!-- Modal -->
+                            <!--Modal-->
                             <div id="modal" class="fixed inset-0 flex items-center justify-center hidden bg-gray-800 bg-opacity-50">
                                 <div class="max-w-lg p-6 bg-white rounded-lg shadow-lg">
                                     <h2 class="mb-4 text-3xl font-bold">Referral Process</h2>
@@ -252,8 +252,8 @@ $con->close();
                 <div class="flex items-center">
                     <input type="checkbox" id="terms" name="terms" required>
                     <label for="terms" class="ml-2 text-sm text-gray-700">
-                        I agree to the <a href="#" class="text-blue-500 underline">Data Privacy Policy</a> and
-                        <a href="#" class="text-blue-500 underline">Terms and Conditions</a>.
+                        I agree to the <a href="policy.php" class="text-blue-500 underline">Data Privacy Policy</a> and
+                        <a href="terms.php" class="text-blue-500 underline">Terms and Conditions</a>.
                     </label>
                 </div>
                 <!-- Submit Button -->
@@ -262,7 +262,7 @@ $con->close();
                         <button type="submit" class="px-6 py-3 text-white bg-blue-500 rounded-md hover:bg-blue-600">
                             Submit Referral
                         </button>
-                </div>
+                    </div>
             </div>
         </form>
     </div>

@@ -14,28 +14,33 @@ try {
     die("Connection failed: " . $e->getMessage()); // Stop execution if connection fails
 }
 
+// Handle Status Update
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
-        if (!empty($_POST['email']) && !empty($_POST['status'])) {
-            $email = filter_var($_POST['email'], FILTER_SANITIZE_STRING);
-            $new_status = filter_var($_POST['status'], FILTER_SANITIZE_STRING);
+    if (!empty($_POST['email']) && !empty($_POST['status'])) {
+        $email = filter_var($_POST['email'], FILTER_SANITIZE_STRING);
+        $new_status = filter_var($_POST['status'], FILTER_SANITIZE_STRING);
 
-            $stmt = $pdo->prepare("UPDATE appointments 
-                                    SET status = :status, updated_at = CURRENT_TIMESTAMP 
-                                    WHERE email = :email");
-            $stmt->bindParam(':status', $new_status, PDO::PARAM_STR);
-            $stmt->bindParam(':email', $email, PDO::PARAM_STR);
-            
-            if ($stmt->execute()) {
-                // Redirect to refresh the page and reflect changes
-                header("Location: " . $_SERVER['PHP_SELF']);
-                exit();
-            } else {
-                echo "<p class='text-red-600'>Error updating status.</p>";
-            }
+        $stmt = $pdo->prepare("UPDATE appointments 
+                               SET status = :status, updated_at = CURRENT_TIMESTAMP 
+                               WHERE email = :email");
+        $stmt->bindParam(':status', $new_status, PDO::PARAM_STR);
+        $stmt->bindParam(':email', $email, PDO::PARAM_STR);
+
+        if ($stmt->execute()) {
+            header("Location: " . $_SERVER['PHP_SELF']);
+            exit();
         } else {
-            echo "<p class='text-red-600'>Invalid input.</p>";
+            echo "<p class='text-red-600'>Error updating status.</p>";
         }
+    } else {
+        echo "<p class='text-red-600'>Invalid input.</p>";
     }
+}
+
+// Fetch Appointments
+$sql = "SELECT * FROM appointments";
+$stmt = $pdo->query($sql);
+$appointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Check if logout is requested
 if (isset($_GET['logout'])) {
@@ -163,7 +168,7 @@ if (isset($_GET['logout'])) {
 </nav>
 
 <!--SIDE NAVIGATION MENU-->
-<aside id="logo-sidebar" class="fixed z-40 h-screen pt-20 transition-transform -translate-x-full bg-white border-r w-60 dark:border-gray-300 sm:translate-x-0" aria-label="Sidebar">
+<aside id="logo-sidebar" class="fixed z-40 w-64 h-screen pt-20 transition-transform -translate-x-full bg-white border-r dark:border-gray-300 sm:translate-x-0" aria-label="Sidebar">
     <div class="h-full px-3 pb-4 overflow-y-auto bg-white border-gray-300">
         <ul class="m-3 space-y-2 font-medium">
             <li>
@@ -180,6 +185,14 @@ if (isset($_GET['logout'])) {
                     <i class="fa-solid fa-calendar-check"></i>
                 </svg>
                 <span class="flex-1 ms-3 whitespace-nowrap">Appointment</span>
+                </a>
+            </li>
+            <li>
+                <a href="referral.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 18">
+                    <i class="fa-solid fa-chart-pie"></i>
+                </svg>
+                <span class="flex-1 ms-3 whitespace-nowrap">Referral</span>
                 </a>
             </li>
             <li>
@@ -206,16 +219,18 @@ if (isset($_GET['logout'])) {
 <div class="p-4 mt-10 sm:ml-64">
     <h2 class="p-3 my-2 text-4xl font-bold text-gray-800">Scheduled Appointments</h2>
     <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-md">
-        <!-- Search Bar -->
-            <div class="flex justify-end">
-                <form method="GET" class="flex mb-4">
-                    <input type="text" name="search" placeholder="Search referrals..." class="w-40 p-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
-                    <button type="submit" class="px-4 py-2 ml-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600">Search</button>
-                </form> 
-            </div>
 
+        <!-- Search Bar -->
+        <div class="flex justify-end">
+            <form method="GET" class="flex mb-4">
+                <input type="text" name="search" placeholder="Search referrals..." class="w-40 p-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                <button type="submit" class="px-4 py-2 ml-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600">Search</button>
+            </form>
+        </div>
+
+        <!-- Appointments Table -->
         <div class="overflow-x-auto">
-            <table class="w-full text-sm text-left text-gray-600 dark:text-gray-400">
+            <table class="w-full text-sm text-left text-gray-600">
                 <thead class="text-sm text-gray-900 uppercase bg-gray-100">
                     <tr class="text-center">
                         <th scope="col" class="px-6 py-3">#</th>
@@ -230,23 +245,12 @@ if (isset($_GET['logout'])) {
                 </thead>
                 <tbody>
                     <?php
-                    // Connect to the database
-                    $con = mysqli_connect('localhost', 'root', '', 'guidancehub');
-                    
-                    if (!$con) {
-                        die("Connection failed: " . mysqli_connect_error());
-                    }
-
-                    $sql = "SELECT * FROM appointments";
-                    $result = mysqli_query($con, $sql);
-
-                    if (mysqli_num_rows($result) > 0) {
+                    if (!empty($appointments)) {
                         $counter = 1;
-                        while ($row = mysqli_fetch_assoc($result)) {
-                            // Ensure status is defined, defaulting to "Pending"
+                        foreach ($appointments as $row) {
                             $status = !empty($row['status']) ? htmlspecialchars($row['status']) : 'Pending';
 
-                            echo "<tr class='text-center text-black bg-white border-b dark:border-gray-700'>
+                            echo "<tr class='text-center text-black bg-white border-b'>
                                     <td class='px-6 py-3'>" . $counter++ . "</td>
                                     <td class='px-6 py-3'>" . htmlspecialchars($row['ticket_id']) . "</td>
                                     <td class='px-6 py-3'>" . htmlspecialchars($row['name']) . "</td>
@@ -263,14 +267,15 @@ if (isset($_GET['logout'])) {
                                                 <option value='Completed' " . ($status == 'Completed' ? 'selected' : '') . ">Completed</option>
                                                 <option value='Cancelled' " . ($status == 'Cancelled' ? 'selected' : '') . ">Cancelled</option>
                                             </select>
+
                                             <button type='submit' name='update_status' class='px-4 py-2 ml-2 text-white bg-blue-500 rounded'>Update</button>
                                         </form>
                                     </td>
                                     <td class='px-6 py-3'>
-                                        <button class='text-blue-600 hover:underline show-details-btn' onclick='showDetails(" . json_encode($row) . ")'>Show Details</button>
+                                        <button class='text-blue-600 hover:underline' onclick='showDetails(" . json_encode($row) . ")'>Show Details</button>
                                         <form action='' method='POST' class='inline-block'>
                                             <input type='hidden' name='email' value='" . htmlspecialchars($row['email']) . "'>
-                                            <button type='submit' name='archive' class='ml-4 text-yellow-600 hover:underline archive-btn'>Archive</button>
+                                            <button type='submit' name='archive' class='ml-4 text-yellow-600 hover:underline'>Archive</button>
                                         </form>
                                     </td>
                                 </tr>";
@@ -278,8 +283,6 @@ if (isset($_GET['logout'])) {
                     } else {
                         echo "<tr><td colspan='8' class='px-6 py-3 text-center'>No appointments found</td></tr>";
                     }
-
-                    mysqli_close($con);
                     ?>
                 </tbody>
             </table>

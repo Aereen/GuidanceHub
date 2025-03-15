@@ -359,8 +359,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <div class="flex items-center">
                     <input type="checkbox" id="terms" name="terms" required>
                     <label for="terms" class="ml-2 text-sm text-gray-700">
-                        I agree to the <a href="#" class="text-blue-500 underline">Data Privacy Policy</a> and
-                        <a href="#" class="text-blue-500 underline">Terms and Conditions</a>.
+                        I agree to the <a href="policy.php" class="text-blue-500 underline">Data Privacy Policy</a> and
+                        <a href="terms.php" class="text-blue-500 underline">Terms and Conditions</a>.
                     </label>
                 </div>
 

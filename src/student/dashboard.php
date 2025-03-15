@@ -1,52 +1,41 @@
+<?php include('E:/GuidanceHub/src/ControlledData/server.php'); ?>
 <?php
-// Start session
+// Start session at the very beginning
 session_start();
 
 // Check if the user is logged in, redirect to login page if not
-if (!isset($_SESSION['id_number'])) {
-    header("Location: /src/ControlledData/login.php"); // If not logged in, redirect to login
+if (!isset($_SESSION['email']) || empty($_SESSION['email'])) {
+    header("Location: /src/ControlledData/login.php"); // Redirect to login
     exit;
 }
 
+$user_email = $_SESSION['email']; // Store email in a variable
+
+// Database connection
 $host = 'localhost';
 $dbname = 'guidancehub';
 $username = 'root';
 $password = '';
 
 try {
-    // Create PDO connection
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
-    // Handle connection error
-    die("Could not connect to the database $dbname :" . $e->getMessage());
+    die("Database connection failed: " . $e->getMessage());
 }
 
-// Fetch announcements from the database
+// Fetch announcements
 try {
     $stmt = $pdo->prepare("SELECT * FROM announcement ORDER BY published_at DESC");
     $stmt->execute();
     $announcements = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
-    // Handle any errors during the query
-    echo "Error fetching announcements: " . $e->getMessage();
+    die("Error fetching announcements: " . $e->getMessage());
 }
-
-// Query to check for an appointment
-$email = $_SESSION['email'];
-
-$stmt = $pdo->prepare("SELECT * FROM appointments 
-                        WHERE email = :email 
-                        AND (first_date >= NOW() OR second_date >= NOW())");
-$stmt->bindParam(':email', $email, PDO::PARAM_STR);
-$stmt->execute();
-$appointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-
 
 // Fetch student profile
 try {
-    $stmt = $pdo->prepare("SELECT student_name, student_number, student_email, college_dept, year_level, section FROM student_profile WHERE student_number = ?");
+    $stmt = $pdo->prepare("SELECT student_name, student_number, student_email, college_dept, year_level FROM student_profile WHERE student_number = ?");
     $stmt->execute([$_SESSION['id_number']]);
     $student = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -57,35 +46,29 @@ try {
     die("Error: " . $e->getMessage());
 }
 
-//CALENDAR
-// Set timezone
-date_default_timezone_set('Asia/Manila');
+// Fetch appointments
+$appointments = [];
+try {
+    $stmt = $pdo->prepare("SELECT * FROM appointments 
+                           WHERE email = :email 
+                           AND (first_date >= NOW() OR second_date >= NOW())");
+    $stmt->bindParam(':email', $user_email, PDO::PARAM_STR);
+    $stmt->execute();
+    $appointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    die("Error fetching appointments: " . $e->getMessage());
+}
 
-// Get current month and year
-$month = date('m');
-$year = date('Y');
+// Check if student has answered the form
+$hasAnswered = false;
+try {
+    $stmt = $pdo->prepare("SELECT answered FROM form_responses WHERE student_email = :email");
+    $stmt->execute(['email' => $user_email]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// Get first day of the month and total days in the month
-$firstDayOfMonth = date('w', strtotime("$year-$month-01"));
-$totalDays = date('t', strtotime("$year-$month-01"));
-
-// Days of the week
-$daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
-// Generate calendar
-$calendar = [];
-$row = array_fill(0, 7, null);
-$dayCounter = 1;
-
-for ($i = 0; $i < 42; $i++) {
-    if ($i >= $firstDayOfMonth && $dayCounter <= $totalDays) {
-        $row[$i % 7] = $dayCounter++;
-    }
-
-    if ($i % 7 === 6) {
-        $calendar[] = $row;
-        $row = array_fill(0, 7, null);
-    }
+    $hasAnswered = $result && $result['answered'] == 1;
+} catch (PDOException $e) {
+    die("Error checking form response: " . $e->getMessage());
 }
 
 // When logout is requested
@@ -113,14 +96,14 @@ if (isset($_GET['logout'])) {
 <body class="bg-gray-100">
 
 <!--TOP NAVIGATION BAR-->
-<header class="fixed top-0 left-0 z-50 w-full shadow-md" style="background-color: #1EB0A9">
+<header class="fixed top-0 left-0 z-50 w-full bg-teal-600 shadow-md">
     <div class="flex px-3 py-4 lg:px-5 lg:pl-3">
-        <div class="flex items-center justify-between w-full max-w-7xl">
+        <div class="flex items-center justify-between w-full mx-auto max-w-7xl">
 
-            <!--LOGOS-->
+            <!-- LOGO -->
             <div class="flex items-center mx-5">
                 <img src="/src/images/UMAK-CGCS-logo.png" alt="CGCS Logo" class="w-10 h-auto md:w-14">
-                <span class="mx-6 font-semibold tracking-wide text-white md:text-2xl">GuidanceHub</span>
+                <span class="ml-4 font-semibold tracking-wide text-white md:text-2xl">GuidanceHub</span>
             </div>
 
             <!-- Hamburger Icon (Mobile) -->
@@ -128,138 +111,70 @@ if (isset($_GET['logout'])) {
                 <i class="fa-solid fa-bars"></i>
             </button>
 
-            <!-- Navigation Links -->
-            <div id="nav-menu" class="items-center hidden space-x-6 md:flex">
+            <!-- Navigation Links (Desktop) -->
+            <nav id="nav-menu" class="items-center hidden space-x-6 md:flex">
                 <a href="dashboard.php" class="text-white hover:text-gray-300">Dashboard</a>
                 <a href="library.php" class="text-white hover:text-gray-300">Library</a>
-                
-                <!--Message Icon-->
-                    <div class="relative">
-                        <button id="messageButton" class="text-gray-600 hover:text-gray-900 focus:outline-none">
-                            <i class="text-2xl fa-solid fa-message"></i>
-                            <!-- Unread Message Badge -->
-                            <span id="messageBadge" class="absolute top-0 right-0 inline-flex items-center justify-center hidden w-4 h-4 text-xs font-bold text-white bg-red-500 rounded-full">
-                                3
-                            </span>
-                        </button>
-                        <!-- Message Chat Modal -->
-                        <div id="chatModal" class="fixed inset-0 z-50 flex items-center justify-center hidden bg-black bg-opacity-50">
-                            <div class="w-full max-w-lg p-6 bg-white rounded-lg shadow-md">
-                                <div class="flex items-center justify-between mb-4">
-                                    <h3 class="text-xl font-semibold">Chat with Support</h3>
-                                    <button onclick="closeChatModal()" class="text-gray-500 hover:text-gray-800">✖</button>
-                                </div>
-                                <div id="chatContent" class="h-64 mb-4 overflow-y-auto text-sm text-gray-700">
-                                    <div class="mb-2">
-                                        <p class="p-2 bg-gray-100 rounded">Hello! How can I assist you today?</p>
-                                    </div>
-                                    <div class="mb-2">
-                                        <p class="p-2 text-blue-800 bg-blue-100 rounded">I need help with my appointment.</p>
-                                    </div>
-                                </div>
-                                <div class="flex">
-                                    <input id="chatInput" type="text" class="w-full p-2 border border-gray-300 rounded-l-md" placeholder="Type your message...">
-                                    <button onclick="sendMessage()" class="px-4 py-2 text-white bg-blue-500 rounded-r-md hover:bg-blue-700">Send</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <a href="profile.php" class="text-white hover:text-gray-300">Profile</a>
 
-                <!--Notification Bell Icon-->
-                    <div class="relative">
-                        <button id="notificationButton" class="text-gray-600 hover:text-gray-900 focus:outline-none">
-                            <i class="text-2xl fa-solid fa-bell"></i>
-                            <!-- Notification Badge -->
-                            <span id="notificationBadge" class="absolute top-0 right-0 inline-flex items-center justify-center hidden w-4 h-4 text-xs font-bold text-white bg-red-500 rounded-full">
-                                0
-                            </span>
-                        </button>
-                        <!-- Notification Dropdown -->
-                        <div id="notificationDropdown" class="absolute right-0 z-50 hidden w-64 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg">
-                            <div class="p-4 text-sm text-gray-700">
-                                <h4 class="text-lg font-bold">Notifications</h4>
-                                <ul id="notificationList" class="mt-2 space-y-2">
-                                    <li class="text-gray-500">No new notifications</li>
-                                </ul>
-                                <!-- Mark as Read Button -->
-                                <button id="markReadButton" class="hidden w-full px-4 py-2 mt-4 text-sm font-medium text-white bg-blue-500 rounded hover:bg-blue-700">
-                                    Mark All as Read
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                <!-- Search Icon -->
+                <!-- Messages Icon -->
                 <div class="relative">
-                    <button
-                        id="search-toggle"
-                        class="text-xl text-gray-700 hover:text-blue-600 focus:outline-none">
-                        <i id="search-icon" class="fa-solid fa-magnifying-glass"></i>
+                    <button id="messageButton" class="text-white hover:text-gray-300 focus:outline-none">
+                        <i class="text-2xl fa-solid fa-message"></i>
+                        <span id="messageBadge" class="absolute hidden w-4 h-4 text-xs font-bold text-white bg-red-500 rounded-full -top-1 -right-1">3</span>
                     </button>
-
-                    <!-- Search Box (Hidden Initially) -->
-                    <div id="search-box" class="absolute right-0 p-4 mt-2 overflow-hidden transition-all duration-300 ease-in-out bg-white border border-gray-300 rounded-lg shadow-lg opacity-0 w-80 max-h-0">
-                        <form action="" method="GET" class="w-full max-w-md mx-auto">
-                            <label for="default-search" class="mb-2 text-sm font-medium sr-only">Search</label>
-                            <div class="relative">
-                                <input type="search" id="default-search" name="query"
-                                    class="block w-full p-4 text-sm text-gray-900"
-                                    placeholder="Search" />
-                                <button type="submit"
-                                    class="absolute px-4 py-2 text-sm font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 right-2 bottom-2">
-                                    <i class="fa-solid fa-magnifying-glass"></i>
-                                </button>
-                            </div>
-                        </form>
-                    </div>
                 </div>
-                
-                <!--Logout Button-->
+
+                <!-- Notifications Icon -->
                 <div class="relative">
-                    <a href="?logout=true" class="text-gray-600 hover:text-gray-900 focus:outline-none">
-                        <i class="text-xl fa-solid fa-right-from-bracket"></i>
-                    </a>
+                    <button id="notificationButton" class="text-white hover:text-gray-300 focus:outline-none">
+                        <i class="text-2xl fa-solid fa-bell"></i>
+                        <span id="notificationBadge" class="absolute hidden w-4 h-4 text-xs font-bold text-white bg-red-500 rounded-full -top-1 -right-1">0</span>
+                    </button>
                 </div>
-            </div>
-        </div>
 
-            <!-- Mobile Menu -->
-            <div id="mobile-menu" class="flex-col items-center hidden p-4 mt-4 space-y-4 bg-gray-700 md:hidden">
-                <a href="dashboard.php" class="text-white hover:text-gray-300">Dashboard</a>
-                <a href="assessment.php" class="text-white hover:text-gray-300">Assessment</a>
-                <a href="library.php" class="text-white hover:text-gray-300">Library</a>
+                <!-- Logout Button -->
                 <a href="?logout=true" class="text-white hover:text-gray-300">
-                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                    <i class="text-xl fa-solid fa-right-from-bracket"></i>
                 </a>
-            </div>
+            </nav>
         </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="flex-col items-center hidden p-4 space-y-4 bg-teal-700 md:hidden">
+        <a href="dashboard.php" class="text-white hover:text-gray-300">Dashboard</a>
+        <a href="library.php" class="text-white hover:text-gray-300">Library</a>
+        <a href="profile.php" class="text-white hover:text-gray-300">Profile</a>
+        <a href="?logout=true" class="text-white hover:text-gray-300">
+            <i class="fa-solid fa-right-from-bracket"></i> Logout
+        </a>
     </div>
 </header>
 
+<h2 class="p-3 text-4xl font-bold tracking-tight mt-28 ml-7"><?php echo "Welcome, " . $_SESSION['name'] . "!<br>" ?></h2>
+
 <!--CONTENT-->
-<main class="w-full p-4 mt-20">
-<h2 class="p-3 text-4xl font-bold tracking-tight"><?php echo "Welcome, " . $_SESSION['name'] . "!<br>" ?></h2>
-    <div class="grid grid-cols-1 gap-4 p-1 lg:grid-cols-3">
-    <!-- Left Column: Activities and Announcements -->
-    <div class="col-span-2 space-y-4">
-        <!-- ACTIVITIES -->
-        <section class="p-5 bg-white border-2 rounded-lg h-80 dark:border-gray-300">   
+<main class="w-full p-4">
+<div class="grid grid-cols-1 gap-4 p-2 mt-2 mb-5 lg:grid-cols-3">
+    <!-- Left Column: Activities & Announcements -->
+    <div class="space-y-4 lg:col-span-2">
+        <!-- Activities Section -->
+        <section class="p-5 bg-white border-2 rounded-lg shadow-lg">
             <h2 class="text-2xl font-bold">Activities</h2>
             <div class="grid grid-cols-1 gap-4 mt-4 sm:grid-cols-2">
                 <!-- UPCOMING SESSIONS -->
                 <div class="p-6 bg-white rounded-lg shadow-md">
                     <h2 class="mb-3 text-xl font-bold text-gray-700 underline">Upcoming Appointments</h2>
-                    <ul id="appointments-list" class="space-y-3">
+                    <ul class="space-y-3">
                         <?php if (!empty($appointments)): ?>
                             <?php foreach ($appointments as $appointment): ?>
                                 <li class="flex flex-col space-y-1 text-gray-800">
-                                    <h2 class="font-medium">First Date & Time:</h2>
-                                    <span><?= htmlspecialchars($appointment['first_date']) ?></span>
-                                    <span><?= htmlspecialchars($appointment['first_time']) ?></span>
-                                    <h2 class="font-medium">Second Date & Time:</h2>
-                                    <span><?= htmlspecialchars($appointment['second_date']) ?></span>
-                                    <span><?= htmlspecialchars($appointment['second_time']) ?></span>
-                                    <h2 class="font-medium">Status:</h2>
+                                    <span class="font-medium">First Date & Time:</span>
+                                    <span><?= htmlspecialchars($appointment['first_date']) ?> | <?= htmlspecialchars($appointment['first_time']) ?></span>
+                                    <span class="font-medium">Second Date & Time:</span>
+                                    <span><?= htmlspecialchars($appointment['second_date']) ?> | <?= htmlspecialchars($appointment['second_time']) ?></span>
+                                    <span class="font-medium">Status:</span>
                                     <span><?= htmlspecialchars($appointment['status']) ?: 'Pending'; ?></span>
                                 </li>
                             <?php endforeach; ?>
@@ -276,10 +191,9 @@ if (isset($_GET['logout'])) {
                         <?php if (!empty($appointments)): ?>
                             <?php foreach ($appointments as $appointment): ?>
                                 <li class="flex flex-col space-y-1 text-gray-800">
-                                    <h2 class="font-medium">Assessment Date:</h2>
-                                    <span><?= htmlspecialchars($appointment['first_date']) ?></span>
-                                    <span><?= htmlspecialchars($appointment['first_time']) ?></span>
-                                    <h2 class="font-medium">Status:</h2>
+                                    <span class="font-medium">Assessment Date:</span>
+                                    <span><?= htmlspecialchars($appointment['first_date']) ?> | <?= htmlspecialchars($appointment['first_time']) ?></span>
+                                    <span class="font-medium">Status:</span>
                                     <span><?= htmlspecialchars($appointment['status']) ?: 'Pending'; ?></span>
                                 </li>
                             <?php endforeach; ?>
@@ -288,11 +202,21 @@ if (isset($_GET['logout'])) {
                         <?php endif; ?>
                     </ul>
                 </div>
+
+                <!-- Reminder Message for Incomplete Form -->
+                <?php if (!$hasAnswered): ?>
+                    <div class="p-4 bg-yellow-100 border-l-4 border-yellow-500 rounded">
+                        <p class="font-semibold text-yellow-700">⚠️ Reminder: You have not yet completed the form.</p>
+                        <a href="/src/ControlledData/information.php" class="inline-block px-4 py-2 mt-3 text-white bg-blue-500 rounded hover:bg-blue-600">
+                            Complete Form
+                        </a>
+                    </div>
+                <?php endif; ?>
             </div>
         </section>
 
-        <!-- ANNOUNCEMENT SECTION -->
-        <section class="p-4 bg-white border-2 border-gray-300 rounded-lg">
+        <!-- Announcements Section -->
+        <section class="p-4 bg-white border-2 rounded-lg shadow-lg">
             <h4 class="p-2 text-xl font-semibold text-white bg-teal-500 rounded-lg">ANNOUNCEMENTS</h4>
             <div class="grid grid-cols-1 gap-4 my-3 sm:grid-cols-2">
                 <?php if (empty($announcements)): ?>
@@ -316,8 +240,8 @@ if (isset($_GET['logout'])) {
         </section>
     </div>
 
-    <!-- Right Column: Profile and Calendar -->
-    <div class="self-start col-span-1 space-y-6">
+    <!-- Right Column: Profile & Calendar -->
+    <div class="space-y-4">
         <!-- PROFILE CARD -->
         <div class="w-full p-5 bg-white border-2 rounded-lg shadow-lg">
             <h4 class="text-2xl font-bold text-center text-gray-700">PROFILE</h4>
@@ -331,50 +255,43 @@ if (isset($_GET['logout'])) {
                         <tr><td class="px-5 py-1"><?= htmlspecialchars($student['student_email']); ?></td></tr>
                         <tr><td class="px-5 py-1"><?= htmlspecialchars($student['college_dept']); ?></td></tr>
                         <tr><td class="px-5 py-1"><?= htmlspecialchars($student['year_level']); ?></td></tr>
-                        <tr><td class="px-5 py-1"><?= htmlspecialchars($student['section']); ?></td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
         <!-- CALENDAR -->
-        <div class="p-3 bg-white border-2 rounded-lg">
-            <h2 class="mb-4 text-2xl font-bold text-center text-gray-800">
-                <?= date('F Y'); ?>
-            </h2>
-            
+        <div class="p-3 bg-white border-2 rounded-lg shadow-lg">
+            <div class="flex items-center justify-between mb-4">
+                <button onclick="prevMonth()" class="p-2 text-white bg-teal-500 rounded">←</button>
+                <h2 id="currentMonth" class="text-2xl font-bold text-gray-800"><?= date('F Y'); ?></h2>
+                <button onclick="nextMonth()" class="p-2 text-white bg-teal-500 rounded">→</button>
+            </div>
+
             <!-- Days of the Week -->
             <div class="grid grid-cols-7 gap-2 font-semibold text-center text-gray-600">
                 <?php foreach ($daysOfWeek as $day): ?>
-                    <div class="p-1 text-white bg-teal-500 rounded-lg"><?= $day; ?></div>
+                    <div class="p-1 text-white bg-teal-500 rounded-lg"><?= htmlspecialchars($day); ?></div>
                 <?php endforeach; ?>
             </div>
 
             <!-- Calendar Days -->
-            <div class="grid grid-cols-7 gap-2 mt-2 text-center">
+            <div class="grid grid-cols-7 gap-2 mt-2 text-center" id="calendarDays">
                 <?php foreach ($calendar as $week): ?>
                     <?php foreach ($week as $day): ?>
                         <?php 
                             $dateStr = "$year-$month-" . str_pad($day, 2, '0', STR_PAD_LEFT);
                             $appointmentFound = false;
-                            $tooltipText = "";
-
                             foreach ($appointments as $appointment) {
                                 if ($appointment['appointment_date'] === $dateStr) {
                                     $appointmentFound = true;
-                                    $tooltipText = "Confirmed Appointment Scheduled<br>Pending Assessment";
                                     break;
                                 }
                             }
                         ?>
-                        
-                        <!-- Calendar Day Box -->
                         <div 
                             class="relative p-2 rounded-lg cursor-pointer <?= $appointmentFound ? 'bg-teal-500 text-white' : 'bg-gray-100'; ?>" 
-                            <?php if ($appointmentFound): ?>
-                                onmouseover="showTooltip(this, '<?= $tooltipText; ?>')" 
-                                onmouseout="hideTooltip(this)"
-                            <?php endif; ?>
+                            onclick="selectDate('<?= $dateStr ?>')"
                         >
                             <?= $day ?: ''; ?>
                         </div>
@@ -384,43 +301,47 @@ if (isset($_GET['logout'])) {
         </div>
     </div>
 </div>
-
-</div>
+</main>
 
 <!-- COUNSELING PROCESS -->
-<h4 class="p-2 text-xl font-semibold text-white bg-teal-500 rounded-lg">PROCESS</h4>
-    <section class="grid grid-cols-3 gap-4 p-5 my-5 bg-white border-2 rounded-lg dark:border-gray-300">
+<div class="flex flex-col items-center w-full">
+    <h4 class="w-5/6 p-2 text-xl font-semibold text-center text-white bg-teal-500 rounded-lg">
+        PROCESS
+    </h4>
+    <section class="grid w-5/6 grid-cols-1 gap-4 p-5 my-5 bg-white border-2 rounded-lg md:grid-cols-2 lg:grid-cols-3">
         <!-- Card 1 -->
-        <div class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:border-gray-300">
+        <div class="w-full p-4 bg-white border border-gray-200 rounded-lg shadow min-h-[180px]">
             <h5 class="mb-2 text-2xl font-bold tracking-tight text-black">Needs Assessment</h5>
-            <p class="mb-3 text-gray-700 dark:text-gray-800">To identify students' needs and concerns, conduct surveys or questionnaires...</p>
+            <p class="text-gray-700">Identify students' needs and concerns through surveys or questionnaires...</p>
         </div>
 
         <!-- Card 2 -->
-        <div class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:border-gray-300">
+        <div class="w-full p-4 bg-white border border-gray-200 rounded-lg shadow min-h-[180px]">
             <h5 class="mb-2 text-2xl font-bold tracking-tight text-black">Program Planning</h5>
-            <p class="mb-3 text-gray-700 dark:text-gray-800">Include a plan for delivering services, such as individual counseling...</p>
+            <p class="text-gray-700">Plan the delivery of services, such as individual counseling...</p>
         </div>
 
         <!-- Card 3 -->
-        <div class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:border-gray-300">
+        <div class="w-full p-4 bg-white border border-gray-200 rounded-lg shadow min-h-[180px]">
             <h5 class="mb-2 text-2xl font-bold tracking-tight text-black">Counseling and Intervention</h5>
-            <p class="mb-3 text-gray-700 dark:text-gray-800">Individual counseling provides one-on-one support...</p>
+            <p class="text-gray-700">One-on-one support through individual counseling...</p>
         </div>
 
         <!-- Card 4 -->
-        <div class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:border-gray-300">
+        <div class="w-full p-4 bg-white border border-gray-200 rounded-lg shadow min-h-[180px]">
             <h5 class="mb-2 text-2xl font-bold tracking-tight text-black">Follow-up Consultation</h5>
-            <p class="mb-3 text-gray-700 dark:text-gray-800">Monitor the progress of students and provide ongoing support...</p>
+            <p class="text-gray-700">Monitor student progress and provide ongoing support...</p>
         </div>
 
         <!-- Card 5 -->
-        <div class="w-full p-6 bg-white border border-gray-200 rounded-lg shadow dark:border-gray-300">
-            <h5 class="mb-2 text-2xl font-bold tracking-tight text-black">Evaluation and Program Improvement</h5>
-            <p class="mb-3 text-gray-700 dark:text-gray-800">Conduct regular evaluations to assess the effectiveness...</p>
+        <div class="w-full p-4 bg-white border border-gray-200 rounded-lg shadow min-h-[180px]">
+            <h5 class="mb-2 text-2xl font-bold tracking-tight text-black">Evaluation & Program Improvement</h5>
+            <p class="text-gray-700">Conduct regular evaluations to assess effectiveness...</p>
         </div>
     </section>
-</main>
+</div>
+
+
 
 <!--SCHEDULING CALL TO ACTION-->
 <section class="flex items-center justify-center w-full bg-yellow-300">
@@ -501,7 +422,6 @@ document.getElementById('menu-toggle').addEventListener('click', function () {
         document.getElementById('mobile-menu').classList.toggle('hidden');
     });
 
-
 //Toggle for Message
 const messageButton = document.getElementById('messageButton');
     const chatModal = document.getElementById('chatModal');
@@ -546,82 +466,31 @@ const messageButton = document.getElementById('messageButton');
     // Initialize unread message count
     simulateUnreadMessages();
 
-// JavaScript to handle search box toggling and icon change
-    document.addEventListener('DOMContentLoaded', function () {
-        const searchToggle = document.getElementById('search-toggle');
-        const searchBox = document.getElementById('search-box');
-        const searchIcon = document.getElementById('search-icon');
-        const searchExit = document.getElementById('search-exit');
-
-        // Toggle the search box and icon when search icon is clicked
-        searchToggle.addEventListener('click', function () {
-            // Toggle search box visibility
-            if (searchBox.classList.contains('opacity-0')) {
-                searchBox.classList.remove('opacity-0', 'max-h-0');
-                searchBox.classList.add('opacity-100', 'max-h-screen');
-                searchIcon.classList.remove('fa-magnifying-glass');
-                searchIcon.classList.add('fa-circle-xmark');  // Change to exit icon
-            } else {
-                searchBox.classList.add('opacity-0', 'max-h-0');
-                searchBox.classList.remove('opacity-100', 'max-h-screen');
-                searchIcon.classList.remove('fa-circle-xmark'); // Revert to search icon
-                searchIcon.classList.add('fa-magnifying-glass');
-            }
-        });
-
-        // Hide search box when clicking the exit icon
-        searchExit.addEventListener('click', function () {
-            searchBox.classList.add('opacity-0', 'max-h-0');
-            searchBox.classList.remove('opacity-100', 'max-h-screen');
-            searchIcon.classList.remove('fa-circle-xmark');
-            searchIcon.classList.add('fa-magnifying-glass'); // Revert to search icon
-        });
-    });
-
-//Notifications
-const appointments = <?php echo json_encode($appointments); ?>;
-
-document.addEventListener('DOMContentLoaded', () => {
-    const notificationButton = document.getElementById('notificationButton');
+//Toggle for Notification
+const notificationButton = document.getElementById('notificationButton');
     const notificationDropdown = document.getElementById('notificationDropdown');
     const notificationBadge = document.getElementById('notificationBadge');
     const notificationList = document.getElementById('notificationList');
     const markReadButton = document.getElementById('markReadButton');
-    
-    // Modal Elements
-    const notificationModal = document.getElementById('notificationModal');
-    const modalContent = document.getElementById('modalContent');
-    const closeModal = document.getElementById('closeModal');
 
-    let notifications = appointments.map(appointment => ({
-        text: `Reminder: You have an appointment on ${appointment.appointment_date} at ${appointment.appointment_time}.`,
-        read: false
-    }));
+    // Sample notifications array
+    let notifications = [
+        "Your appointment has been confirmed.",
+        "New message from the guidance office.",
+        "Reminder: Your appointment is tomorrow at 10:00 AM."
+    ];
 
+    // Function to display notifications
     function updateNotifications() {
         if (notifications.length > 0) {
-            notificationBadge.textContent = notifications.filter(n => !n.read).length;
+            notificationBadge.textContent = notifications.length;
             notificationBadge.classList.remove('hidden');
             markReadButton.classList.remove('hidden');
 
-            notificationList.innerHTML = notifications.map((notif, index) => 
-                `<li class="p-2 rounded cursor-pointer ${notif.read ? 'bg-gray-200' : 'bg-gray-100 hover:bg-gray-200'}" data-index="${index}">
-                    ${notif.text}
-                </li>`
+            // Update the dropdown list
+            notificationList.innerHTML = notifications.map(
+                (notif) => `<li class="p-2 bg-gray-100 rounded hover:bg-gray-200">${notif}</li>`
             ).join('');
-
-            // Add event listeners to open modal on click
-            document.querySelectorAll('#notificationList li').forEach(item => {
-                item.addEventListener('click', () => {
-                    const index = item.getAttribute('data-index');
-                    notifications[index].read = true;
-                    modalContent.textContent = notifications[index].text;
-                    notificationModal.classList.remove('hidden'); // Show modal
-                    
-                    notificationDropdown.classList.add('hidden'); // Hide notification dropdown
-                    updateNotifications();
-                });
-            });
         } else {
             notificationBadge.classList.add('hidden');
             markReadButton.classList.add('hidden');
@@ -636,17 +505,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Mark all notifications as read
     markReadButton.addEventListener('click', () => {
-        notifications.forEach(n => n.read = true);
-        updateNotifications();
+        notifications = []; // Clear notifications array
+        updateNotifications(); // Update the UI
     });
 
-    // Close modal event
-    closeModal.addEventListener('click', () => {
-        notificationModal.classList.add('hidden');
-    });
-
+    // Initialize notifications on page load
     updateNotifications();
-});
 
 //Highlighted Appointment Schedule Calendar
     function showTooltip(element, text) {

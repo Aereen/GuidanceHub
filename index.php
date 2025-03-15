@@ -25,8 +25,15 @@ $result = $con->query($sql);
     <link href="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.css"  rel="stylesheet" />
     <script src="https://kit.fontawesome.com/95c10202b4.js" crossorigin="anonymous"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Montserrat:wght@500&display=swap" rel="stylesheet">
 
     <style>
+        .marcellus-regular {
+            font-family: "Marcellus", serif;
+            font-style: normal;
+            letter-spacing: 2px; }
         body::-webkit-scrollbar {
             width: 15px; }
         body::-webkit-scrollbar-track {
@@ -41,7 +48,7 @@ $result = $con->query($sql);
 <body class="font-sans antialiased bg-gray-100">
 
 <!--HEADER-->
-<header class="fixed top-0 left-0 z-50 w-full py-4 shadow-xl" style="background-color: #1EB0A9">
+<header class="fixed top-0 left-0 z-50 w-full py-4 shadow-xl marcellus-regular" style="background-color: #1EB0A9">
     <div class="flex items-center justify-between px-4 mx-auto container-fluid md:px-8">
         <!-- Logo -->
         <div class="flex items-center space-x-3">
@@ -75,7 +82,7 @@ $result = $con->query($sql);
 </header>
 
 <!--BANNER-->
-<section id="home" class="relative top-0 left-0 flex items-center justify-center mt-16 text-center text-white bg-center bg-cover hero" 
+<section id="home" class="relative top-0 left-0 flex items-center justify-center mt-16 text-center text-white bg-center bg-cover marcellus-regular hero" 
     style="background-image: url('/src/images/UMak-Facade-Admin.jpg'); height: 90vh;">
     <div class="absolute inset-0 bg-slate-800 bg-opacity-60"></div>
     <div class="relative max-w-4xl px-4 py-8 md:px-8">
@@ -95,7 +102,7 @@ $result = $con->query($sql);
         </div>
         <div class="p-4 m-3 mx-auto place-content-center">
             <div class="flex items-center justify-center w-full text-4xl font-bold text-center text-gray-800">GuidanceHub: Center for Guidance and Counseling Services</div>
-            <div class="my-3 text-lg font-medium text-justify text-blue-900"> An integral part of the university which commits to develop and deliver comprehensive guidance 
+            <div class="my-3 text-lg font-medium text-justify text-blue-900 md:mx-10"> An integral part of the university which commits to develop and deliver comprehensive guidance 
                 programs that will holistically empower students with good moral values and right attitudes geared toward 
                 academic excellence and remarkable achievements for the good of our society.</div>
             <div class="flex justify-center">
@@ -116,7 +123,7 @@ $result = $con->query($sql);
     </p>
         <div class="grid grid-cols-1 gap-8 p-5 md:grid-cols-2">
             <div class="relative overflow-hidden rounded-lg shadow-lg">
-                <img src="path/to/counseling-image.jpg" alt="Counseling" class="object-cover w-full h-48">
+                <img src="/src/images/counseling.jpg" alt="Counseling" class="object-cover w-full h-48">
                 <div class="absolute inset-0 flex flex-col justify-end p-4 bg-black bg-opacity-50">
                     <h3 class="text-xl font-bold text-white">Counseling Appointment</h3>
                     <a href="/src/ControlledData/appointment.php" class="inline-block px-3 py-2 mt-2 font-medium text-white bg-blue-600 rounded-lg text-md hover:bg-blue-700">Schedule Appointment</a>
@@ -124,7 +131,7 @@ $result = $con->query($sql);
             </div>
             
             <div class="relative overflow-hidden rounded-lg shadow-lg">
-                <img src="path/to/referral-image.jpg" alt="Referral" class="object-cover w-full h-48">
+                <img src="/src/images/referral.jpg" alt="Referral" class="object-cover w-full h-48">
                 <div class="absolute inset-0 flex flex-col justify-end p-4 bg-black bg-opacity-50">
                     <h3 class="text-xl font-bold text-white">Referral System</h3>
                     <a href="/src/ControlledData/referral.php" class="inline-block px-3 py-2 mt-2 font-medium text-white bg-blue-600 rounded-lg text-md hover:bg-blue-700">Refer in Need</a>
@@ -132,7 +139,7 @@ $result = $con->query($sql);
             </div>
             
             <div class="relative overflow-hidden rounded-lg shadow-lg">
-                <img src="path/to/inventory-image.jpg" alt="Inventory" class="object-cover w-full h-48">
+                <img src="/src/images/inventory.jpg" alt="Inventory" class="object-cover w-full h-48">
                 <div class="absolute inset-0 flex flex-col justify-end p-4 bg-black bg-opacity-50">
                     <h3 class="text-xl font-bold text-white">Individual Inventory</h3>
                     <a href="/src/ControlledData/information.php" class="inline-block px-3 py-2 mt-2 font-medium text-white bg-blue-600 rounded-lg text-md hover:bg-blue-700">Answer Here</a>
@@ -140,7 +147,7 @@ $result = $con->query($sql);
             </div>
 
             <div class="relative overflow-hidden rounded-lg shadow-lg">
-                <img src="path/to/assessment-image.jpg" alt="Assessment" class="object-cover w-full h-48">
+                <img src="/src/images/assessment.jpg" alt="Assessment" class="object-cover w-full h-48">
                 <div class="absolute inset-0 flex flex-col justify-end p-4 bg-black bg-opacity-50">
                     <h3 class="text-xl font-bold text-white">Assessment</h3>
                     <a href="/src/ControlledData/assessment.php" class="inline-block px-3 py-2 mt-2 font-medium text-white bg-blue-600 rounded-lg text-md hover:bg-blue-700">Assess Yourself</a>
@@ -277,7 +284,7 @@ $result = $con->query($sql);
 
 </section>
 
-<!--CONTACT INFORMATION-->
+<!--CONTACT INFORMATION
 <section class="bg-gray-100 p-7">
     <div class="max-w-4xl mx-auto text-center">
         <h2 class="text-3xl font-bold text-gray-800">Contact Information</h2>
@@ -291,7 +298,7 @@ $result = $con->query($sql);
                 8th Floor, Health and Physical Science Building
             </p>
     </div>
-</section>
+</section> -->
 
 </main>
 

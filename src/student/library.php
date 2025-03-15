@@ -1,18 +1,61 @@
 <?php include('E:/GuidanceHub/src/ControlledData/server.php'); ?>
 <?php
-// Connect to the database
-$con = mysqli_connect('localhost', 'root', '', 'guidancehub');
 
-// Check connection
-if (!$con) {
-    die("Connection failed: " . mysqli_connect_error());
+$host = 'localhost';
+$dbname = 'guidancehub';
+$username = 'root';
+$password = '';
+
+try {
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password, [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+    ]);
+} catch (PDOException $e) {
+    die("Database connection failed: " . $e->getMessage());
 }
 
-$sql = "SELECT * FROM library_resources ORDER BY created_at DESC";
+$sql = "SELECT * FROM resources ORDER BY created_at DESC";
 $result = $con->query($sql);
 
 // Initialize variables and error array
 $errors = array(); 
+
+// Search functionality
+$searchQuery = "";
+$params = [];
+
+if (!empty($_GET['search'])) {
+    $searchQuery = " WHERE title LIKE :search OR description LIKE :search OR resource_link LIKE :search";
+    $params[':search'] = "%" . $_GET['search'] . "%";
+}
+
+// Ensure $pdo is initialized before running queries
+if (!isset($pdo)) {
+    die("Database connection is not initialized.");
+}
+
+// Search functionality
+$searchQuery = "";
+$params = [];
+
+if (!empty($_GET['search'])) {
+    $searchQuery = " WHERE title LIKE :search OR description LIKE :search OR resource_link LIKE :search";
+    $params[':search'] = "%" . $_GET['search'] . "%";
+}
+
+// Fetch resources with or without search
+$sql = "SELECT * FROM resources" . $searchQuery . " ORDER BY created_at DESC";
+$stmt = $pdo->prepare($sql);
+
+foreach ($params as $key => $value) {
+    $stmt->bindValue($key, $value, PDO::PARAM_STR);
+}
+
+$stmt->execute();
+$resources = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+
 
 // Check if logout is requested
 if (isset($_GET['logout'])) {
@@ -39,14 +82,14 @@ if (isset($_GET['logout'])) {
 <body class="bg-gray-100">
 
 <!--TOP NAVIGATION BAR-->
-<header class="fixed top-0 left-0 z-50 w-full shadow-md" style="background-color: #1EB0A9">
+<header class="fixed top-0 left-0 z-50 w-full shadow-md bg-teal-600">
     <div class="flex px-3 py-4 lg:px-5 lg:pl-3">
-        <div class="flex items-center justify-between w-full max-w-7xl">
+        <div class="flex items-center justify-between w-full max-w-7xl mx-auto">
 
-            <!--LOGOS-->
+            <!-- LOGO -->
             <div class="flex items-center mx-5">
                 <img src="/src/images/UMAK-CGCS-logo.png" alt="CGCS Logo" class="w-10 h-auto md:w-14">
-                <span class="mx-6 font-semibold tracking-wide text-white md:text-2xl">GuidanceHub</span>
+                <span class="ml-4 font-semibold tracking-wide text-white md:text-2xl">GuidanceHub</span>
             </div>
 
             <!-- Hamburger Icon (Mobile) -->
@@ -54,111 +97,44 @@ if (isset($_GET['logout'])) {
                 <i class="fa-solid fa-bars"></i>
             </button>
 
-            <!-- Navigation Links -->
-            <div id="nav-menu" class="items-center hidden space-x-6 md:flex">
+            <!-- Navigation Links (Desktop) -->
+            <nav id="nav-menu" class="items-center hidden space-x-6 md:flex">
                 <a href="dashboard.php" class="text-white hover:text-gray-300">Dashboard</a>
                 <a href="library.php" class="text-white hover:text-gray-300">Library</a>
-                
-                <!--Message Icon-->
-                    <div class="relative">
-                        <button id="messageButton" class="text-gray-600 hover:text-gray-900 focus:outline-none">
-                            <i class="text-2xl fa-solid fa-message"></i>
-                            <!-- Unread Message Badge -->
-                            <span id="messageBadge" class="absolute top-0 right-0 inline-flex items-center justify-center hidden w-4 h-4 text-xs font-bold text-white bg-red-500 rounded-full">
-                                3
-                            </span>
-                        </button>
-                        <!-- Message Chat Modal -->
-                        <div id="chatModal" class="fixed inset-0 z-50 flex items-center justify-center hidden bg-black bg-opacity-50">
-                            <div class="w-full max-w-lg p-6 bg-white rounded-lg shadow-md">
-                                <div class="flex items-center justify-between mb-4">
-                                    <h3 class="text-xl font-semibold">Chat with Support</h3>
-                                    <button onclick="closeChatModal()" class="text-gray-500 hover:text-gray-800">✖</button>
-                                </div>
-                                <div id="chatContent" class="h-64 mb-4 overflow-y-auto text-sm text-gray-700">
-                                    <div class="mb-2">
-                                        <p class="p-2 bg-gray-100 rounded">Hello! How can I assist you today?</p>
-                                    </div>
-                                    <div class="mb-2">
-                                        <p class="p-2 text-blue-800 bg-blue-100 rounded">I need help with my appointment.</p>
-                                    </div>
-                                </div>
-                                <div class="flex">
-                                    <input id="chatInput" type="text" class="w-full p-2 border border-gray-300 rounded-l-md" placeholder="Type your message...">
-                                    <button onclick="sendMessage()" class="px-4 py-2 text-white bg-blue-500 rounded-r-md hover:bg-blue-700">Send</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <a href="profile.php" class="text-white hover:text-gray-300">Profile</a>
 
-                <!--Notification Bell Icon-->
-                    <div class="relative">
-                        <button id="notificationButton" class="text-gray-600 hover:text-gray-900 focus:outline-none">
-                            <i class="text-2xl fa-solid fa-bell"></i>
-                            <!-- Notification Badge -->
-                            <span id="notificationBadge" class="absolute top-0 right-0 inline-flex items-center justify-center hidden w-4 h-4 text-xs font-bold text-white bg-red-500 rounded-full">
-                                0
-                            </span>
-                        </button>
-                        <!-- Notification Dropdown -->
-                        <div id="notificationDropdown" class="absolute right-0 z-50 hidden w-64 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg">
-                            <div class="p-4 text-sm text-gray-700">
-                                <h4 class="text-lg font-bold">Notifications</h4>
-                                <ul id="notificationList" class="mt-2 space-y-2">
-                                    <li class="text-gray-500">No new notifications</li>
-                                </ul>
-                                <!-- Mark as Read Button -->
-                                <button id="markReadButton" class="hidden w-full px-4 py-2 mt-4 text-sm font-medium text-white bg-blue-500 rounded hover:bg-blue-700">
-                                    Mark All as Read
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                <!-- Search Icon -->
+                <!-- Messages Icon -->
                 <div class="relative">
-                    <button
-                        id="search-toggle"
-                        class="text-xl text-gray-700 hover:text-blue-600 focus:outline-none">
-                        <i id="search-icon" class="fa-solid fa-magnifying-glass"></i>
+                    <button id="messageButton" class="text-white hover:text-gray-300 focus:outline-none">
+                        <i class="text-2xl fa-solid fa-message"></i>
+                        <span id="messageBadge" class="absolute -top-1 -right-1 hidden w-4 h-4 text-xs font-bold text-white bg-red-500 rounded-full">3</span>
                     </button>
-
-                    <!-- Search Box (Hidden Initially) -->
-                    <div id="search-box" class="absolute right-0 p-4 mt-2 overflow-hidden transition-all duration-300 ease-in-out bg-white border border-gray-300 rounded-lg shadow-lg opacity-0 w-80 max-h-0">
-                        <form action="" method="GET" class="w-full max-w-md mx-auto">
-                            <label for="default-search" class="mb-2 text-sm font-medium sr-only">Search</label>
-                            <div class="relative">
-                                <input type="search" id="default-search" name="query"
-                                    class="block w-full p-4 text-sm text-gray-900"
-                                    placeholder="Search" />
-                                <button type="submit"
-                                    class="absolute px-4 py-2 text-sm font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 right-2 bottom-2">
-                                    <i class="fa-solid fa-magnifying-glass"></i>
-                                </button>
-                            </div>
-                        </form>
-                    </div>
                 </div>
-                
-                <!--Logout Button-->
+
+                <!-- Notifications Icon -->
                 <div class="relative">
-                    <a href="?logout=true" class="text-gray-600 hover:text-gray-900 focus:outline-none">
-                        <i class="text-xl fa-solid fa-right-from-bracket"></i>
-                    </a>
+                    <button id="notificationButton" class="text-white hover:text-gray-300 focus:outline-none">
+                        <i class="text-2xl fa-solid fa-bell"></i>
+                        <span id="notificationBadge" class="absolute -top-1 -right-1 hidden w-4 h-4 text-xs font-bold text-white bg-red-500 rounded-full">0</span>
+                    </button>
                 </div>
-            </div>
-        </div>
 
-            <!-- Mobile Menu -->
-            <div id="mobile-menu" class="flex-col items-center hidden p-4 mt-4 space-y-4 bg-gray-700 md:hidden">
-                <a href="dashboard.php" class="text-white hover:text-gray-300">Dashboard</a>
-                <a href="assessment.php" class="text-white hover:text-gray-300">Assessment</a>
-                <a href="library.php" class="text-white hover:text-gray-300">Library</a>
+                <!-- Logout Button -->
                 <a href="?logout=true" class="text-white hover:text-gray-300">
-                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                    <i class="text-xl fa-solid fa-right-from-bracket"></i>
                 </a>
-            </div>
+            </nav>
         </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden flex-col items-center p-4 space-y-4 bg-teal-700 md:hidden">
+        <a href="dashboard.php" class="text-white hover:text-gray-300">Dashboard</a>
+        <a href="library.php" class="text-white hover:text-gray-300">Library</a>
+        <a href="profile.php" class="text-white hover:text-gray-300">Profile</a>
+        <a href="?logout=true" class="text-white hover:text-gray-300">
+            <i class="fa-solid fa-right-from-bracket"></i> Logout
+        </a>
     </div>
 </header>
 
@@ -167,9 +143,13 @@ if (isset($_GET['logout'])) {
 <h2 class="p-3 my-2 text-4xl font-bold"> Resource Library </h2>
     <h4 class="p-2 text-xl font-semibold text-white bg-teal-500 rounded-lg"> Learn about yourself with... </h4>
     <main class="my-5">
-    <div class="flex justify-center mb-8">
-            <input type="text" id="search" placeholder="Search for resources..." class="w-1/3 p-2 border border-gray-300 rounded">
-        </div>
+        <!-- Search Bar -->
+            <div class="flex justify-center">
+                <form method="GET" class="flex mb-4">
+                    <input type="text" name="search" placeholder="Search Resource Material..." class="border-gray-300  w-40 p-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                    <button type="submit" class="px-4 py-2 ml-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600">Search</button>
+                </form> 
+            </div>
 
         <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             <?php
@@ -357,37 +337,6 @@ const notificationButton = document.getElementById('notificationButton');
     // Initialize notifications on page load
     updateNotifications();
 
-// JavaScript to handle search box toggling and icon change
-    document.addEventListener('DOMContentLoaded', function () {
-        const searchToggle = document.getElementById('search-toggle');
-        const searchBox = document.getElementById('search-box');
-        const searchIcon = document.getElementById('search-icon');
-        const searchExit = document.getElementById('search-exit');
-
-        // Toggle the search box and icon when search icon is clicked
-        searchToggle.addEventListener('click', function () {
-            // Toggle search box visibility
-            if (searchBox.classList.contains('opacity-0')) {
-                searchBox.classList.remove('opacity-0', 'max-h-0');
-                searchBox.classList.add('opacity-100', 'max-h-screen');
-                searchIcon.classList.remove('fa-magnifying-glass');
-                searchIcon.classList.add('fa-circle-xmark');  // Change to exit icon
-            } else {
-                searchBox.classList.add('opacity-0', 'max-h-0');
-                searchBox.classList.remove('opacity-100', 'max-h-screen');
-                searchIcon.classList.remove('fa-circle-xmark'); // Revert to search icon
-                searchIcon.classList.add('fa-magnifying-glass');
-            }
-        });
-
-        // Hide search box when clicking the exit icon
-        searchExit.addEventListener('click', function () {
-            searchBox.classList.add('opacity-0', 'max-h-0');
-            searchBox.classList.remove('opacity-100', 'max-h-screen');
-            searchIcon.classList.remove('fa-circle-xmark');
-            searchIcon.classList.add('fa-magnifying-glass'); // Revert to search icon
-        });
-    });
 </script>
 <script src="../path/to/flowbite/dist/flowbite.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>

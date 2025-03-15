@@ -98,30 +98,13 @@ if (isset($_POST['verify_otp'])) {
             $_SESSION['role'] = $user_data['role'];
 
             // Redirect to the appropriate dashboard based on the user's role
-            if ($_SESSION['role'] == 'counselor') {
+            if ($_SESSION['role'] == 'Counselor') {
                 header('Location: /src/counselor/dashboard.php'); // Redirect to counselor dashboard
             } 
-            else if ($_SESSION['role'] == 'student') {
-                $email = $_SESSION['email'];  // Use the email from the session
-
-                // MySQLi for this query
-                $query = "SELECT COUNT(*) FROM student_profile WHERE student_email = '$email'"; // Corrected query
-
-                $result = mysqli_query($con, $query);
-
-                if ($result) {
-                    $count = mysqli_fetch_row($result)[0];  // Fetch count from result
-
-                    if ($count > 0) {
-                        header("Location: /src/student/dashboard.php"); // The student already has a record
-                    } else {
-                        header("Location: /src/student/information.php"); // The student does not have a record
-                    }
-                } else {
-                    array_push($errors, "Database query failed.");
-                }
+            else if ($_SESSION['role'] == 'Student') {
+                header("Location: /src/student/dashboard.php"); // Redirect all students to their dashboard
             }
-            else if ($_SESSION['role'] == 'admin') {
+            else if ($_SESSION['role'] == 'Admin') {
                 header('Location: /src/admin/dashboard.php'); // Redirect to admin dashboard
             }
             exit;
@@ -132,6 +115,7 @@ if (isset($_POST['verify_otp'])) {
         array_push($errors, "Incorrect OTP. Please try again.");
     }
 }
+
 ?>
 
 <!DOCTYPE html>
