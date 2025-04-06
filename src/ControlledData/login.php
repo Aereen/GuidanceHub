@@ -1,6 +1,9 @@
 <?php
 session_start();
-include('server.php'); // Include server logic for login validation
+
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -9,17 +12,25 @@ require 'phpmailer/src/Exception.php';
 require 'phpmailer/src/PHPMailer.php';
 require 'phpmailer/src/SMTP.php';
 
+// Database connection
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "guidancehub";
+
+// Create connection
+$con = new mysqli($servername, $username, $password, $dbname);
+
+// Check connection
+if ($con->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
 $errors = array();
 $otp_sent = false;
 $email = ''; // Initialize email variable to retain its value
 
 if (isset($_POST['login_user'])) {
-    $con = mysqli_connect('localhost', 'root', '', 'guidancehub');
-
-    if (!$con) {
-        die("Connection failed: " . mysqli_connect_error());
-    }
-
     $email = mysqli_real_escape_string($con, $_POST['email']); // Capture email input
 
     if (empty($email)) {
@@ -71,51 +82,58 @@ if (isset($_POST['login_user'])) {
     }
 }
 
-// OTP verification process
+// OTP LOGIN - Verify OTP
 if (isset($_POST['verify_otp'])) {
     $entered_otp = mysqli_real_escape_string($con, $_POST['otp']);
-    $email = $_SESSION['email'];  // Retrieve the email from the session
+    $email = $_SESSION['email'] ?? '';
 
     // Check if OTP is expired
-    if (time() > $_SESSION['otp_expiration']) {
-        array_push($errors, "OTP has expired. Please request a new one.");
-    } else if ($entered_otp == $_SESSION['otp']) {
-        $_SESSION['success'] = "You are now logged in";
-
-        // Fetch user details from the database based on the email in session
-        $sql = "SELECT id_number, name, email, role FROM users WHERE email = ?";
-        $stmt = $con->prepare($sql);
+    if (time() > ($_SESSION['otp_expiration'] ?? 0)) {
+        $errors[] = "OTP has expired. Please request a new one.";
+    } elseif ($entered_otp == ($_SESSION['otp'] ?? '')) {
+        // Fetch user details from the database
+        $stmt = $con->prepare("SELECT id_number, name, email, role FROM users WHERE email = ?");
         $stmt->bind_param("s", $email);
         $stmt->execute();
         $result = $stmt->get_result();
+        $user_data = $result->fetch_assoc();
 
-        if ($result->num_rows > 0) {
-            // Store user details in the session
-            $user_data = $result->fetch_assoc();
+        if ($user_data) {
             $_SESSION['id_number'] = $user_data['id_number'];
             $_SESSION['name'] = $user_data['name'];
             $_SESSION['email'] = $user_data['email'];
             $_SESSION['role'] = $user_data['role'];
 
+            // Clean up OTP session data
+            unset($_SESSION['otp'], $_SESSION['otp_expiration'], $_SESSION['redirect']);
+
             // Redirect to the appropriate dashboard based on the user's role
-            if ($_SESSION['role'] == 'Counselor') {
-                header('Location: /src/counselor/dashboard.php'); // Redirect to counselor dashboard
-            } 
-            else if ($_SESSION['role'] == 'Student') {
-                header("Location: /src/student/dashboard.php"); // Redirect all students to their dashboard
+            switch ($_SESSION['role']) {
+                case 'Counselor':
+                    header('Location: /src/counselor/dashboard.php');
+                    break;
+                case 'Student':
+                    header('Location: /src/student/dashboard.php');
+                    break;
+                case 'Admin':
+                    header('Location: /src/admin/dashboard.php');
+                    break;
+                default:
+                    // Optional fallback in case of unexpected role
+                    header('Location: /index.php');
             }
-            else if ($_SESSION['role'] == 'Admin') {
-                header('Location: /src/admin/dashboard.php'); // Redirect to admin dashboard
-            }
-            exit;
+            exit();
         } else {
-            array_push($errors, "User not found.");
+            $errors[] = "User not found.";
         }
     } else {
-        array_push($errors, "Incorrect OTP. Please try again.");
+        $errors[] = "Incorrect OTP.";
     }
 }
 
+
+// Close connection
+$con->close();
 ?>
 
 <!DOCTYPE html>

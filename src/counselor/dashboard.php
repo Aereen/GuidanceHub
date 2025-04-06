@@ -1,30 +1,48 @@
-<?php include('E:/GuidanceHub/src/ControlledData/server.php'); ?>
 <?php
-session_start(); // Start the session
+session_start();
 
-// Check if the user is logged in, redirect to login page if not
-if (!isset($_SESSION['email'])) {
-    header("Location: /src/ControlledData/login.php"); // If not logged in, redirect to login
-    exit;
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+// Database connection
+$servername = "localhost";
+$username = "u406807013_guidancehub";
+$password = "GuidanceHub2025";
+$dbname = "u406807013_guidancehub";
+
+// Create connection
+$con = new mysqli($servername, $username, $password, $dbname);
+
+// Check connection
+if ($con->connect_error) {
+    die("Connection failed: " . $con->connect_error);
 }
 
-$host = 'localhost';
-$dbname = 'guidancehub';
-$username = 'root';
-$password = '';
+// Query to get the number of appointments
+$sql_appointments = "SELECT COUNT(id) as total_appointments FROM appointments";
+$result_appointments = $con->query($sql_appointments);
+$total_appointments = $result_appointments->fetch_assoc()['total_appointments'];
 
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die("Could not connect to the database $dbname :" . $e->getMessage());
+// Query to get the number of referrals
+$sql_referrals = "SELECT COUNT(id) as total_referrals FROM referrals";
+$result_referrals = $con->query($sql_referrals);
+$total_referrals = $result_referrals->fetch_assoc()['total_referrals'];
+
+// Query to get the number of assessments
+$sql_assessments = "SELECT COUNT(id) as total_assessments FROM assessments";
+$result_assessments = $con->query($sql_assessments);
+$total_assessments = $result_assessments->fetch_assoc()['total_assessments'];
+
+// Fetch announcements
+$announcements = [];
+$sql = "SELECT * FROM announcement ORDER BY published_at DESC";
+$result = $con->query($sql);
+if ($result) {
+    $announcements = $result->fetch_all(MYSQLI_ASSOC);
+} else {
+    die("Error fetching announcements: " . $con->error);
 }
-
-// Query to get all appointments
-$stmt = $pdo->prepare("SELECT * FROM appointments");
-$stmt->execute();
-$appointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
 
 // Check if logout is requested
 if (isset($_GET['logout'])) {
@@ -33,6 +51,9 @@ if (isset($_GET['logout'])) {
     header("Location: /index.php"); // Redirect to the login page after logout
     exit;
 }
+
+// Close the database connection
+$con->close();
 ?>
 
 <!doctype html>
@@ -181,6 +202,14 @@ if (isset($_GET['logout'])) {
                 </a>
             </li>
             <li>
+                <a href="assessments.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
+                <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 18">
+                    <i class="fa-solid fa-chart-pie"></i>
+                </svg>
+                <span class="flex-1 ms-3 whitespace-nowrap">Assessments</span>
+                </a>
+            </li>
+            <li>
                 <a href="report.php" class="flex items-center p-2 text-gray-900 rounded-lg hover:bg-gray-100 group">
                 <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 18">
                     <i class="fa-solid fa-chart-pie"></i>
@@ -205,99 +234,49 @@ if (isset($_GET['logout'])) {
 <h2 class="p-3 text-4xl font-bold tracking-tight"><?php echo "Welcome, " . $_SESSION['name'] . "!<br>" ?></h2>
     <div class="px-4 py-3 mx-auto max-w-7xl">
         <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
-            <!-- Total Students Served -->
+            <!-- Total Appointments -->
             <div class="p-6 bg-white rounded-lg shadow">
-                <h2 class="text-2xl font-semibold text-gray-700">Students Served</h2>
-                <!-- <p class="mt-4 text-4xl font-bold text-green-500" id="students-served"></p> -->
-                <p class="mt-2 text-sm text-gray-500">in the past year</p>
-            </div>
-            <!-- Sessions Conducted -->
-            <div class="p-6 bg-white rounded-lg shadow">
-                <h2 class="text-2xl font-semibold text-gray-700">Sessions Conducted</h2>
-                <!-- <p class="mt-4 text-4xl font-bold text-blue-500" id="sessions-conducted"></p> -->
+                <h2 class="text-2xl font-semibold text-gray-700">Appointment</h2>
+                <p class="mt-4 text-4xl font-bold text-green-500" id="total-appointments"><?php echo $total_appointments; ?></p>
                 <p class="mt-2 text-sm text-gray-500">total sessions</p>
             </div>
-            <!-- Active Cases -->
+            <!-- Total Referrals -->
             <div class="p-6 bg-white rounded-lg shadow">
-                <h2 class="text-2xl font-semibold text-gray-700">Active Cases</h2>
-                <!-- <p class="mt-4 text-4xl font-bold text-red-500" id="active-cases"></p> -->
+                <h2 class="text-2xl font-semibold text-gray-700">Referral</h2>
+                <p class="mt-4 text-4xl font-bold text-blue-500" id="total-referrals"><?php echo $total_referrals; ?></p>
+                <p class="mt-2 text-sm text-gray-500">number of students</p>
+            </div>
+            <!-- Total Assessments -->
+            <div class="p-6 bg-white rounded-lg shadow">
+                <h2 class="text-2xl font-semibold text-gray-700">Assessment</h2>
+                <p class="mt-4 text-4xl font-bold text-red-500" id="total-assessments"><?php echo $total_assessments; ?></p>
                 <p class="mt-2 text-sm text-gray-500">currently in progress</p>
             </div>
         </div>
-
-    <!--UPCOMING SESSIONS-->
-        <div class="p-6 mt-10 bg-white rounded-lg shadow">
-            <!--APPOINTMENTS-->
-            <h2 class="mb-3 text-2xl font-semibold text-gray-700">Appointment Overview</h2>
-                <div class="col-span-1 p-5 lg:col-span-3"> 
-                    <table class="w-full border border-collapse border-gray-300 table-auto">
-                        <thead class="text-white bg-gray-800">
-                            <tr>
-                                <th class="px-4 py-3 text-left">#</th>
-                                <th class="px-4 py-3 text-left">Ticket ID</th>
-                                <th class="px-4 py-3 text-left">Student Name</th>
-                                <th class="px-4 py-3 text-left">First <br> Date & Time</th>
-                                <th class="px-4 py-3 text-left">Second <br> Date & Time</th>
-                                <th class="px-4 py-3 text-left">Type</th>
-                                <th class="px-4 py-3 text-left">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php if (!empty($appointments)): ?>
-                                <?php foreach ($appointments as $appointment): ?>
-                                    <tr class="border-b hover:bg-gray-100">
-                                        <td class="px-4 py-3"><?= htmlspecialchars($appointment['id']) ?></td>
-                                        <td class="px-4 py-3"><?= htmlspecialchars($appointment['ticket_id']) ?></td>
-                                        <td class="px-4 py-3"><?= htmlspecialchars($appointment['name']) ?></td>
-                                        <td class="px-4 py-3"><?= htmlspecialchars($appointment['first_date']) . ' ' . htmlspecialchars($appointment['first_time']) ?></td>
-                                        <td class="px-4 py-3"><?= htmlspecialchars($appointment['second_date']) . ' ' . htmlspecialchars($appointment['second_time']) ?></td>
-                                        <td class="px-4 py-3"><?= htmlspecialchars($appointment['counseling_type']) ?></td>
-                                        <td class="px-4 py-3"><?= htmlspecialchars($appointment['status']) ?></td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            <?php else: ?>
-                                <tr>
-                                    <td colspan="8" class="px-4 py-3 text-center text-gray-600">No appointments scheduled.</td>
-                                </tr>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
-                </div>
-
-            <!--REFERRALS-->
-            <h2 class="mb-3 text-2xl font-semibold text-gray-700">Referral Overview</h2>
-                <div class="col-span-1 p-5 lg:col-span-3 "> 
-                    <table class="w-full table-auto">
-                        <thead class="text-white bg-gray-800">
-                            <tr>
-                                <th class="px-4 py-3 text-left">#</th>
-                                <th class="px-4 py-3 text-left">Ticket ID</th>
-                                <th class="px-4 py-3 text-left">Student Name</th>
-                                <th class="px-4 py-3 text-left">Student ID</th>
-                                <th class="px-4 py-3 text-left">Reason</th>
-                                <th class="px-4 py-3 text-left">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php if (!empty($referrals)): ?>
-                                <?php foreach ($referrals as $row): ?>
-                                    <tr class="hover:bg-gray-100">
-                                        <td class="px-4 py-3"><?= htmlspecialchars($row['id']) ?></td>
-                                        <td class="px-4 py-3"><?= htmlspecialchars($row['ticket_id']) ?></td></td>
-                                        <td class="px-4 py-3"><?= htmlspecialchars($row['name']) ?></td>
-                                        <td class="px-4 py-3"><?= htmlspecialchars($row['reason']) ?></td>
-                                        <td class="px-4 py-3"><?= htmlspecialchars($row['status']) ?></td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            <?php else: ?>
-                                <tr>
-                                    <td colspan="10" class="p-2 text-center text-gray-500 border">No referrals found.</td>
-                                </tr>
-                            <?php endif; ?>
-                        </tbody>
-                </table>
+        
+        <!-- Announcements Section -->
+        <section class="p-4 bg-white border-2 rounded-lg shadow-lg">
+            <h4 class="p-2 text-xl font-semibold text-white bg-teal-500 rounded-lg">ANNOUNCEMENTS</h4>
+            <div class="grid grid-cols-1 gap-4 my-3 sm:grid-cols-2">
+                <?php if (empty($announcements)): ?>
+                    <p class="text-gray-500 col-span-full">No announcements available.</p>
+                <?php else: ?>
+                    <?php foreach ($announcements as $announcement): ?>
+                        <div class="p-6 bg-white rounded-lg shadow-lg">
+                            <h3 class="mb-2 text-2xl font-semibold text-blue-800">
+                                <?= htmlspecialchars($announcement['title']); ?>
+                            </h3>
+                            <p class="text-gray-700">
+                                <?= nl2br(htmlspecialchars($announcement['content'])); ?>
+                            </p>
+                            <p class="mt-2 text-sm text-gray-500">
+                                Posted on: <?= date('F j, Y, g:i a', strtotime($announcement['published_at'])); ?>
+                            </p>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </div>
-        </div>
+        </section>
 </section>
 
 <!--FOOTER-->

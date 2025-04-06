@@ -1,4 +1,86 @@
-<?php include('server.php'); ?>
+<?php
+session_start();
+
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+// Database connection
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "guidancehub";
+
+// Create connection
+$con = new mysqli($servername, $username, $password, $dbname);
+
+// Check connection
+if ($con->connect_error) {
+    die("Connection failed: " . $con->connect_error);
+}
+
+// Initialize errors array
+$errors = [];
+
+// SIGNUP USER
+if (isset($_POST['signup'])) {
+    // Receive form data
+    $name = mysqli_real_escape_string($con, $_POST['name']);
+    $email = mysqli_real_escape_string($con, $_POST['email']);
+    $id_number = mysqli_real_escape_string($con, $_POST['id_number']);
+    $role = mysqli_real_escape_string($con, $_POST['role']); // This will be either 'Counselor' or 'Student'
+    $password = mysqli_real_escape_string($con, $_POST['password']);
+    $confirm_password = mysqli_real_escape_string($con, $_POST['confirm_password']);
+
+    // Form validation: Ensure required fields are filled
+    if (empty($name)) { array_push($errors, "Name is required"); }
+    if (empty($email)) { array_push($errors, "Email is required"); }
+    if (empty($id_number)) { array_push($errors, "ID Number is required"); }
+    if (empty($role)) { array_push($errors, "Role is required"); }
+    if (empty($password)) { array_push($errors, "Password is required"); }
+    if ($password !== $confirm_password) { array_push($errors, "Passwords do not match"); }
+
+    // Check if email already exists
+    $user_check_query = "SELECT * FROM users WHERE email='$email' LIMIT 1";
+    $result = mysqli_query($con, $user_check_query);
+    
+    if (!$result) {
+        die("Query failed: " . mysqli_error($con)); // Debugging query error
+    }
+
+    $user = mysqli_fetch_assoc($result);
+
+    if ($user) { // If user exists
+        if ($user['email'] === $email) {
+            array_push($errors, "Email already exists");
+        }
+    }
+
+    // Register user if no errors
+    if (count($errors) == 0) {
+        // Hash the password before storing
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+        // Insert user into the database
+        $query = "INSERT INTO users (name, email, id_number, role, password) 
+                    VALUES('$name', '$email', '$id_number', '$role', '$hashed_password')";
+
+        if (mysqli_query($con, $query)) {
+            $_SESSION['email'] = $email;
+            $_SESSION['success'] = "You are now registered";
+            header('location: /src/ControlledData/login.php'); // Redirect to login page after successful registration
+            exit();
+        } else {
+            // If query fails
+            die("Error in inserting user: " . mysqli_error($con));
+        }
+    }
+}
+
+// Close the connection at the end of the script
+$con->close();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -66,7 +148,7 @@
                 <h2 class="mb-6 text-2xl font-semibold text-center">Sign Up</h2>
 
                 <!-- Sign Up Form -->
-                <form action="server.php" method="POST" onsubmit="return validatePasswords()">
+                <form action="signup.php" method="POST" onsubmit="return validatePasswords()">
                         <!-- Name -->
                         <div class="mb-2">
                             <label for="name" class="block text-sm font-medium text-gray-700">Name</label>

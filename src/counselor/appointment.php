@@ -1,17 +1,24 @@
-<?php include('E:/GuidanceHub/src/ControlledData/server.php'); ?>
 <?php
-session_start(); // Start the session
+// Start session at the very beginning
+session_start();
+include('server.php');
 
-$host = 'localhost';
-$dbname = 'guidancehub';
-$username = 'root';
-$password = '';
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die("Connection failed: " . $e->getMessage()); // Stop execution if connection fails
+// Database connection
+$servername = "localhost";
+$username = "u406807013_guidancehub";
+$password = "GuidanceHub2025";
+$dbname = "u406807013_guidancehub";
+
+// Create connection
+$con = new mysqli($servername, $username, $password, $dbname);
+
+// Check connection
+if ($con->connect_error) {
+    die("Connection failed: " . $con->connect_error);
 }
 
 // Handle Status Update
@@ -20,11 +27,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
         $email = filter_var($_POST['email'], FILTER_SANITIZE_STRING);
         $new_status = filter_var($_POST['status'], FILTER_SANITIZE_STRING);
 
-        $stmt = $pdo->prepare("UPDATE appointments 
-                               SET status = :status, updated_at = CURRENT_TIMESTAMP 
-                               WHERE email = :email");
-        $stmt->bindParam(':status', $new_status, PDO::PARAM_STR);
-        $stmt->bindParam(':email', $email, PDO::PARAM_STR);
+        $stmt = $con->prepare("UPDATE appointments 
+                               SET status = ?, updated_at = CURRENT_TIMESTAMP 
+                               WHERE email = ?");
+        $stmt->bind_param("ss", $new_status, $email);
 
         if ($stmt->execute()) {
             header("Location: " . $_SERVER['PHP_SELF']);
@@ -32,15 +38,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
         } else {
             echo "<p class='text-red-600'>Error updating status.</p>";
         }
+        $stmt->close();
     } else {
         echo "<p class='text-red-600'>Invalid input.</p>";
     }
 }
 
-// Fetch Appointments
+// Fetch Appointments using MySQLi
 $sql = "SELECT * FROM appointments";
-$stmt = $pdo->query($sql);
-$appointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$result = $con->query($sql);
+
+$appointments = [];
+if ($result && $result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $appointments[] = $row;
+    }
+}
 
 // Check if logout is requested
 if (isset($_GET['logout'])) {
@@ -49,7 +62,11 @@ if (isset($_GET['logout'])) {
     header("Location: /index.php"); // Redirect to the login page after logout
     exit;
 }
+
+// Close the database connection
+$con->close();
 ?>
+
 
 <!doctype html>
 <html>

@@ -1,61 +1,36 @@
-<?php include('E:/GuidanceHub/src/ControlledData/server.php'); ?>
 <?php
+// Start session and include necessary files
+session_start();
+include('../server.php'); // Adjust the path as needed
 
-$host = 'localhost';
-$dbname = 'guidancehub';
-$username = 'root';
-$password = '';
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
-    ]);
-} catch (PDOException $e) {
-    die("Database connection failed: " . $e->getMessage());
+// Database connection
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "guidancehub";
+
+// Create connection
+$con = new mysqli($servername, $username, $password, $dbname);
+
+// Check connection
+if ($con->connect_error) {
+    die("Connection failed: " . $con->connect_error);
 }
 
-$sql = "SELECT * FROM resources ORDER BY created_at DESC";
-$result = $con->query($sql);
-
-// Initialize variables and error array
-$errors = array(); 
-
-// Search functionality
+// Initialize search query
 $searchQuery = "";
-$params = [];
-
 if (!empty($_GET['search'])) {
-    $searchQuery = " WHERE title LIKE :search OR description LIKE :search OR resource_link LIKE :search";
-    $params[':search'] = "%" . $_GET['search'] . "%";
+    $search = $con->real_escape_string($_GET['search']);
+    $searchQuery = " WHERE title LIKE '%$search%' OR description LIKE '%$search%' OR resource_link LIKE '%$search%'";
 }
 
-// Ensure $pdo is initialized before running queries
-if (!isset($pdo)) {
-    die("Database connection is not initialized.");
-}
-
-// Search functionality
-$searchQuery = "";
-$params = [];
-
-if (!empty($_GET['search'])) {
-    $searchQuery = " WHERE title LIKE :search OR description LIKE :search OR resource_link LIKE :search";
-    $params[':search'] = "%" . $_GET['search'] . "%";
-}
-
-// Fetch resources with or without search
+// Fetch resources from the database
 $sql = "SELECT * FROM resources" . $searchQuery . " ORDER BY created_at DESC";
-$stmt = $pdo->prepare($sql);
-
-foreach ($params as $key => $value) {
-    $stmt->bindValue($key, $value, PDO::PARAM_STR);
-}
-
-$stmt->execute();
-$resources = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-
+$result = $con->query($sql);
 
 // Check if logout is requested
 if (isset($_GET['logout'])) {
@@ -65,6 +40,7 @@ if (isset($_GET['logout'])) {
     exit;
 }
 ?>
+
 
 <!doctype html>
 <html>
@@ -77,12 +53,35 @@ if (isset($_GET['logout'])) {
         <link href="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.css"  rel="stylesheet" />
         <script src="https://kit.fontawesome.com/95c10202b4.js" crossorigin="anonymous"></script>
         <script src="https://cdn.tailwindcss.com"></script>
-        <link href="./output.css" rel="stylesheet">   
+        <link href="./output.css" rel="stylesheet">  
+        <link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Montserrat:wght@500&display=swap" rel="stylesheet">
+        
+    <style>
+        .marcellus-regular {
+            font-family: "Marcellus", serif;
+            font-style: normal;
+            letter-spacing: 2px; }
+        body::-webkit-scrollbar {
+            width: 15px; }
+        body::-webkit-scrollbar-track {
+            background: #f1f1f1; }
+        body::-webkit-scrollbar-thumb {
+            background: #888; }
+        body::-webkit-scrollbar-thumb:hover {
+            background: #555; }
+        .blue-1:hover {
+            color: #111c4e;
+        }
+        .blue-2:hover {
+            color: #618dc2;
+        }
+
+    </style>
 </head>
 <body class="bg-gray-100">
 
 <!--TOP NAVIGATION BAR-->
-<header class="fixed top-0 left-0 z-50 w-full shadow-md bg-teal-600">
+<header class="fixed top-0 left-0 z-50 w-full shadow-md marcellus-regular" style="background-color: #111c4e">
     <div class="flex px-3 py-4 lg:px-5 lg:pl-3">
         <div class="flex items-center justify-between w-full max-w-7xl mx-auto">
 
@@ -99,9 +98,9 @@ if (isset($_GET['logout'])) {
 
             <!-- Navigation Links (Desktop) -->
             <nav id="nav-menu" class="items-center hidden space-x-6 md:flex">
-                <a href="dashboard.php" class="text-white hover:text-gray-300">Dashboard</a>
-                <a href="library.php" class="text-white hover:text-gray-300">Library</a>
-                <a href="profile.php" class="text-white hover:text-gray-300">Profile</a>
+                <a href="dashboard.php" class="text-white blue-2">Dashboard</a>
+                <a href="library.php" class="text-white blue-2">Library</a>
+                <a href="profile.php" class="text-white blue-2">Profile</a>
 
                 <!-- Messages Icon -->
                 <div class="relative">
@@ -140,38 +139,41 @@ if (isset($_GET['logout'])) {
 
 <!--CONTENT-->
 <div class="w-full p-4 mt-20">
-<h2 class="p-3 my-2 text-4xl font-bold"> Resource Library </h2>
+    <h2 class="p-3 my-2 text-4xl font-bold"> Resource Library </h2>
     <h4 class="p-2 text-xl font-semibold text-white bg-teal-500 rounded-lg"> Learn about yourself with... </h4>
     <main class="my-5">
         <!-- Search Bar -->
-            <div class="flex justify-center">
-                <form method="GET" class="flex mb-4">
-                    <input type="text" name="search" placeholder="Search Resource Material..." class="border-gray-300  w-40 p-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
-                    <button type="submit" class="px-4 py-2 ml-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600">Search</button>
-                </form> 
-            </div>
+        <div class="flex justify-center">
+            <form method="GET" class="flex mb-4">
+                <input type="text" name="search" placeholder="Search Resource Material..." class="border-gray-300 w-40 p-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                <button type="submit" class="px-4 py-2 ml-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600">Search</button>
+            </form> 
+        </div>
 
         <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             <?php
-            if ($result->num_rows > 0) {
+            if ($result && $result->num_rows > 0) {
                 while ($row = $result->fetch_assoc()) {
                     echo '<div class="overflow-hidden bg-white rounded-lg shadow-lg">';
                     echo '  <div class="p-4">';
-                    echo '      <h2 class="mb-2 text-xl font-semibold">' . $row['title'] . '</h2>';
-                    echo '      <p class="mb-4 text-gray-700">' . substr($row['description'], 0, 100) . '...</p>';
-                    echo '      <a href="' . $row['resource_link'] . '" class="text-blue-600 hover:underline">Read more</a>';
+                    echo '      <h2 class="mb-2 text-xl font-semibold">' . htmlspecialchars($row['title']) . '</h2>';
+                    echo '      <p class="mb-4 text-gray-700">' . htmlspecialchars(substr($row['description'], 0, 100)) . '...</p>';
+                    echo '      <a href="' . htmlspecialchars($row['resource_link']) . '" class="text-blue-600 hover:underline">Read more</a>';
                     echo '  </div>';
                     echo '</div>';
                 }
             } else {
                 echo '<p class="col-span-4 text-center text-gray-600">No resources available at the moment.</p>';
             }
-
-            $con->close();
             ?>
         </div>
     </main>
 </div>
+
+<?php
+// Close the database connection
+$con->close();
+?>
 
 <!--SCHEDULING CALL TO ACTION-->
 <section class="flex items-center justify-center w-full bg-yellow-300">
@@ -194,7 +196,7 @@ if (isset($_GET['logout'])) {
 </section>
 
 <!--FOOTER-->
-<footer class="w-full" style="background-color: #1EB0A9">
+<footer class="w-full" style="background-color: #111c4e">
     <div class="w-full max-w-screen-xl p-4 py-6 mx-auto lg:py-8 dark:text-gray-800">
         <div class="md:flex md:justify-between">
             <div class="mb-6 md:mb-0">
@@ -203,7 +205,7 @@ if (isset($_GET['logout'])) {
                     <span class="font-bold tracking-wide text-white md:text-2xl">GuidanceHub</span>
                 </a>
             </div>
-            <div class="grid grid-cols-2 gap-8 sm:gap-6 sm:grid-cols-3">
+            <div class="grid grid-cols-2 text-white gap-8 sm:gap-6 sm:grid-cols-3">
                 <div>
                     <h2 class="mb-6 text-sm font-semibold uppercase">Resources</h2>
                     <ul class="font-medium">
@@ -239,7 +241,7 @@ if (isset($_GET['logout'])) {
                 </div>
             </div>
         </div>
-        <div class="sm:flex sm:items-center sm:justify-between">
+        <div class="sm:flex sm:items-center text-white sm:justify-between">
             <span class="text-sm sm:text-center">© 2025 Group 8 | IV-AINS. All Rights Reserved.
             </span>
         </div>

@@ -1,18 +1,24 @@
 <?php
-// Start session
+// Start session at the very beginning
 session_start();
+include('server.php');
+
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
 // Database connection
-$host = 'localhost';
-$dbname = 'guidancehub';
-$username = 'root';
-$password = '';
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "guidancehub";
 
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die("Database connection failed: " . $e->getMessage());
+// Create connection
+$con = new mysqli($servername, $username, $password, $dbname);
+
+// Check connection
+if ($con->connect_error) {
+    die("Connection failed: " . $con->connect_error);
 }
 
 // Check if the user is logged in
@@ -68,6 +74,9 @@ if (isset($_GET['logout'])) {
     header("Location: /index.php");
     exit;
 }
+
+// Close connection at the end
+$con->close();
 ?>
 
 
@@ -147,37 +156,44 @@ if (isset($_GET['logout'])) {
 
 <!--CONTENT-->
 <main class="w-full p-4 mt-20">
-    <div class="max-w-xl p-5 mx-auto bg-white rounded-lg shadow-lg">
-        <h2 class="mb-4 text-2xl font-bold text-center">Edit Profile</h2>
-        
-        <?php if (isset($_GET['success'])): ?>
-            <p class="p-2 mb-3 text-green-700 bg-green-100 border border-green-500 rounded">Profile updated successfully!</p>
-        <?php endif; ?>
-        
-        <form action="profile.php" method="POST" class="space-y-4">
-            <label class="block">
-                <span class="font-semibold">Full Name</span>
-                <input type="text" name="name" value="<?= htmlspecialchars($profile['name'] ?? '') ?>" class="w-full p-2 mt-1 border rounded-lg">
-            </label>
-            
-            <label class="block">
-                <span class="font-semibold">Email</span>
-                <input type="email" name="email" value="<?= htmlspecialchars($profile['email'] ?? '') ?>" class="w-full p-2 mt-1 border rounded-lg">
-            </label>
-            
-            <label class="block">
-                <span class="font-semibold">College/Department</span>
-                <input type="text" name="college_dept" value="<?= htmlspecialchars($profile['college_dept'] ?? '') ?>" class="w-full p-2 mt-1 border rounded-lg">
-            </label>
-            
-            <label class="block">
-                <span class="font-semibold">Year Level</span>
-                <input type="text" name="year_level" value="<?= htmlspecialchars($profile['year_level'] ?? '') ?>" class="w-full p-2 mt-1 border rounded-lg">
-            </label>
-            
-            <button type="submit" class="w-full px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600">Save Changes</button>
-        </form>
+    <h4>PROFILE</h4>
+        <div>
+            <img src="/src/images/UMak-Facade-Admin.jpg" alt="Profile Picture">
+            <table>
+                <tbody>
+                    <tr><td>Name: <?= htmlspecialchars($profile['name']); ?></td></tr>
+                    <tr><td>Email: <?= htmlspecialchars($profile['email']); ?></td></tr>
+                    <tr><td>College Dept: <?= htmlspecialchars($profile['college_dept']); ?></td></tr>
+                    <tr><td>Year Level: <?= htmlspecialchars($profile['year_level']); ?></td></tr>
+                </tbody>
+            </table>
+        </div>
     </div>
+
+    <!-- Display success or error messages -->
+    <?php if (isset($success_message)): ?>
+        <p class="success"><?= $success_message; ?></p>
+    <?php endif; ?>
+    <?php if (isset($error_message)): ?>
+        <p class="error"><?= $error_message; ?></p>
+    <?php endif; ?>
+
+    <!-- Profile update form -->
+    <form action="profile.php" method="POST">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" value="<?= htmlspecialchars($profile['name']); ?>" required>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" value="<?= htmlspecialchars($profile['email']); ?>" required>
+
+        <label for="college_dept">College Dept:</label>
+        <input type="text" id="college_dept" name="college_dept" value="<?= htmlspecialchars($profile['college_dept']); ?>" required>
+
+        <label for="year_level">Year Level:</label>
+        <input type="text" id="year_level" name="year_level" value="<?= htmlspecialchars($profile['year_level']); ?>" required>
+
+        <button type="submit">Update Profile</button>
+    </form>
 </main>
 
 <!--SCHEDULING CALL TO ACTION-->

@@ -1,15 +1,57 @@
-<?php include('E:/GuidanceHub/src/ControlledData/server.php'); ?>
 <?php
-// Connect to the database
-$con = mysqli_connect('localhost', 'root', '', 'guidancehub');
+session_start();
+
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+// Database connection
+$servername = "localhost";
+$username = "u406807013_guidancehub";
+$password = "GuidanceHub2025";
+$dbname = "u406807013_guidancehub";
+
+// Create connection
+$con = new mysqli($servername, $username, $password, $dbname);
 
 // Check connection
-if (!$con) {
-    die("Connection failed: " . mysqli_connect_error());
+if ($con->connect_error) {
+    die("Connection failed: " . $con->connect_error);
 }
 
-// Initialize variables and error array
-$errors = array();// Start the session
+// Handle Status Update
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_status'])) {
+    if (!empty($_POST['email']) && !empty($_POST['status'])) {
+        $email = filter_var($_POST['email'], FILTER_SANITIZE_STRING);
+        $new_status = filter_var($_POST['status'], FILTER_SANITIZE_STRING);
+
+        $stmt = $con->prepare("UPDATE appointments 
+                               SET status = ?, updated_at = CURRENT_TIMESTAMP 
+                               WHERE email = ?");
+        $stmt->bind_param("ss", $new_status, $email);
+
+        if ($stmt->execute()) {
+            header("Location: " . $_SERVER['PHP_SELF']);
+            exit();
+        } else {
+            echo "<p class='text-red-600'>Error updating status.</p>";
+        }
+        $stmt->close();
+    } else {
+        echo "<p class='text-red-600'>Invalid input.</p>";
+    }
+}
+
+// Fetch Appointments using MySQLi
+$sql = "SELECT * FROM appointments";
+$result = $con->query($sql);
+
+$appointments = [];
+if ($result && $result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $appointments[] = $row;
+    }
+}
 
 // Check if logout is requested
 if (isset($_GET['logout'])) {
@@ -18,6 +60,9 @@ if (isset($_GET['logout'])) {
     header("Location: /index.php"); // Redirect to the login page after logout
     exit;
 }
+
+// Close connection at the end
+$con->close();
 ?>
 
 <!doctype html>
@@ -118,16 +163,18 @@ if (isset($_GET['logout'])) {
 <div class="p-4 mt-10 sm:ml-64">
     <h2 class="p-3 my-2 text-4xl font-bold text-gray-800">Scheduled Appointments</h2>
     <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-md">
-        <!-- Search Bar -->
-            <div class="flex justify-end">
-                <form method="GET" class="flex mb-4">
-                    <input type="text" name="search" placeholder="Search referrals..." class="w-40 p-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
-                    <button type="submit" class="px-4 py-2 ml-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600">Search</button>
-                </form> 
-            </div>
 
+        <!-- Search Bar -->
+        <div class="flex justify-end">
+            <form method="GET" class="flex mb-4">
+                <input type="text" name="search" placeholder="Search referrals..." class="w-40 p-2 border rounded-lg focus:ring-2 focus:ring-blue-500">
+                <button type="submit" class="px-4 py-2 ml-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600">Search</button>
+            </form>
+        </div>
+
+        <!-- Appointments Table -->
         <div class="overflow-x-auto">
-            <table class="w-full text-sm text-left text-gray-600 dark:text-gray-400">
+            <table class="w-full text-sm text-left text-gray-600">
                 <thead class="text-sm text-gray-900 uppercase bg-gray-100">
                     <tr class="text-center">
                         <th scope="col" class="px-6 py-3">#</th>
@@ -142,23 +189,12 @@ if (isset($_GET['logout'])) {
                 </thead>
                 <tbody>
                     <?php
-                    // Connect to the database
-                    $con = mysqli_connect('localhost', 'root', '', 'guidancehub');
-                    
-                    if (!$con) {
-                        die("Connection failed: " . mysqli_connect_error());
-                    }
-
-                    $sql = "SELECT * FROM appointments";
-                    $result = mysqli_query($con, $sql);
-
-                    if (mysqli_num_rows($result) > 0) {
+                    if (!empty($appointments)) {
                         $counter = 1;
-                        while ($row = mysqli_fetch_assoc($result)) {
-                            // Ensure status is defined, defaulting to "Pending"
+                        foreach ($appointments as $row) {
                             $status = !empty($row['status']) ? htmlspecialchars($row['status']) : 'Pending';
 
-                            echo "<tr class='text-center text-black bg-white border-b dark:border-gray-700'>
+                            echo "<tr class='text-center text-black bg-white border-b'>
                                     <td class='px-6 py-3'>" . $counter++ . "</td>
                                     <td class='px-6 py-3'>" . htmlspecialchars($row['ticket_id']) . "</td>
                                     <td class='px-6 py-3'>" . htmlspecialchars($row['name']) . "</td>
@@ -175,14 +211,15 @@ if (isset($_GET['logout'])) {
                                                 <option value='Completed' " . ($status == 'Completed' ? 'selected' : '') . ">Completed</option>
                                                 <option value='Cancelled' " . ($status == 'Cancelled' ? 'selected' : '') . ">Cancelled</option>
                                             </select>
+
                                             <button type='submit' name='update_status' class='px-4 py-2 ml-2 text-white bg-blue-500 rounded'>Update</button>
                                         </form>
                                     </td>
                                     <td class='px-6 py-3'>
-                                        <button class='text-blue-600 hover:underline show-details-btn' onclick='showDetails(" . json_encode($row) . ")'>Show Details</button>
+                                        <button class='text-blue-600 hover:underline' onclick='showDetails(" . json_encode($row) . ")'>Show Details</button>
                                         <form action='' method='POST' class='inline-block'>
                                             <input type='hidden' name='email' value='" . htmlspecialchars($row['email']) . "'>
-                                            <button type='submit' name='archive' class='ml-4 text-yellow-600 hover:underline archive-btn'>Archive</button>
+                                            <button type='submit' name='archive' class='ml-4 text-yellow-600 hover:underline'>Archive</button>
                                         </form>
                                     </td>
                                 </tr>";
@@ -190,8 +227,6 @@ if (isset($_GET['logout'])) {
                     } else {
                         echo "<tr><td colspan='8' class='px-6 py-3 text-center'>No appointments found</td></tr>";
                     }
-
-                    mysqli_close($con);
                     ?>
                 </tbody>
             </table>

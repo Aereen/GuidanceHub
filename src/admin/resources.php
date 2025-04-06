@@ -1,11 +1,23 @@
-<?php include('E:/GuidanceHub/src/ControlledData/server.php'); ?>
-<?php
-// Connect to the database
-$con = mysqli_connect('localhost', 'root', '', 'guidancehub');
+<?php 
+// Start session at the very beginning
+session_start();
+
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+// Database connection
+$servername = "localhost";
+$username = "u406807013_guidancehub";
+$password = "GuidanceHub2025";
+$dbname = "u406807013_guidancehub";
+
+// Create connection
+$con = new mysqli($servername, $username, $password, $dbname);
 
 // Check connection
-if (!$con) {
-    die("Connection failed: " . mysqli_connect_error());
+if ($con->connect_error) {
+    die("Connection failed: " . $con->connect_error);
 }
 
 // Initialize variables and error array
@@ -45,7 +57,7 @@ if (isset($_POST['delete'])) {
         echo "Error deleting resource: " . $stmt->error;
     }
 }
-
+    
 // Check if logout is requested
 if (isset($_GET['logout'])) {
     session_unset(); // Unset all session variables
@@ -53,6 +65,9 @@ if (isset($_GET['logout'])) {
     header("Location: /index.php"); // Redirect to the login page after logout
     exit;
 }
+
+// Close connection at the end
+$con->close();
 ?>
 
 <!doctype html>
@@ -151,7 +166,6 @@ if (isset($_GET['logout'])) {
 <!--CONTENT-->
 <main class="p-6 mt-10 sm:ml-64">
     <h2 class="mb-6 text-4xl font-bold">Resources Management</h2>
-
         <!--ADDING RESOURCES-->
             <h3 class="mb-6 text-2xl font-bold">Library</h3>
                 <form action="#" method="post" class="space-y-4">

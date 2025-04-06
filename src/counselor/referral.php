@@ -1,39 +1,60 @@
-<?php include('E:/GuidanceHub/src/ControlledData/server.php'); ?>
-<?php
+<?php 
 session_start(); // Start the session
 
-$host = 'localhost';
-$dbname = 'guidancehub';
-$username = 'root';
-$password = '';
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die("Could not connect to the database $dbname :" . $e->getMessage());
+// Database connection
+$servername = "localhost";
+$username = "u406807013_guidancehub";
+$password = "GuidanceHub2025";
+$dbname = "u406807013_guidancehub";
+
+// Create connection
+$con = new mysqli($servername, $username, $password, $dbname);
+
+// Check connection
+if ($con->connect_error) {
+    die("Connection failed: " . $con->connect_error);
 }
 
 // Search functionality
 $searchQuery = "";
 $params = [];
+
 if (!empty($_GET['search'])) {
-    $searchQuery = " WHERE student_name LIKE :search OR student_id LIKE :search OR referrer_name LIKE :search";
-    $params[':search'] = "%" . $_GET['search'] . "%";
+    $searchTerm = "%" . $_GET['search'] . "%";
+    $searchQuery = " WHERE student_name LIKE ? OR student_id LIKE ? OR referrer_name LIKE ?";
 }
 
-// Fetch referrals with or without search
-$sql = "SELECT * FROM referrals" . $searchQuery; // Removed ORDER BY
+// Search functionality
+$searchQuery = "";
+$params = [];
 
-$stmt = $pdo->prepare($sql);
+if (!empty($_GET['search'])) {
+    $searchTerm = "%" . $_GET['search'] . "%";
+    $searchQuery = " WHERE student_name LIKE ? OR student_id LIKE ? OR referrer_name LIKE ?";
+}
 
-foreach ($params as $key => $value) {
-    $stmt->bindValue($key, $value, PDO::PARAM_STR);
+// Prepare SQL query
+$sql = "SELECT * FROM referrals" . $searchQuery;
+
+$stmt = $con->prepare($sql);
+
+if (!empty($_GET['search'])) {
+    $stmt->bind_param("sss", $searchTerm, $searchTerm, $searchTerm);
 }
 
 $stmt->execute();
-$referrals = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$result = $stmt->get_result();
 
+$referrals = [];
+if ($result && $result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $referrals[] = $row;
+    }
+}
 
 // Check if logout is requested
 if (isset($_GET['logout'])) {
@@ -42,7 +63,12 @@ if (isset($_GET['logout'])) {
     header("Location: /index.php"); // Redirect to the login page after logout
     exit;
 }
+
+// Close the database connection
+$stmt->close();
+$con->close();
 ?>
+
 
 <!doctype html>
 <html>
@@ -229,12 +255,10 @@ if (isset($_GET['logout'])) {
                         <tr class="text-center">
                             <th class="p-2 border">Ticket ID</th>
                             <th class="p-2 border">Student Name</th>
-                            <th class="p-2 border">Student ID</th>
                             <th class="p-2 border">College</th>
                             <th class="p-2 border">Program</th>
                             <th class="p-2 border">Referrer Name</th>
                             <th class="p-2 border">Position</th>
-                            <th class="p-2 border">Department</th>
                             <th class="p-2 border">Reason</th>
                             <th class="p-2 border">Actions</th>
                         </tr>
@@ -245,12 +269,10 @@ if (isset($_GET['logout'])) {
                                 <tr class="hover:bg-gray-100">
                                     <td class="p-2 text-center border"><?= htmlspecialchars($row['ticket_id']) ?></td>
                                     <td class="p-2 border"><?= htmlspecialchars($row['student_name']) ?></td>
-                                    <td class="p-2 border"><?= htmlspecialchars($row['student_id']) ?></td>
                                     <td class="p-2 border"><?= htmlspecialchars($row['college']) ?></td>
-                                    <td class="p-2 border"><?= htmlspecialchars($row['program']) ?></td>
                                     <td class="p-2 border"><?= htmlspecialchars($row['referrer_name']) ?></td>
+                                    <td class="p-2 border"><?= htmlspecialchars($row['reason']) ?></td>
                                     <td class="p-2 border"><?= htmlspecialchars($row['position']) ?></td>
-                                    <td class="p-2 border"><?= htmlspecialchars($row['department']) ?></td>
                                     <td class="p-2 border"><?= htmlspecialchars($row['reason']) ?></td>
                                     <td class="p-2 text-center border">
                                         <a href="edit_referral.php?id=<?= $row['ticket_id'] ?>" class="text-blue-600 hover:underline">Edit</a> | 

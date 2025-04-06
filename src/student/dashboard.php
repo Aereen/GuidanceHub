@@ -1,7 +1,24 @@
-<?php include('E:/GuidanceHub/src/ControlledData/server.php'); ?>
 <?php
 // Start session at the very beginning
 session_start();
+
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+// Database connection
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "guidancehub";
+
+// Create connection
+$con = new mysqli($servername, $username, $password, $dbname);
+
+// Check connection
+if ($con->connect_error) {
+    die("Connection failed: " . $con->connect_error);
+}
 
 // Check if the user is logged in, redirect to login page if not
 if (!isset($_SESSION['email']) || empty($_SESSION['email'])) {
@@ -11,64 +28,97 @@ if (!isset($_SESSION['email']) || empty($_SESSION['email'])) {
 
 $user_email = $_SESSION['email']; // Store email in a variable
 
-// Database connection
-$host = 'localhost';
-$dbname = 'guidancehub';
-$username = 'root';
-$password = '';
-
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die("Database connection failed: " . $e->getMessage());
-}
-
 // Fetch announcements
-try {
-    $stmt = $pdo->prepare("SELECT * FROM announcement ORDER BY published_at DESC");
-    $stmt->execute();
-    $announcements = $stmt->fetchAll(PDO::FETCH_ASSOC);
-} catch (PDOException $e) {
-    die("Error fetching announcements: " . $e->getMessage());
-}
-
-// Fetch student profile
-try {
-    $stmt = $pdo->prepare("SELECT student_name, student_number, student_email, college_dept, year_level FROM student_profile WHERE student_number = ?");
-    $stmt->execute([$_SESSION['id_number']]);
-    $student = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if (!$student) {
-        die("Student not found.");
-    }
-} catch (PDOException $e) {
-    die("Error: " . $e->getMessage());
+$announcements = [];
+$sql = "SELECT * FROM announcement ORDER BY published_at DESC";
+$result = $con->query($sql);
+if ($result) {
+    $announcements = $result->fetch_all(MYSQLI_ASSOC);
+} else {
+    die("Error fetching announcements: " . $con->error);
 }
 
 // Fetch appointments
 $appointments = [];
-try {
-    $stmt = $pdo->prepare("SELECT * FROM appointments 
-                           WHERE email = :email 
-                           AND (first_date >= NOW() OR second_date >= NOW())");
-    $stmt->bindParam(':email', $user_email, PDO::PARAM_STR);
+if ($stmt = $con->prepare("SELECT * FROM appointments WHERE email = ? AND (first_date >= NOW() OR second_date >= NOW())")) {
+    $stmt->bind_param("s", $user_email);
     $stmt->execute();
-    $appointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
-} catch (PDOException $e) {
-    die("Error fetching appointments: " . $e->getMessage());
+    $result = $stmt->get_result();
+    $appointments = $result->fetch_all(MYSQLI_ASSOC);
+    $stmt->close();
+} else {
+    die("Error preparing appointments query: " . $con->error);
 }
 
 // Check if student has answered the form
 $hasAnswered = false;
-try {
-    $stmt = $pdo->prepare("SELECT answered FROM form_responses WHERE student_email = :email");
-    $stmt->execute(['email' => $user_email]);
-    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+if ($stmt = $con->prepare("SELECT id FROM individual_inventory WHERE student_email = ?")) {
+    $stmt->bind_param("s", $user_email);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    $stmt->close();
 
-    $hasAnswered = $result && $result['answered'] == 1;
-} catch (PDOException $e) {
-    die("Error checking form response: " . $e->getMessage());
+    $hasAnswered = $row && $row['id'] == 1;
+} else {
+    die("Error preparing form response query: " . $con->error);
+}
+
+
+// Function to check if a student has been referred
+function isStudentReferred($con, $student_email) {
+    $query = "SELECT COUNT(*) AS total FROM referrals WHERE student_name = ?";
+    $stmt = $con->prepare($query);
+
+    if (!$stmt) {
+        die("Prepare failed: " . $con->error);
+    }
+
+    $stmt->bind_param("s", $student_email);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if (!$result) {
+        die("Execute failed: " . $stmt->error);
+    }
+
+    $row = $result->fetch_assoc();
+    return $row['total'] > 0;
+}
+
+$student_email = $_SESSION['email']; // Replace with the actual user email you want to check
+
+$isReferred = isStudentReferred($con, $student_email);
+
+//calendar
+// Set timezone
+date_default_timezone_set('Asia/Manila');
+
+// Get current month and year
+$month = isset($_GET['month']) ? $_GET['month'] : date('m');
+$year = isset($_GET['year']) ? $_GET['year'] : date('Y');
+
+// Get first day of the month and total days in the month
+$firstDayOfMonth = date('w', strtotime("$year-$month-01"));
+$totalDays = date('t', strtotime("$year-$month-01"));
+
+// Days of the week
+$daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+// Generate calendar
+$calendar = [];
+$row = array_fill(0, 7, null);
+$dayCounter = 1;
+
+for ($i = 0; $i < 42; $i++) {
+    if ($i >= $firstDayOfMonth && $dayCounter <= $totalDays) {
+        $row[$i % 7] = $dayCounter++;
+    }
+
+    if ($i % 7 === 6) {
+        $calendar[] = $row;
+        $row = array_fill(0, 7, null);
+    }
 }
 
 // When logout is requested
@@ -78,7 +128,11 @@ if (isset($_GET['logout'])) {
     header("Location: /index.php"); // Redirect after logout
     exit;
 }
+
+// Close connection at the end
+$con->close();
 ?>
+
 <!doctype html>
 <html>
 <head>
@@ -90,20 +144,42 @@ if (isset($_GET['logout'])) {
         <link href="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.css"  rel="stylesheet" />
         <script src="https://kit.fontawesome.com/95c10202b4.js" crossorigin="anonymous"></script>
         <script src="https://cdn.tailwindcss.com"></script>
-        <link href="./output.css" rel="stylesheet">   
+        <link href="./output.css" rel="stylesheet"> 
+    <link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Montserrat:wght@500&display=swap" rel="stylesheet">  
 
+    <style>
+        .marcellus-regular {
+            font-family: "Marcellus", serif;
+            font-style: normal;
+            letter-spacing: 2px; }
+        body::-webkit-scrollbar {
+            width: 15px; }
+        body::-webkit-scrollbar-track {
+            background: #f1f1f1; }
+        body::-webkit-scrollbar-thumb {
+            background: #888; }
+        body::-webkit-scrollbar-thumb:hover {
+            background: #555; }
+        .blue-1:hover {
+            color: #111c4e;
+        }
+        .blue-2:hover {
+            color: #618dc2;
+        }
+
+    </style>
 </head>
 <body class="bg-gray-100">
 
 <!--TOP NAVIGATION BAR-->
-<header class="fixed top-0 left-0 z-50 w-full bg-teal-600 shadow-md">
+<header class="fixed top-0 left-0 z-50 w-full shadow-md marcellus-regular" style="background-color: #111c4e">
     <div class="flex px-3 py-4 lg:px-5 lg:pl-3">
         <div class="flex items-center justify-between w-full mx-auto max-w-7xl">
 
             <!-- LOGO -->
             <div class="flex items-center mx-5">
                 <img src="/src/images/UMAK-CGCS-logo.png" alt="CGCS Logo" class="w-10 h-auto md:w-14">
-                <span class="ml-4 font-semibold tracking-wide text-white md:text-2xl">GuidanceHub</span>
+                <span class="ml-4 font-semibold tracking-widest text-white md:text-2xl">GuidanceHub</span>
             </div>
 
             <!-- Hamburger Icon (Mobile) -->
@@ -113,13 +189,13 @@ if (isset($_GET['logout'])) {
 
             <!-- Navigation Links (Desktop) -->
             <nav id="nav-menu" class="items-center hidden space-x-6 md:flex">
-                <a href="dashboard.php" class="text-white hover:text-gray-300">Dashboard</a>
-                <a href="library.php" class="text-white hover:text-gray-300">Library</a>
-                <a href="profile.php" class="text-white hover:text-gray-300">Profile</a>
+                <a href="dashboard.php" class="text-white blue-2">Dashboard</a>
+                <a href="library.php" class="text-white blue-2">Library</a>
+                <a href="profile.php" class="text-white blue-2">Profile</a>
 
                 <!-- Messages Icon -->
                 <div class="relative">
-                    <button id="messageButton" class="text-white hover:text-gray-300 focus:outline-none">
+                    <button id="messageButton" class="text-white blue-2 focus:outline-none">
                         <i class="text-2xl fa-solid fa-message"></i>
                         <span id="messageBadge" class="absolute hidden w-4 h-4 text-xs font-bold text-white bg-red-500 rounded-full -top-1 -right-1">3</span>
                     </button>
@@ -157,12 +233,33 @@ if (isset($_GET['logout'])) {
 <!--CONTENT-->
 <main class="w-full p-4">
 <div class="grid grid-cols-1 gap-4 p-2 mt-2 mb-5 lg:grid-cols-3">
-    <!-- Left Column: Activities & Announcements -->
     <div class="space-y-4 lg:col-span-2">
-        <!-- Activities Section -->
+
         <section class="p-5 bg-white border-2 rounded-lg shadow-lg">
-            <h2 class="text-2xl font-bold">Activities</h2>
+            <h2 class="m-5 text-3xl font-bold">REMINDERS</h2>
+
+            <!-- Reminder Message for Incomplete Individual Form -->
+                <?php if (!$hasAnswered): ?>
+                    <div class="p-4 bg-yellow-100 border-l-4 border-yellow-500 rounded">
+                        <p class="font-semibold text-yellow-700">⚠️ Reminder: You have not yet completed the form.</p>
+                        <a href="/src/ControlledData/information.php" class="inline-block px-4 py-2 mt-3 text-white bg-blue-500 rounded hover:bg-blue-600">
+                            Complete Form
+                        </a>
+                    </div>
+                <?php endif; ?>
+
+            <!-- Reminder Message for Refferal Counseling -->
+                <?php if (!$isReferred): ?>
+                    <div class="p-4 bg-yellow-100 border-l-4 border-yellow-500 rounded">
+                        <p class="font-semibold text-yellow-700">⚠️ Reminder: You have been referred to the counseling office.</p>
+                        <a href="/src/ControlledData/information.php" class="inline-block px-4 py-2 mt-3 text-white bg-blue-500 rounded hover:bg-blue-600">
+                            Schedule Counseling
+                        </a>
+                    </div>
+                <?php endif; ?>
+
             <div class="grid grid-cols-1 gap-4 mt-4 sm:grid-cols-2">
+
                 <!-- UPCOMING SESSIONS -->
                 <div class="p-6 bg-white rounded-lg shadow-md">
                     <h2 class="mb-3 text-xl font-bold text-gray-700 underline">Upcoming Appointments</h2>
@@ -202,16 +299,6 @@ if (isset($_GET['logout'])) {
                         <?php endif; ?>
                     </ul>
                 </div>
-
-                <!-- Reminder Message for Incomplete Form -->
-                <?php if (!$hasAnswered): ?>
-                    <div class="p-4 bg-yellow-100 border-l-4 border-yellow-500 rounded">
-                        <p class="font-semibold text-yellow-700">⚠️ Reminder: You have not yet completed the form.</p>
-                        <a href="/src/ControlledData/information.php" class="inline-block px-4 py-2 mt-3 text-white bg-blue-500 rounded hover:bg-blue-600">
-                            Complete Form
-                        </a>
-                    </div>
-                <?php endif; ?>
             </div>
         </section>
 
@@ -243,62 +330,57 @@ if (isset($_GET['logout'])) {
     <!-- Right Column: Profile & Calendar -->
     <div class="space-y-4">
         <!-- PROFILE CARD -->
-        <div class="w-full p-5 bg-white border-2 rounded-lg shadow-lg">
-            <h4 class="text-2xl font-bold text-center text-gray-700">PROFILE</h4>
-            <div class="flex flex-col items-center p-3">
-                <img src="/src/images/UMak-Facade-Admin.jpg" alt="Profile Picture"
-                    class="w-32 h-32 border-4 border-gray-300 rounded-full">
-                <table class="w-full mt-4 text-sm text-center text-gray-800">
-                    <tbody>
-                        <tr><td class="px-5 py-1"><?= htmlspecialchars($student['student_name']); ?></td></tr>
-                        <tr><td class="px-5 py-1"><?= htmlspecialchars($student['student_number']); ?></td></tr>
-                        <tr><td class="px-5 py-1"><?= htmlspecialchars($student['student_email']); ?></td></tr>
-                        <tr><td class="px-5 py-1"><?= htmlspecialchars($student['college_dept']); ?></td></tr>
-                        <tr><td class="px-5 py-1"><?= htmlspecialchars($student['year_level']); ?></td></tr>
-                    </tbody>
-                </table>
+            <div class="w-full p-5 bg-white border-2 rounded-lg shadow-lg">
+                <h4 class="text-2xl font-bold text-center text-gray-700">PROFILE</h4>
+                <div class="flex flex-col items-center p-3">
+                    <img src="/src/images/UMak-Facade-Admin.jpg" alt="Profile Picture"
+                         class="w-32 h-32 border-4 border-gray-300 rounded-full">
+                    <?php if (isset($profile)): ?>
+                        <table class="w-full mt-4 text-sm text-center text-gray-800">
+                            <tbody>
+                                <tr><td class="px-5 py-1"><?= htmlspecialchars($profile['name']); ?></td></tr>
+                                <tr><td class="px-5 py-1"><?= htmlspecialchars($profile['email']); ?></td></tr>
+                                <tr><td class="px-5 py-1"><?= htmlspecialchars($profile['college_dept']); ?></td></tr>
+                                <tr><td class="px-5 py-1"><?= htmlspecialchars($profile['year_level']); ?></td></tr>
+                            </tbody>
+                        </table>
+                    <?php else: ?>
+                        <div class="p-4 bg-red-100 border-l-4 border-red-500 rounded">
+                            <p class="font-semibold text-red-700">Error: Unable to load profile information. Please try again accomplish the Individual Inventory Form.</p>
+                        </div>
+                    <?php endif; ?>
+                </div>
             </div>
-        </div>
 
         <!-- CALENDAR -->
         <div class="p-3 bg-white border-2 rounded-lg shadow-lg">
             <div class="flex items-center justify-between mb-4">
                 <button onclick="prevMonth()" class="p-2 text-white bg-teal-500 rounded">←</button>
-                <h2 id="currentMonth" class="text-2xl font-bold text-gray-800"><?= date('F Y'); ?></h2>
+                <h2 id="currentMonth" class="text-2xl font-bold text-gray-800" data-date="<?= "$year-$month-01"; ?>">
+                    <?= date('F Y', strtotime("$year-$month-01")); ?>
+                </h2>
                 <button onclick="nextMonth()" class="p-2 text-white bg-teal-500 rounded">→</button>
             </div>
-
+    
             <!-- Days of the Week -->
             <div class="grid grid-cols-7 gap-2 font-semibold text-center text-gray-600">
                 <?php foreach ($daysOfWeek as $day): ?>
                     <div class="p-1 text-white bg-teal-500 rounded-lg"><?= htmlspecialchars($day); ?></div>
                 <?php endforeach; ?>
             </div>
-
+    
             <!-- Calendar Days -->
             <div class="grid grid-cols-7 gap-2 mt-2 text-center" id="calendarDays">
                 <?php foreach ($calendar as $week): ?>
                     <?php foreach ($week as $day): ?>
-                        <?php 
-                            $dateStr = "$year-$month-" . str_pad($day, 2, '0', STR_PAD_LEFT);
-                            $appointmentFound = false;
-                            foreach ($appointments as $appointment) {
-                                if ($appointment['appointment_date'] === $dateStr) {
-                                    $appointmentFound = true;
-                                    break;
-                                }
-                            }
-                        ?>
-                        <div 
-                            class="relative p-2 rounded-lg cursor-pointer <?= $appointmentFound ? 'bg-teal-500 text-white' : 'bg-gray-100'; ?>" 
-                            onclick="selectDate('<?= $dateStr ?>')"
-                        >
+                        <div class="p-2 bg-gray-100 rounded-lg">
                             <?= $day ?: ''; ?>
                         </div>
                     <?php endforeach; ?>
                 <?php endforeach; ?>
             </div>
         </div>
+    
     </div>
 </div>
 </main>
@@ -511,18 +593,6 @@ const notificationButton = document.getElementById('notificationButton');
 
     // Initialize notifications on page load
     updateNotifications();
-
-//Highlighted Appointment Schedule Calendar
-    function showTooltip(element, text) {
-        let tooltip = element.querySelector('.tooltip');
-        tooltip.innerHTML = text;
-        tooltip.classList.remove('hidden');
-    }
-
-    function hideTooltip(element) {
-        let tooltip = element.querySelector('.tooltip');
-        tooltip.classList.add('hidden');
-    }
 </script>
 <script src="../path/to/flowbite/dist/flowbite.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>

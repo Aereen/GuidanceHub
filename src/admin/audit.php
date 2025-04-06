@@ -1,37 +1,38 @@
 <?php 
-session_start(); // Start the session
-include('E:/GuidanceHub/src/ControlledData/server.php'); 
+session_start();
 
-$host = 'localhost';
-$dbname = 'guidancehub';
-$username = 'root';
-$password = '';
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die("Could not connect to the database $dbname :" . $e->getMessage());
+// Database connection
+$servername = "localhost";
+$username = "u406807013_guidancehub";
+$password = "GuidanceHub2025";
+$dbname = "u406807013_guidancehub";
+
+// Create connection
+$con = new mysqli($servername, $username, $password, $dbname);
+
+// Check connection
+if ($con->connect_error) {
+    die("Connection failed: " . $con->connect_error);
 }
 
-// Query to get all audit logs
-$stmt = $pdo->prepare("SELECT * FROM admin_audit_logs");
-$stmt->execute();
-$audit = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// Fetch data
+$sql = "SELECT student_name, student_number, student_email, student_contact, student_birthdate,
+        student_age, student_gender, civil_status, address, religion, religion_specify, college_dept,
+        year_level, elementary, elementary_year, junior_high, junior_year, senior_high, senior_year,
+        college_name, college_year, national_exam, board_exam, spouse_name, date_marriage, place_marriage,
+        spouse_occupation, spouse_employer FROM individual_inventory";
+$result = $con->query($sql);
 
-// Check if logout is requested
-if (isset($_GET['logout'])) {
-    session_unset(); // Unset all session variables
-    session_destroy(); // Destroy the session
-    header("Location: /index.php"); // Redirect to the login page after logout
-    exit;
-}
 ?>
 
 <!doctype html>
 <html>
 <head>
-<title> Admin | GuidanceHub </title>
+<title>Admin | GuidanceHub</title>
     <link rel="icon" type="image/x-icon" href="/src/images/UMAK-CGCS-logo.png" />
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -41,24 +42,21 @@ if (isset($_GET['logout'])) {
     <link href="./output.css" rel="stylesheet">   
 </head>
 <body>
-<!--TOP NAVIGATION BAR-->
-<nav class="fixed top-0 z-50 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
-    <div class="px-3 py-3 lg:px-5 lg:pl-3">
+<!-- TOP NAVIGATION BAR -->
+<nav class="fixed top-0 z-50 w-full border-b border-gray-200">
+    <div class="px-3 py-2 lg:px-5 lg:pl-3">
         <div class="flex items-center justify-between">
-            <div class="flex items-center justify-start rtl:justify-end">
-                <button data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" aria-controls="logo-sidebar" type="button" class="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600">
+            <div class="flex items-center justify-start">
+                <button data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" aria-controls="logo-sidebar" type="button" class="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200">
                     <span class="sr-only">Open sidebar</span>
-                    <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                    <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z" clip-rule="evenodd"></path>
                     </svg>
                 </button>
-                <a href="" class="flex ms-2 md:me-24">
-                <img src="/src/images/UMAK-CGCS-logo.png" class="h-8 me-3" alt="GuidanceHub Logo" />
-                <span class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white">GuidanceHub</span>
+                <a href="" class="flex items-center ms-2 md:me-24">
+                    <img src="/src/images/UMAK-CGCS-logo.png" class="h-12 me-3" alt="GuidanceHub Logo" />
+                    <span class="self-center text-xl font-semibold text-gray-900 sm:text-2xl whitespace-nowrap">GuidanceHub</span>
                 </a>
-            </div>
-            <div class="flex items-center justify-end">
-
             </div>
         </div>
     </div>
@@ -122,32 +120,88 @@ if (isset($_GET['logout'])) {
 
 <!-- CONTENT -->
 <div class="max-w-4xl p-6 mx-auto mt-10 bg-white rounded-lg shadow-md">
-    <h2 class="mb-4 text-2xl font-semibold">Admin Audit Logs</h2>
-    <table class="w-full border border-collapse border-gray-300">
-        <thead>
-            <tr class="bg-gray-200">
-                <th class="px-4 py-2 border border-gray-300">Name</th>
-                <th class="px-4 py-2 border border-gray-300">Position</th>
-                <th class="px-4 py-2 border border-gray-300">Status</th>
-                <th class="px-4 py-2 border border-gray-300">Timestamp</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($audit as $log): ?>
-                <tr class="text-center bg-white border-b border-gray-300">
-                    <td class="px-4 py-2"><?= htmlspecialchars($log['employee_name']) ?></td>
-                    <td class="px-4 py-2"><?= htmlspecialchars($log['role']) ?></td>
-                    <td class="px-4 py-2">
-                        <span class="px-2 py-1 text-sm font-semibold text-white 
-                                <?= $log['status'] === 'Active' ? 'bg-green-500' : 'bg-red-500' ?>">
-                            <?= htmlspecialchars($log['status']) ?>
-                        </span>
-                    </td>
-                    <td class="px-4 py-2"><?= htmlspecialchars($log['timestamp']) ?></td>
-                </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
+    <?php
+    if ($result->num_rows > 0) {
+        echo "<div class='overflow-x-auto'>";
+        echo "<table class='min-w-full bg-white border-collapse border border-gray-300'>";
+        echo "<thead class='bg-gray-200'>";
+        echo "<tr>";
+        echo "<th class='px-4 py-2 border border-gray-300'>Student Name</th>
+              <th class='px-4 py-2 border border-gray-300'>Student Number</th>
+              <th class='px-4 py-2 border border-gray-300'>Student Email</th>
+              <th class='px-4 py-2 border border-gray-300'>Student Contact</th>
+              <th class='px-4 py-2 border border-gray-300'>Student Birthdate</th>
+              <th class='px-4 py-2 border border-gray-300'>Student Age</th>
+              <th class='px-4 py-2 border border-gray-300'>Student Gender</th>
+              <th class='px-4 py-2 border border-gray-300'>Civil Status</th>
+              <th class='px-4 py-2 border border-gray-300'>Address</th>
+              <th class='px-4 py-2 border border-gray-300'>Religion</th>
+              <th class='px-4 py-2 border border-gray-300'>Religion Specify</th>
+              <th class='px-4 py-2 border border-gray-300'>College Dept</th>
+              <th class='px-4 py-2 border border-gray-300'>Year Level</th>
+              <th class='px-4 py-2 border border-gray-300'>Elementary</th>
+              <th class='px-4 py-2 border border-gray-300'>Elementary Year</th>
+              <th class='px-4 py-2 border border-gray-300'>Junior High</th>
+              <th class='px-4 py-2 border border-gray-300'>Junior Year</th>
+              <th class='px-4 py-2 border border-gray-300'>Senior High</th>
+              <th class='px-4 py-2 border border-gray-300'>Senior Year</th>
+              <th class='px-4 py-2 border border-gray-300'>College Name</th>
+              <th class='px-4 py-2 border border-gray-300'>College Year</th>
+              <th class='px-4 py-2 border border-gray-300'>National Exam</th>
+              <th class='px-4 py-2 border border-gray-300'>Board Exam</th>
+              <th class='px-4 py-2 border border-gray-300'>Spouse Name</th>
+              <th class='px-4 py-2 border border-gray-300'>Date Marriage</th>
+              <th class='px-4 py-2 border border-gray-300'>Place Marriage</th>
+              <th class='px-4 py-2 border border-gray-300'>Spouse Occupation</th>
+              <th class='px-4 py-2 border border-gray-300'>Spouse Employer</th>";
+        echo "</tr>";
+        echo "</thead>";
+        echo "<tbody>";
+
+        // Output data of each row
+        while($row = $result->fetch_assoc()) {
+            echo "<tr class='hover:bg-gray-100'>";
+            echo "<td class='px-4 py-2 border border-gray-300'>{$row['student_name']}</td>";
+            echo "<td class='px-4 py-2 border border-gray-300'>{$row['student_number']}</td>";
+            echo "<td class='px-4 py-2 border border-gray-300'>{$row['student_email']}</td>";
+            echo "<td class='px-4 py-2 border border-gray-300'>{$row['student_contact']}</td>";
+            echo "<td class='px-4 py-2 border border-gray-300'>{$row['student_birthdate']}</td>";
+            echo "<td class='px-4 py-2 border border-gray-300'>{$row['student_age']}</td>";
+            echo "<td class='px-4 py-2 border border-gray-300'>{$row['student_gender']}</td>";
+            echo "<td class='px-4 py-2 border border-gray-300'>{$row['civil_status']}</td>";
+            echo "<td class='px-4 py-2 border border-gray-300'>{$row['address']}</td>";
+            echo "<td class='px-4 py-2 border border-gray-300'>{$row['religion']}</td>";
+            echo "<td class='px-4 py-2 border border-gray-300'>{$row['religion_specify']}</td>";
+            echo "<td class='px-4 py-2 border border-gray-300'>{$row['college_dept']}</td>";
+            echo "<td class='px-4 py-2 border border-gray-300'>{$row['year_level']}</td>";
+            echo "<td class='px-4 py-2 border border-gray-300'>{$row['elementary']}</td>";
+            echo "<td class='px-4 py-2 border border-gray-300'>{$row['elementary_year']}</td>";
+            echo "<td class='px-4 py-2 border border-gray-300'>{$row['junior_high']}</td>";
+            echo "<td class='px-4 py-2 border border-gray-300'>{$row['junior_year']}</td>";
+            echo "<td class='px-4 py-2 border border-gray-300'>{$row['senior_high']}</td>";
+            echo "<td class='px-4 py-2 border border-gray-300'>{$row['senior_year']}</td>";
+            echo "<td class='px-4 py-2 border border-gray-300'>{$row['college_name']}</td>";
+            echo "<td class='px-4 py-2 border border-gray-300'>{$row['college_year']}</td>";
+            echo "<td class='px-4 py-2 border border-gray-300'>{$row['national_exam']}</td>";
+            echo "<td class='px-4 py-2 border border-gray-300'>{$row['board_exam']}</td>";
+            echo "<td class='px-4 py-2 border border-gray-300'>{$row['spouse_name']}</td>";
+            echo "<td class='px-4 py-2 border border-gray-300'>{$row['date_marriage']}</td>";
+            echo "<td class='px-4 py-2 border border-gray-300'>{$row['place_marriage']}</td>";
+            echo "<td class='px-4 py-2 border border-gray-300'>{$row['spouse_occupation']}</td>";
+            echo "<td class='px-4 py-2 border border-gray-300'>{$row['spouse_employer']}</td>";
+            echo "</tr>";
+        }
+
+        echo "</tbody>";
+        echo "</table>";
+        echo "</div>";
+    } else {
+        echo "<p>No results found.</p>";
+    }
+
+    // Close connection
+    $con->close();
+    ?>
 </div>
 
 <!--FOOTER-->
